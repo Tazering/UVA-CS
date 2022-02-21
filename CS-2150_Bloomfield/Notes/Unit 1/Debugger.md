@@ -41,9 +41,33 @@ br delete <subroutine> # remove a breakpoint
 tbreak # temporary breakpoint; program pauses first time, then clears after pause
 
 next #or step; move to next line
+
+continue #runs the program until the next breakpoint
+
+finish # finishes executing the current function and then pauses
 ```
 - sets a breakpoint, or a pause, on that particular line of code
 - when executing, the program will pause BEFORE the breakpoint
+
+```bash
+p <variable name> #or print <variable name>; prints the variable name or expression
+
+display <var> #display variable's value each time program hits a breakpoint
+
+frame variable #displays all variables
+
+expr <variable name> = <value> #changes the value of the variable mid-stream
+```
+- printing variables and changin the expression
+
+```bash
+quit #quits the debugger
+
+x/xb <pointer variable> #prints one byte of address of the variable
+x/xh <pointer variable> #ditto two bytes
+x/xw <pointer variable> #ditto four bytes
+x/xg <pointer variable> #ditto eight bytes
+```
 
 
 
