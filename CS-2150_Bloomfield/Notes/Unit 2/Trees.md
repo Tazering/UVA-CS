@@ -50,13 +50,88 @@ class TreeNode {
     - traverse through tree
         - greater => right; lesser => left
     - not exist => failure
+    - NULL indicates not found
 
 - worst case: $\Theta$(n) because it could have no balance
-- 
 
+- Insert
+    - do a find to find the particular spot to insert
+    - if you end up finding the element => do nothing
+    - pass in a pointer reference to modify previous reference
 
+- findMax()
+    - anything in the right subtree will be the greatest value
+- findfMin()
+    - go down in the left subtree
 
+- remove()
+    - three cases
+        - no children
+        - one child
+        - two children
+    - no children
+        - just simply remove it
+    - one children
+        - if it is a left child => just put the grandparent point to the single child
+        - vice versa
+    - two children
+        - next highest value and use it as the replacement
+        - minimum value => cannot have a left child
+        - find next highest value
+            - find min in right subtree
+        - delete next highest value
+        - set target node as the value
 
+- height()
+    - maximum number nodes in a binary tree of height h is 2<sup>(h+1)</sup> -1 
+        - prove by induction
+    - n <= 2<sup>h+1</sup> - 1
+    - shortest tree for n nodes is log<sub>2</sub>(n+1)-1
 
+- perfect binary tree
+    - cannot have an arbritary number of nodes
+    - but be balanced
+    - use a comparison
 
+## **Expression Trees**
+- hold value or operator
+- infix notation => in-order traversal
+- postfix notation => post-order traversal
+- prefix notation => pre-order traversal
 
+### **Building an Expression Tree**
+
+- use a stack
+    - number => push into stack
+    - operator => make into parent
+    - make tree and push back into a stack
+- store the memory of each tree
+
+## **AVL Trees**
+
+- **Motivation**: guarantee $\Theta$(log(n))
+
+- property: for every node, they differ at least one from the left and right subtrees
+- balance factor
+    - difference in height between the left and right subtree
+    - right - left => difference
+    - 0 means balanced
+    - 1 means right subtree is one longer than the left
+    - -1 means the left is one longer the right
+- "unbalanced" tree
+    - when there is -2 or 2
+- balance tree everytime operation happens
+
+### **Find and Insert**
+- find: same as BST find
+- insert: same as BST insert except may need to fix
+    - do normal insert
+    - go up to root to look for any unbalances
+    - if unbalance is found for purely right or purely left
+        - find the first node that is unbalanced
+        - simply move higher number up and rearrange value (basically rotating left if adding to right subtree and rotate right if adding to left subtree) 
+        - can use iterator or recursion to get parent node
+        - at least one node moves up a level and another node goes down a level
+    - if unbalance is found for mix of left and right
+        - double rotation
+        - 
