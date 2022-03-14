@@ -31,7 +31,6 @@ class TreeNode {
 
 ### Traversal
 **Pre-Order**: root - left - right
-
 **In-order**: Left - root - Right
 **Post-order**: left - right - root
 
@@ -96,6 +95,26 @@ class TreeNode {
 ## **Expression Trees**
 - hold value or operator
 - infix notation => in-order traversal
+
+```c
+//with paranethesis
+Algorithm infix (tree)
+
+if(tree not empty)
+    if(tree token is operator)
+        print (open parenthesis)
+    end if
+    infix (tree left subtree)
+    print (tree token)
+    infix (tree right subtree)
+    if (tree token is operator)
+        print (close parenthesis)
+    end if
+end if
+
+end infix
+```
+
 - postfix notation => post-order traversal
 - prefix notation => pre-order traversal
 
@@ -134,4 +153,68 @@ class TreeNode {
         - at least one node moves up a level and another node goes down a level
     - if unbalance is found for mix of left and right
         - double rotation
-        - 
+        - left -> right => left rotation then right rotation
+        - right -> left => right rotation and then left rotation
+            - one on child and then one on parent
+- x => deepest node where imbalance occurs
+- four cases
+    1. left subtree of left child of x
+    2. right subtree of the left child of x
+    3. left subtree of the right child of x
+    4. right subtree of the right child of x
+- case 1 & 2 => single rotation
+- case 3 & 4 => double rotation
+- look at deeper node and see if its negative or positive
+
+### **Runtime**
+- find: $\Theta$(log*n*)
+- insert: $\Theta$(log*n*)
+- remove: $\Theta$(log*n*)
+- print: $\Theta$(*n*)
+
+## **Recursion**
+- requirements
+    - way to make the problem simpler
+    - way to detect when to stop
+    - way to stop
+- Pros
+    - more natural way of thinking of the problem
+    - some problems work well with recursions
+- Cons
+    - slows performance
+
+## **Tail Recursion**
+```c
+unsigned int sum(unsigned int n, unsigned int s) {
+    if(n == 0) {
+        return s;
+    } else {
+        return sum(n-1, n+s)
+    }
+}
+```
+
+- have another value that sums value already in the parameter
+- compiler will automatically make it into a for loop
+- 
+
+## **Red-Black Trees**
+- basically a binary search tree except a node is either red or black
+- root is always black
+- leaves are black
+- children of red nodes are black
+
+### **Insert**
+Cases:
+    1. new node is the root 
+        - must be black
+    2. new node's parent is black
+    3. parent and uncle are red
+    4. parent is red, uncle is black, and n is right child of p
+    5. parent is red, uncle is black, new node is left child of parent
+
+### **Removal**
+Cases:
+    1. 
+
+
