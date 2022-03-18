@@ -74,4 +74,44 @@ Linear Probing
 
 Quadratic Probing
 - f(i) = i<sup>2</sup>
+- slightly slower
+  - but not really slower than linear
+- fewer steps to get out a certain number of steps
+
+Double Hashing
+- f(i) = i * hash<sub>2</sub>(i)
+- need two hashes
+- its faster because if a collision exists, then it probes a different sets of cells
+- Problem: can probe the exact same cell
+  - when there is a common factor between table size and hash value
+- Solve by making table size a prime **NEEDED**
+  - prevent size
+  
+
+## **Miscellaneous**
+Rehashing
+- when table gets too full, running time for operations increase
+- create a bigger table if table is too full
+  - double the table size and make it prime
+    - keep adding 1 until its prime
+  - have to recompute hash values
+- worst case is quadratic
 - 
+
+Removing an Element
+- hashtables are not ideal if you need to perform a lot of deletions
+- if you hit a placeholder value => skip
+- a special value
+- Problem: unsuccessful find will be linear since all values will be special/sentinel and a value
+- rehash removes all sentinel values
+
+### **Hashing: MD<sub>5</sub>**
+- generates a 128-bit hash
+- uses hashing for downloading files
+- security holes in MD<sub>5</sub>
+- cannot reverse a hash
+
+### **Hashing: SHA**
+- MD<sub>5</sub> has been broken
+- using SHA (secure hash algorithm)
+- hash value up to 512-bits
