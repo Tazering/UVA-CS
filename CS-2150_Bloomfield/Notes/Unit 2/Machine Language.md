@@ -70,6 +70,21 @@ Levels:
 - encode into machine code
 - load machine code into simulator and run
 
-- just a text file
+- just a text files
 - simulator only cares about first four lines
-- 
+
+Arrays
+- read in array starts
+- array ends
+- need a separate set of memory for arrays
+- 5000 + a + i = 5034
+
+## **Conclusions**
+
+If IBCM can act like the Turing machine, then your program can computer everything
+- can write any algorithm with assembly language
+- TRACE the code
+
+- if things are not working, go through steps
+- missing from IBCM
+  - integer multiply/divide
