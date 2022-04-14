@@ -76,7 +76,13 @@ Prologue
 Epilogue
 - save return value to rax
 - restore saved-registers
-- deallocate local vairables
+- deallocate local variables
 - return
+
+## **Activation Records**
+
+- records activation of a subroutine
+- program starts at memory address 0
+- buffer overflow => when buffer overflows into other memory
 
 
