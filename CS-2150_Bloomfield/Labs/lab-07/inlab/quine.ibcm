@@ -1,0 +1,25 @@
+c007 000	jmp	start	skip around the variables
+0000 001 i	dw	0	int i 0000
+0017 002 s	dw	0	int size 
+0002 003 b	dw	2 	base address
+0001 004 one	dw	1	one = 1
+3000 005 ldit	dw	3000
+0000 006 		leave space for change
+3000 007 start load		load first line
+1800 008	printH
+3001 009 	load		load second line
+1800 00A	printH
+3002 00B loop	load	size	loads the size
+6001 00C 	sub	i
+d018 00D	jmpe	xit	ends the loop
+3005 00E	load	loadit
+5001 00F	add	i
+5003 010	add	add the base address
+4012 011	store	loadit	plants the instruction
+3012 012 ldit	dw	0	loadit location
+1800 013	printH
+3001 014 	load	i	updates i
+5004 015	add	one	
+4001 016	store	i
+c00b 017	jmp	loop
+0000 018 xit	

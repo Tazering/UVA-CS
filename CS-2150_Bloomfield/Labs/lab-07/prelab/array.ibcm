@@ -1,0 +1,52 @@
+C009 000	jmp	start	skip around the variables
+0050 001 b	dw	___	base address
+0000 002 s	dw	0	size of array
+0000 003 i	dw	0	index
+0000 004 zero		dw	0
+0001 005 one		dw	1
+4000 006 storeit	dw	4000
+3000 007 loadit dw	0	3000
+0000 008			leave space for changes		
+1000 009	start	readH		read array size
+4002 00A 	store	s		store array size
+3002 00B loop	load	size	loads the size
+6003 00C	sub	i	
+D018 00D	jmpe	loop 2	if(size - index == 0) goto loop 2
+3006 00E 		storeit	loads the storeit
+5001 00F	add	b	adds the base address
+5003 010	add	i	adds the index
+4013 011	store		plant the instruction
+1000 012	readH		
+0000 013 storeit	dw	0
+3003 014	load	i	loads the index
+5005 015	add	1	adds 1 to the index
+4003 016	store	i	stores updated index
+C00B 017 	jmp	loop	jumps to the first loop; end of the loop
+3004 018	load	zero	set index to 0
+4003 019	store	i	
+3002 01A loop	load	s	loads the size of the arry
+6003 01B	sub	i
+D027 01C	jmpe	loop 3	if(size - index == 0) goto loop3---
+3007 01D	load	loadit	loads the loadit value
+5001 01E	add	b	add the base address
+5003 01F	add	i	adds the index
+4021 020	store	loadit	plants the instruction
+0000 021 loadit	dw	0
+1800 022 	printH
+3003 023	load	i	
+5005 024	add	one
+4003 025	store	i	updates index
+C01A 026	jmp	loop	jumps back to second loop
+3003 027 loop	load	i	load the index
+D033 028	jmpe	xit	ends the loop if(index == 0)
+3003 029	load	i	loads the index
+6005 02A	sub	one	subtract one from i
+4003 02B	store	i	updates i
+3007 02C	load	loadit
+5001 02D 	add	b	adds the base address
+5003 02E	add	i	adds the index
+4030 02F	store	loadit	plants the instruction
+0000 030 loadit	dw
+1800 031	printH
+C027 032	jmp	loop
+0000 033 xit	halt

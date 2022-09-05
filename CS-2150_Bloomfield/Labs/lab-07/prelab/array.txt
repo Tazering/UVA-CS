@@ -1,0 +1,55 @@
+halt baseAddress _____
+halt size
+halt index
+halt zero
+halt one
+storeit zero 4000
+loadit 3000
+
+
+read size #start
+store size
+load size #loop 1
+sub index
+jmpe loop 2
+load storeit
+add baseAddress
+add index
+store [storeit memory]
+read element
+store	#storeit
+load index
+add one
+store index
+jmp loop 1 #end of loop 1
+
+load zero
+store index
+
+load size #loop 2
+sub index
+jmpe loop 3
+load loadit
+add baseAddress
+add index
+store [loadit memory]
+load #loadit 
+print
+load index
+add one
+store index
+jmp loop 2
+
+load index #loop 3
+jmpl xit
+load loadit
+add baseAddress
+add index
+store [loadit memory]
+load #loadit memory
+print
+load index
+sub one
+store index
+jmp loop 3
+halt #xit
