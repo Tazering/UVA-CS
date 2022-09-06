@@ -154,9 +154,12 @@ public class Main {
 
         if(u[0] == targetNumber) { // check if current vertex is the target vertex also the base case
 
+
+
         } else { // recursive case
             for(int i = 0; i < adjacencyMatrix[s].length; i++) {
                 if(adjacencyMatrix[s][i] == 1) {
+
                     DFS(adjacencyMatrix, verticesList, i, targetNumber);
                 }
             }
@@ -165,7 +168,7 @@ public class Main {
         targetV[1] = 0;
 
         output.add(s);
-        //System.out.println(output);
+        System.out.println(output);
     }
 
     //makes array of vertices
