@@ -12,102 +12,51 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static ArrayList<Integer> output = new ArrayList<>();
+    static boolean flag = false;
 
     public static void main(String[] args) {
 
         final String testCase1Filepath = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 1/HW2/test-case/test-case-1.txt";
         final String testCase2Filepath = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 1/HW2/test-case/test-case-2.txt";
+        final String testCase3Filepath = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 1/HW2/test-case/test-case-3.txt";
+        final String testCase4Filepath = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 1/HW2/test-case/test-case-4.txt";
         ArrayList<String> parsedFile = new ArrayList<>();
 
         //read the file and store into array list
-        try {
-            File file = new File(testCase1Filepath);
-            Scanner scan = new Scanner(file);
-            while (scan.hasNextLine()) {
-                String data = scan.nextLine();
-                parsedFile.add(data);
-            }
+//        try {
+//            File file = new File(testCase2Filepath);
+//            Scanner scan = new Scanner(file);
+//            while (scan.hasNextLine()) {
+//                String data = scan.nextLine();
+//                parsedFile.add(data);
+//            }
+//
+//        } catch (FileNotFoundException e) {
+//            System.out.println("File Not Found");
+//            e.printStackTrace();
+//        }
 
-        } catch (FileNotFoundException e) {
-            System.out.println("File Not Found");
-            e.printStackTrace();
+        Scanner scan = new Scanner(System.in);
+        while (scan.hasNextLine()) {
+            String data = scan.nextLine();
+            parsedFile.add(data);
         }
-
         //System.out.println(parsedFile);
 
-        int[][] adjacencyMatrix = formAdjacencyMatrix(parsedFile);
-        ArrayList<int[]> vertices = formListOfVertices(parsedFile);
-        printAdjacencyMatrix(adjacencyMatrix);
-        printListOfVertices(vertices);
-        DFS(adjacencyMatrix, vertices, 0, Integer.parseInt(parsedFile.get(0)) - 1);
-        //System.out.println(output);
-        // System.out.println("Size of matrix is: " + adjacencyMatrix.length + " x " + adjacencyMatrix[0].length);
 
-        //finalize
-        finalizeOutput(output, Integer.parseInt(parsedFile.get(0)) - 1);
+        //printAdjacencyMatrix(adjacencyMatrix);
+        // printListOfVertices(vertices);
+        if(!flag) {
+            if (Integer.parseInt(parsedFile.get(0)) != 1) {
+                int[][] adjacencyMatrix = formAdjacencyMatrix(parsedFile);
+                ArrayList<int[]> vertices = formListOfVertices(parsedFile);
+                DFS(adjacencyMatrix, vertices, 0, Integer.parseInt(parsedFile.get(0)) - 1, "");
 
-    }
-
-    //finalize output
-    public static void finalizeOutput(ArrayList<Integer> stringArrayList, int targetValue) {
-        //count number of zeros and target values
-        ArrayList<Integer> output = new ArrayList<>();
-        int zeroCount = 0;
-        int targetCount = 0;
-
-        for(int i = 0; i < stringArrayList.size(); i++) {
-            if(stringArrayList.get(i) == 0) {
-                zeroCount++;
-            }
-
-            if(stringArrayList.get(i) == targetValue) {
-                targetCount++;
-            }
-        }
-
-        int difference = targetCount - zeroCount;
-
-        //add a zero after every targetValue
-        for(int i = 1; i < stringArrayList.size(); i++) {
-            if(difference == 0) {
-                break;
-            }
-            if(stringArrayList.get(i) == targetValue) {
-                stringArrayList.add(i, 0);
-                i++;
-                difference--;
-            }
-
-        }
-
-        //System.out.println(stringArrayList);
-
-        // set into string variable
-        String o = "";
-
-        o += stringArrayList.get(stringArrayList.size() - 1);
-        boolean skip = false;
-
-        for(int i = stringArrayList.size() - 2; i >= 0; i--) {
-
-            if(skip == false) {
-                o += "-";
             } else {
-                o += "\n";
+                System.out.println("0");
             }
-
-            skip = false;
-
-            o += stringArrayList.get(i);
-
-            if(stringArrayList.get(i) == targetValue) {
-                skip = true;
-            }
-
         }
 
-        System.out.println(o);
 
     }
 
@@ -125,20 +74,33 @@ public class Main {
         // each row represents input and each output represents output
         for(int i = 0; i < Integer.parseInt(arr.get(1)); i++) {
             String[] ioValue = arr.get(i+2).split(" ");
-            aMatrix[Integer.parseInt(ioValue[0])][Integer.parseInt(ioValue[1])] = 1;
+            int vi = Integer.parseInt(ioValue[0]);
+            int vj = Integer.parseInt(ioValue[1]);
+            aMatrix[vi][vj] = 1;
+            aMatrix[vj][vi] = 1;
         }
 
         //define some constants
         int nRoads = Integer.parseInt(arr.get(1));
         int numOfBadNodes = Integer.parseInt(arr.get(nRoads + 2));
-        int indexOfFirstBadNodeFromFile = Integer.parseInt(arr.get(nRoads+3));
+        int indexOfFirstBadNodeFromFile = 0;
+
+        if(numOfBadNodes != 0) {
+            indexOfFirstBadNodeFromFile = nRoads+3;
+        }
 
         // bad vertices
         for(int i = 0; i < numOfBadNodes; i++) {
-            //System.out.println("i: " + i);
+
+            int badNode = Integer.parseInt(arr.get(i + indexOfFirstBadNodeFromFile));
+
+            if(badNode == 0) {
+                flag = true;
+            }
+
             for(int j = 0; j < aMatrix[0].length; j++) {
-                aMatrix[i + indexOfFirstBadNodeFromFile][j] = 0;
-                aMatrix[j][i + indexOfFirstBadNodeFromFile] = 0;
+                aMatrix[badNode][j] = 0;
+                aMatrix[j][badNode] = 0;
             }
         }
         return aMatrix;
@@ -146,29 +108,29 @@ public class Main {
     }
 
     //run modified DFS algorithm
-    public static void DFS(int[][] adjacencyMatrix, ArrayList<int[]> verticesList, int s, int targetNumber) {
+    public static void DFS(int[][] adjacencyMatrix, ArrayList<int[]> verticesList, int s, int targetNumber, String o) {
         int[] u = verticesList.get(s);
         int[] targetV = verticesList.get(targetNumber);
 
-        u[1] = 1; //set V0 to GRAY
+        u[1] = 1; //set s to GRAY
+        o += s;
+        o += "-";
 
-        if(u[0] == targetNumber) { // check if current vertex is the target vertex also the base case
-
-
-
+        if(u[0] == targetNumber) { // check if current vertex is the target vertex; also the base case
+            System.out.println(o.substring(0, o.length()-1));
         } else { // recursive case
             for(int i = 0; i < adjacencyMatrix[s].length; i++) {
                 if(adjacencyMatrix[s][i] == 1) {
-
-                    DFS(adjacencyMatrix, verticesList, i, targetNumber);
+                    if(verticesList.get(i)[1] == 0) {
+                        DFS(adjacencyMatrix, verticesList, i, targetNumber, o);
+                    }
                 }
             }
         }
         u[1] = 2; //u.color = BLACK
+        u[1] = 0;
         targetV[1] = 0;
 
-        output.add(s);
-        System.out.println(output);
     }
 
     //makes array of vertices
