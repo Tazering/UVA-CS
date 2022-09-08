@@ -54,7 +54,7 @@ Top-Sort(G)
         for each vertex v in S
             print(v)
             count++
-            update in-degree of all adjacent nodes and current nodes
+            update in-degree of all adjacent nodes and current nodes status
             S.pop()
         for each vertex v in G.V
             if v.in == 0 AND unchecked
