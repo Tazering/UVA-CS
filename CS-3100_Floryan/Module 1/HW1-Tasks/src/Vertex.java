@@ -12,24 +12,29 @@ public class Vertex {
      *      - sees if the vertex is checked or not
      */
 
+    private int numId;
     private String taskName;
     private int inDegrees;
     private boolean isChecked;
 
     //constructor
     public Vertex() {
+        numId = -1;
         this.taskName = null;
         this.inDegrees = 0;
         this.isChecked = false;
     }
 
-    public Vertex(String taskName, int inDegrees, boolean isChecked) {
+    public Vertex(int numId, String taskName, int inDegrees, boolean isChecked) {
+        this.numId = numId;
         this.taskName = taskName;
         this.inDegrees = inDegrees;
         this.isChecked = isChecked;
     }
 
     // getters and setters
+    public int getNumId() {return this.numId;}
+
     public String getTaskName() {
         return this.taskName;
     }
@@ -41,6 +46,8 @@ public class Vertex {
     public boolean isChecked() {
         return this.isChecked;
     }
+
+    public void setNumId(int numId) {this.numId = numId;}
 
     public void setTaskName(String taskName) {
         this.taskName = taskName;
@@ -55,7 +62,7 @@ public class Vertex {
     }
 
     public String printVertex() {
-        String s = "Vertex: " + this.taskName + "\n\tin-degrees: " + this.inDegrees + "\n\tisChecked: " + this.isChecked;
+        String s = "Vertex: " + this.taskName + "\n\tNumber Id: " + this.numId + "\n\tin-degrees: " + this.inDegrees + "\n\tisChecked: " + this.isChecked;
 
         return s;
     }
