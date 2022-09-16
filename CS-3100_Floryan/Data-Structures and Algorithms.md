@@ -125,6 +125,32 @@ Remove: amortized O(n)
 # ***Algorithms***
 
 ## **Graph Theory**
+### **Vocabulary**
+
+- **directed**: one node points to another; ordered
+- **undirected**: edges do not have direction; unordered
+- **vertices**: nodes
+    - degrees: in-degree vs out-degree
+- **edges**: connection between nodes
+- size of graph measured by V (nodes/vertices) and E (edges)
+- **connected graph**: undirected graph where each vertex can be reached from other vertices
+- **strongly connected digraph**: directed graph where each vertex can be reach by other vertices
+- dense graph => many edges; sparse graph => fewer edges
+- path => sequence of vertices that connect to each other
+    - simple path => no repeating vertices
+- **cycle**: non-empty path with same starting and ending path
+    - no node repeated except start and end node
+- **acyclic**: no cycle
+- unweighted graph is a graph where edges are the same value
+- weighted graph is a graph where edges have different value
+
+### **Graph Representation**
+- adjacency matrix
+    - better for dense graphs
+
+- adjacency list
+    - better for more sparse graphs => space efficient
+    - hard to find original nodes
 
 ### *Breadth-First Search (BFS)*
 
@@ -181,3 +207,23 @@ DFS-VISIT(G, u) # G is the graph of (V, E) and u is a node of interest
 ```
 
 - Running Time = O(V + E)
+
+### **Prim's Algorithm**
+- shortest possible path
+
+```python
+MST-PRIM(G, w, r)
+    for each u in G.V
+        u.key = inf
+        u.pi = null
+    r.key = 0
+    Q = G.V
+    while Q != 0
+        u = EXTRACT-MIN(Q)
+        for each v in G.Adj[u]
+            if v in Q and w(u, v) < v.key
+                v.pi = u
+                v.key = w(u, v)
+```
+
+- Running Time O(Elog(V))
