@@ -4,15 +4,17 @@
 **Constraints**:
 - only one breaker box
 - exactly one switch between light and breaker box
+- switch and light must correspond
 - outlet must have path directly to breaker box with NO switches
 
 ```python
 
 # objects
-Node (String name, String type, int key, boolean switchExists)
+Node (String name, int numID, int switchID, String type, int key, boolean switchExists)
 
 # global variables
-int cost = 0;
+int cost = 0
+int switchID[] # list of switch id
 
 # Kruskal Approach
 
@@ -29,22 +31,31 @@ MST-PRIM(G, w)
         u = EXTRACT-MIN(q)
         count = count + u.key
         for each v in G.adj[u]
-            # check if node can connect to light
-            if(v.type == "Light" and u.switchExists == False)
-                continue
 
-            # to ensure there is EXACTLY one switch between lights
-            if(v.type == "Switch")
-                if(u.switchExists == True)
-                    continue
-                else
-                    u.switchExists = True
-            
-            # check if target node is outlet
-            if(v.type == "outlet")
-                if(u.switchExists == True)
-                    continue
+            switch(v.type)
+                case "Light":
+                    if u.switchExists == False or (u.switchId != v.numID and v.numID is in switchID)
+                        continue
+                    
+                    break
 
+                case "Switch":
+                    if(u.switchExists == True)
+                        continue
+                    else
+                        u.switchId = v.numID
+                        u.switchExists = True
+                    break
+
+                case "outlet":
+                    if(u.switchExists == True)
+                        continue
+                    break
+
+                case default:
+                    break
+
+        
             if v in Q and w(u, v) < v.key                
                 v.pi = u
                 v.key = w(u, v)
