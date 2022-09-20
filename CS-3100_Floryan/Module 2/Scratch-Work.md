@@ -31,35 +31,40 @@ MST-PRIM(G, w)
         u = EXTRACT-MIN(q)
         count = count + u.key
         for each v in G.adj[u]
+            if(IS-CONNECTABLE() == True)
+                if v in Q and w(u, v) < v.key                
+                    v.pi = u
+                    v.key = w(u, v)
+                    v.switchExists = u.switchExists
 
-            switch(v.type)
+# helper function
+boolean IS-CONNECTABLE(u, v)
+        switch(v.type)
                 case "Light":
                     if u.switchExists == False or (u.switchId != v.numID and v.numID is in switchID)
-                        continue
-                    
+                        return False
                     break
 
                 case "Switch":
                     if(u.switchExists == True)
-                        continue
+                        return True
                     else
                         u.switchId = v.numID
                         u.switchExists = True
+                        return True
                     break
 
                 case "outlet":
                     if(u.switchExists == True)
-                        continue
+                        return False
                     break
 
                 case default:
                     break
-
         
-            if v in Q and w(u, v) < v.key                
-                v.pi = u
-                v.key = w(u, v)
-                v.switchExists = u.switchExists
+        return True
+
+
 
 ```
 
