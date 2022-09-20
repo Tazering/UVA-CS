@@ -6,19 +6,19 @@
 - exactly one switch between light and breaker box
 - switch and light must correspond
 - outlet must have path directly to breaker box with NO switches
+- everything must be connected
+- junction boxes and outlets will never be behind switches
+    - only lights will be behind switches
 
 ```python
 
 # objects
-Node (String name, int numID, int switchID, String type, int key, boolean switchExists)
+Node (int key, String name, String type)
 
 # global variables
 int cost = 0
 
 hashmap[key: light number, value: switch number or -1] light_to_switch # hashmap to map light with switches (if -1; then no switch exists)
-
-# Kruskal Approach
-
 
 # Prim Approach
 MST-PRIM(G, w)
@@ -34,34 +34,9 @@ MST-PRIM(G, w)
             if v in Q and w(u, v) < v.key and IS-CONNECTABLE(u, v)        
                 v.key = w(u, v)
 
+
 boolean IS-CONNECTABLE(u, v)
-    switch(v.type)
-            case "Light":
-                if u.switchExists == False
-                    return False
-
-                else if light_to_switch[v.numID] != -1
-
-                    if light_to_switch[v.numID] != u.switchID
-
-                        return False
-                    
-                    break
-
-            case "Switch":
-                if(u.switchExists == True)
-                    return False
-                else
-                    v.switchExists = True
-                break
-
-            case "outlet":
-                if(u.switchExists == True)
-                    return False
-                break
-
-            case default:
-                break
+    
     return True
 
 ```

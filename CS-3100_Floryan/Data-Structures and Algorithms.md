@@ -154,6 +154,9 @@ Remove: amortized O(n)
 
 ### *Breadth-First Search (BFS)*
 
+- traverse the graph
+- output the shortest distance from starting node to each node in the graph
+
 ```python
 BFS(G, s) # G is the graph of (V, E) and s is the source node
     for each vertex u in G.v # sets all the nodes to the color white, with no predecessor, and infinite distance
