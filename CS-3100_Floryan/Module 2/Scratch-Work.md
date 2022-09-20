@@ -14,7 +14,8 @@ Node (String name, int numID, int switchID, String type, int key, boolean switch
 
 # global variables
 int cost = 0
-int switchID[] # list of switch id
+
+hashmap[key: light number, value: switch number or -1] light_to_switch # hashmap to map light with switches (if -1; then no switch exists)
 
 # Kruskal Approach
 
@@ -23,7 +24,6 @@ int switchID[] # list of switch id
 MST-PRIM(G, w)
     for each u in G.V
         u.key = inf
-        u.pi = null
     r = breaker_node
     r.key = 0
     Q = G.V
@@ -34,8 +34,15 @@ MST-PRIM(G, w)
 
             switch(v.type)
                 case "Light":
-                    if u.switchExists == False or (u.switchId != v.numID and v.numID is in switchID)
+                    if u.switchExists == False
                         continue
+
+                    else if light_to_switch[v.numID] != -1
+
+                        if light_to_switch[v.numID] != u.switchID
+
+                            continue
+                    
                     
                     break
 
@@ -43,8 +50,7 @@ MST-PRIM(G, w)
                     if(u.switchExists == True)
                         continue
                     else
-                        u.switchId = v.numID
-                        u.switchExists = True
+                        v.switchExists = True
                     break
 
                 case "outlet":
@@ -57,9 +63,7 @@ MST-PRIM(G, w)
 
         
             if v in Q and w(u, v) < v.key                
-                v.pi = u
                 v.key = w(u, v)
-                v.switchExists = u.switchExists
 
 ```
 
