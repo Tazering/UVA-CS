@@ -41,6 +41,22 @@ MST-PRIM(G, w, r)
                 v.key = w(u, v)
 ```
 
+### **Kruskal's Algorithm**
+
+```python
+MST-Kruskal(G, w)
+    for each vertex v in G.V
+        MAKE-SET(v)
+    sort the edges of G.E into nondecreasing order by weight w
+    for each edges (u, v) in G.E, taken in nondecreasing order by weight
+        if FIND-SET(u) != FIND-SET(v)
+            A = A + {(u, v)}
+            UNION(u, v)
+    return A
+```
+
+
+
 ## **Study Questions**
 
 **Dijkstra's Algorithm**
@@ -96,3 +112,29 @@ MST-PRIM(G, w, r)
 ![graph](./resources/prim_Q5_graph.png)
 
 ![solution](./resources/prims_Q5_solution.jpg)
+
+
+**Kruskal's Algorithm and Find-Union**
+
+1. How does Kruskal's Algorithm differ from Prim's Algorithm?
+
+    - Prim grows one tree as Krukal's combines trees in a forest
+
+2. Run Kruskal's Algorithm on this Graph with optimal disjoint set.
+
+![graph](./resources/kruskals_Q2_graph.png)
+
+![solution](./resources/prims_Q5_solution.jpg)
+
+3. What is Kruskal's Runtime.
+
+    V + V * (Vlog(V)) + E = V + V<sup>2</sup>log(V) + E = $\Theta(Elog(V))$
+
+4. What are the three operations for disjoint sets?
+    - MAKE-SET: makes a new set with a representative
+    - UNION: links two sets together
+    - FIND-SET: finds the representative of a given set
+
+5. What are two optimizations for disjoint sets.
+    - path compression: all descendents point to parent
+    - union by rank

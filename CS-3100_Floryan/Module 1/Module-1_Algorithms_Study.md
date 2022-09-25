@@ -1,5 +1,25 @@
 # ***Module 1 Study***
 
+### **Vocabulary**
+
+- **directed**: one node points to another; ordered
+- **undirected**: edges do not have direction; unordered
+- **vertices**: nodes
+    - degrees: in-degree vs out-degree
+- **edges**: connection between nodes
+- size of graph measured by V (nodes/vertices) and E (edges)
+- **connected graph**: undirected graph where each vertex can be reached from other vertices
+- **strongly connected digraph**: directed graph where each vertex can be reach by other vertices
+- dense graph => many edges; sparse graph => fewer edges
+- path => sequence of vertices that connect to each other
+    - simple path => no repeating vertices
+- **cycle**: non-empty path with same starting and ending path
+    - no node repeated except start and end node
+- **acyclic**: no cycle
+- unweighted graph is a graph where edges are the same value
+- weighted graph is a graph where edges have different value
+
+
 ### **Graph Representation**
 - adjacency matrix
     - better for dense graphs
