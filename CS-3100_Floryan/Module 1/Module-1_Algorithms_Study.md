@@ -199,7 +199,7 @@ V<sup>2</sup> + V<sup>2</sup> = 2V<sup>2</sup> = V<sup>2</sup> = E
 
         2) If $(s, u) \notin E$, then  $(s, u) = \infty$; therefore, $\delta(s, v) \le \infty + 1$ and the inequality holds
     
-    ![Proof](../resources/BFS_Lemma-1_Proof.jpg)
+    ![Proof](./resources/BFS_Lemma-1_Proof.jpg)
 
 
     **Lemma 2:** 
