@@ -42,3 +42,8 @@ boolean IS-CONNECTABLE(u, v)
 ```
 
 ## **Written Problems**
+
+1. If (u, v) = 1, then u cannot be the sink node; if (u, v) = 0, then v is not a sink node
+2. DFS
+3. contradiction
+4. state space search
