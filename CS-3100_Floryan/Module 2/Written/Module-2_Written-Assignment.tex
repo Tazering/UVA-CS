@@ -88,7 +88,25 @@ Since an edge must connect two nodes, then node u and node v must be connected t
     \(\therefore\) If every node of the undirected graph \emph{G} has a degree that is at least \(\frac{n}{2}\), then \emph{G} must be connected.
 \end{inductive}
 \newpage
-4.
+4. 
+\\
+1) Let G = (V, E) be an undirected and unweighted graph where each vertex V represents a state where each state represents the possible positions of the robots.
+Let each edge E in G represent one single instruction to get from one state to another state.
+An edge E exists between vertex/state u and vertex/state v if and only if the position of the two robots are not adjacent nodes.
+If i represents the node that first robot is on and j represents the node that the second robot is on, then the algorithm can use the adjacency matrix to see if node i and node j are adjacent.
+Let array A be an empty list that represents the optimal path.
+\\
+\\
+Finally, the algorithm would run BFS on the graph starting at (s1, s2) and record the path taken into array A until it reaches vertex (d1, d2).
+\\
+\\
+2) Making graph G would take $\Theta(E)$ because each edge will only be check once to see if a valid state could be found.
+The next operation is BFS which dominates the runtime in the entire algorithm.
+Therefore, the runtime of the entire algorithm would be $\Theta(V + E)$
+\\
+\\
+3) The runtime would grow and the number of robots grow because more edges will need to be checked to account for the other robots.
+Eventually, there will be enough robots such that the runtime for making the graph G will dominate.
 \\
 \end{document}
 
