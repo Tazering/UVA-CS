@@ -7,10 +7,13 @@
 
 \documentclass[12pt, a4paper]{article}
 \usepackage{LISTINGS}
+\usepackage{amssymb, amsthm, amssymb}
 \begin{document}
+\newenvironment{claim}[1]{\par\noindent\underline{Claim:}\space#1}{}
+\newenvironment{base}[1]{\par\noindent\underline{Base:}\space#1}{}
+\newenvironment{inductive}[1]{\par\noindent\underline{Inductive:}\space#1}{}
 \maketitle
-
-\section{Responses}
+\section*{\centering Responses}
 1.  Let the adjacency matrix, Adj, for G = (V, E), represent the edges of G such that Adj[u][v] denotes an edge from node u to node v.
 Let an array, A, of size 1 x V denote whether a particular node could possibly be a sink node and be initialized to all 1's.
 In other words, if the value of A[x] is 1, then node x could possibly be a sink node, otherwise node x is not.
@@ -24,27 +27,67 @@ If ptr is not pointing to a value of 1 in A, ptr will traverse through A until i
 Once the algorithm reaches the end of Adj, it will check if the last node is the sink node by seeing if its row is all 0's and its column is all 1's except where the edge is to itself.
 \\
 \\
+The runtime of the algorithm is O(V).
+Forming A initially is linear.
+Let s = u + v.
+Everytime the algorithm moves to the next index in Adj, s will increase by 1 because only u or v will increment after each evaluation.
+This means $s \leq 2V$.
+Therefore, the runtime of this algorithm must be O(V).
+\\
+\newpage
 2. 
 \begin{lstlisting}
-    DFS(G)
+    boolean hasFoundT = False
+    visited = {}
+
+    DFS(G, s, t) // s is the start node and t is the target node
         for each vertex u in G.V
             u.color = WHITE
-        for each vertex u in G.V
-            if u.color == WHITE
-                DFS-VISIT(G, u)
+        if hasFoundT == True
+            return visited
+        else 
+            return {}
     
-    DFS-VISIT(G, u)
+    DFS-VISIT(G, s, t)
         u.color = GRAY
-        for each v in G.Adj[u]
-
-            if v.color == WHITE // recursive case 
-                DFS-VISIT(G, v)
-            u.color = BLACK
-
-
+        visited.prepend(s)
+        if s == t // base cases
+            hasFoundT == True
+        else  // recursive cases
+            for each v in G.Adj[s]
+                if v.color == WHITE
+                    DFS-VISIT(G, v, t)
+            s.color = BLACK
+        return
 \end{lstlisting}
-3.
+\newpage
+3. Let G = (n, E) be an undirected graph with \emph{n} nodes and that \emph{n} is an even number.
 \\
+\begin{claim}
+    If every node of \emph{G} has a degree of at least \(\frac{n}{2}\), then \emph{G} must be connected.
+\end{claim}
+
+\begin{proof}
+    Prove by contradiction by assuming that G is not connected when the degree of every node \(\geq\) \(\frac{n}{2}\). 
+\end{proof}
+
+\begin{base}
+When \emph{n} = 2, that is, only node u and node v are in the graph, then each node must have a degree of at least 1 by the claim. 
+Since an edge must connect two nodes, then node u and node v must be connected to each other.
+\end{base}
+\\
+\begin{inductive}
+    Let all the nodes of graph G have a degree of at least \(\frac{n}{2}\) such that G is connected.
+    Let node v be an arbritrary node that is added to G such that G is not a connected graph.
+    This must mean that v cannot be reachable from all other nodes.
+    Since v must have a degree of at least \(\frac{n}{2}\) and cannot point to itself, v must point to another node, u, in the graph.
+    This contradicts since all the nodes previously in the graph could reach each other node and each edge is bidirectional.
+    Thus, if node v had an edge with u and u is reachable from other nodes by the definition of a connected directed graph, then v must also be reachable by all other nodes either through u or another path.
+    \\
+    \\
+    \(\therefore\) If every node of the undirected graph \emph{G} has a degree that is at least \(\frac{n}{2}\), then \emph{G} must be connected.
+\end{inductive}
+\newpage
 4.
 \\
 \end{document}
