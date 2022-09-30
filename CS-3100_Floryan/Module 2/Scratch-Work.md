@@ -2,7 +2,7 @@
 
 ## **Wiring**
 **Constraints**:
-- only one breaker box
+- ~~only one breaker box~~
 - exactly one switch between light and breaker box
 - switch and light must correspond
 - outlet must have path directly to breaker box with NO switches
@@ -13,12 +13,13 @@
 ```python
 
 # objects
-Node (int key, String name, String type)
+Node (int numId, String name, String type, int switchID, String predecessor, boolean isChecked)
 
 # global variables
 int cost = 0
 
-hashmap[key: light number, value: switch number or -1] light_to_switch # hashmap to map light with switches (if -1; then no switch exists)
+hashmap[key: light number, value: switch number] light_to_switch # hashmap to map light with switches (if -1; then no switch exists)
+hashmap[key: node, value: numId] node_to_id
 
 # Prim Approach
 MST-PRIM(G, w)
@@ -36,8 +37,36 @@ MST-PRIM(G, w)
 
 
 boolean IS-CONNECTABLE(u, v)
+    uType = u.type
+    vType = v.type
     
+    # conditionals
+    if IS-PRESWITCH(u) and IS-PRESWITCH(v)
+        return True
+
+    if IS-PRESWITCH(u) and IS-SWITCH(v)
+        u.switchId = v.numID
+        return True
+
+
+    if IS-POSTSWITCH(u) and IS-POSTSWITCH(v)
+        if light_to_switch[u] != light_to_switch[v]
+            return False
+
+    if IS-SWITCH(u) and IS-SWITCH(v)
+        return False
+
+
     return True
+
+boolean IS-PRESWITCH(u)
+    return u.type == "breaker" or "outlet" or "junction"
+
+boolean IS-SWITCH(u)
+    return u.type == "switch"
+
+boolean POST-SWITCH(u)
+    return u.type == "light"
 
 ```
 
