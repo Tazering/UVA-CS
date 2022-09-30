@@ -30,10 +30,12 @@ MST-PRIM(G, w)
     Q = G.V
     while Q != 0
         u = EXTRACT-MIN(q)
-        count = count + u.key
+        cost = cost + u.key
         for each v in G.adj[u]
             if v in Q and w(u, v) < v.key and IS-CONNECTABLE(u, v)        
                 v.key = w(u, v)
+                u.isChecked = True
+
 
 
 boolean IS-CONNECTABLE(u, v)
