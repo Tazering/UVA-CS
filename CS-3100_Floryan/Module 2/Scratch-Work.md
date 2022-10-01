@@ -55,9 +55,8 @@ boolean IS-CONNECTABLE(u, v)
         if light_to_switch[u] != light_to_switch[v]
             return False
 
-    if IS-SWITCH(u) and IS-SWITCH(v)
+    if IS-SWITCH(u) and POST-SWITCH(v)
         return False
-
 
     return True
 
