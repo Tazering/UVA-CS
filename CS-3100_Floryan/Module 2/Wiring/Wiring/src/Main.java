@@ -7,16 +7,11 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
     static int cost = 0;
-    static int numPreSwitchNodes = 0;
-
     static HashMap<String, Integer> nodeToID = new HashMap<>(); //for the adjacency matrix
 
     static String testCase1 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-1.txt"; // 7
@@ -40,7 +35,7 @@ public class Main {
 
         //testing purposes
 //        try{
-//            File file = new File(testCase2);
+//            File file = new File(testCase7);
 //            Scanner scan = new Scanner(file);
 //            while(scan.hasNextLine()) {
 //                String data = scan.nextLine();
@@ -59,9 +54,7 @@ public class Main {
             parsedFile.add(data);
         }
 
-
         String[] metaData = parsedFile.get(0).split(" ");
-
 
         int numberOfVertices = Integer.parseInt(metaData[0]);
         int numberOfEdges = Integer.parseInt(metaData[1]);
@@ -69,44 +62,35 @@ public class Main {
         //System.out.println(parsedFile);
 
         //get vertices and edges
-        Vertex[] vertices = formVerticesList(numberOfVertices, parsedFile);
-        int[][] adjacencyMatrix = formAdjacencyMatrix(vertices, numberOfEdges, parsedFile);
+        ArrayList<Vertex> vertices = formVerticesList(numberOfVertices, parsedFile);
+        int[][] adjacencyMatrix = formAdjacencyMatrix(numberOfVertices, parsedFile.subList(1 + numberOfVertices, parsedFile.size()));
+        //System.out.println(0);
 
         //run Prim's Algorithm
         prim(vertices, adjacencyMatrix);
 
-        //testSwitchComponents(vertices);
-        //printAdjacencyMatrix(adjacencyMatrix);
-        //printVertices(vertices);
-        //printNodeToID();
     }
     //Form Vertices List
-    public static Vertex[] formVerticesList(int numberOfVertices, ArrayList<String> parsedFile) {
-        Vertex[] vertexList = new Vertex[numberOfVertices];
-        int switchId = -1;
+    public static ArrayList<Vertex> formVerticesList(int numberOfVertices, ArrayList<String> parsedFile) {
+        ArrayList<Vertex> vertexList = new ArrayList<>();
+        String switchName = null;
 
-        for(int i = 0; i < numberOfVertices; i++) {
-            String individualVertexFromFile = parsedFile.get(i + 1);
-
+        for(int i = 1; i <= numberOfVertices; i++) {
+            String individualVertexFromFile = parsedFile.get(i);
             String[] individualVertex = individualVertexFromFile.split(" "); //split each node into name and type
 
-            vertexList[i] = new Vertex(individualVertex[0], individualVertex[1], -1, i, Integer.MAX_VALUE, false); //creates the new vertex and puts it into the list
-            nodeToID.put(vertexList[i].getName(), i); //put into hashmap
+            Vertex v = new Vertex(individualVertex[0], individualVertex[1], switchName, i-1, Integer.MAX_VALUE, false);
+            vertexList.add(v); //creates the new vertex and puts it into the list
+            nodeToID.put(v.getName(), i - 1); //put into hashmap
 
             //update switch id when type "switch" is found and update light
-            Vertex temp = vertexList[i];
-
-            if(isPreswitch(temp)) {
-                numPreSwitchNodes++;
+            if(v.getType().equals("switch")) { //if type is switch
+                switchName = v.getName();
+                v.setSwitchName(switchName);
             }
 
-            if(temp.getType().equals("switch")) { //if type is switch
-                switchId = Integer.parseInt(temp.getName().substring(1));
-                temp.setSwitchId(switchId);
-            }
-
-            if(temp.getType().equals("light")) { //updates the light
-                temp.setSwitchId(switchId);
+            if(v.getType().equals("light")) { //updates the light
+                v.setSwitchName(switchName);
             }
         }
 
@@ -115,8 +99,7 @@ public class Main {
 
 
     //Form Adjacency List
-    public static int[][] formAdjacencyMatrix(Vertex[] vertices, int numberOfEdges, ArrayList<String> parsedFile) {
-        int numberOfVertices = vertices.length;
+    public static int[][] formAdjacencyMatrix(int numberOfVertices, List<String> parsedFile) {
 
         int[][] adjacencyMatrix = new int[numberOfVertices][numberOfVertices];
 
@@ -128,10 +111,8 @@ public class Main {
         }
 
         //fill in the matrix with weights and corresponding edges
-        int edgeIndexConstant = 1 + numberOfVertices;
-
-        for(int i = 0; i < numberOfEdges; i++) {
-            String edgeDataFromFile = parsedFile.get(i + edgeIndexConstant);
+        for(int i = 0; i < parsedFile.size(); i++) {
+            String edgeDataFromFile = parsedFile.get(i);
             String[] parsedEdgeData = edgeDataFromFile.split(" ");
 
             int u = nodeToID.get(parsedEdgeData[0]);
@@ -148,11 +129,11 @@ public class Main {
 
 
     //Prim's Algorithm
-    public static void prim(Vertex[] vertices, int[][] adjacencyMatrix) {
-        int numOfVertices = vertices.length;
+    public static void prim(ArrayList<Vertex> vertices, int[][] adjacencyMatrix) {
+        int numOfVertices = vertices.size();
 
         //start at breaker
-        vertices[0].setKey(0); //set breaker key to 0
+        vertices.get(0).setKey(0); //set breaker key to 0
 
         //set up priority queue
         PriorityQueue<Vertex> Q = new PriorityQueue<>();
@@ -176,7 +157,7 @@ public class Main {
                 int weight = adjacencyMatrix[uID][i]; //grab the weight
 
                 if(weight != 0) {
-                    Vertex v = vertices[i];
+                    Vertex v = vertices.get(i);
 
                     if(Q.contains(v) && weight < v.getKey() && isConnectable(u, v)) {
                         v.setKey(weight);
@@ -258,14 +239,14 @@ public class Main {
 
         //if u and v are lights
         if(isPostSwitch(u) && isPostSwitch(v)) {
-            if(u.getSwitchId() == v.getSwitchId()) {
+            if(u.getSwitchName().equals(v.getSwitchName())) {
                 return true;
             }
         }
 
         //if u is a switch and v is post-switch
         if(isSwitch(u) && isPostSwitch(v) && !v.isChecked()) {
-            if(u.getSwitchId() == v.getSwitchId()) {
+            if(u.getSwitchName().equals(v.getSwitchName())) {
                 return true;
             }
         }
@@ -350,10 +331,6 @@ public class Main {
     public static void testMetaData(int numberOfEdges, int numberOfVertices) {
         System.out.println("number of edges: " + numberOfEdges);
         System.out.println("number of vertices: " + numberOfVertices);
-    }
-
-    public static void testNumOfPreswitch() {
-        System.out.println(numPreSwitchNodes);
     }
 
 }

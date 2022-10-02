@@ -1,25 +1,14 @@
 public class Vertex implements Comparable<Vertex>{
 
     //private member variables
-    private String name, type;
-    private int switchId, numID, key;
+    private String name, type, switchName;
+    private int numID, key;
     private boolean isChecked;
 
-    //constructors
-    public Vertex() {
-        this.name = "";
-        this.type = "";
-        this.switchId = -1;
-        this.numID = -1;
-        this.isChecked = false;
-        this.key = Integer.MAX_VALUE;
-
-    }
-
-    public Vertex(String name, String type, int switchId, int numID, int key, boolean isChecked) {
+    public Vertex(String name, String type, String switchName, int numID, int key, boolean isChecked) {
         this.name = name;
         this.type = type;
-        this.switchId = switchId;
+        this.switchName = switchName;
         this.numID = numID;
         this.isChecked = isChecked;
         this.key = key;
@@ -35,8 +24,8 @@ public class Vertex implements Comparable<Vertex>{
         return this.type;
     }
 
-    public int getSwitchId() {
-        return this.switchId;
+    public String getSwitchName() {
+        return this.switchName;
     }
 
     public int getNumID() {
@@ -60,8 +49,8 @@ public class Vertex implements Comparable<Vertex>{
         this.type = type;
     }
 
-    public void setSwitchId(int switchId) {
-        this.switchId = switchId;
+    public void setSwitchName(String switchName) {
+        this.switchName = switchName;
     }
 
     public void setNumID(int numID) {
@@ -80,7 +69,7 @@ public class Vertex implements Comparable<Vertex>{
     public void printVertex() {
         System.out.println("Vertex name: " + this.name);
         System.out.println("\ttype: " + this.type);
-        System.out.println("\tswitchID: " + this.switchId);
+        System.out.println("\tswitchName: " + this.switchName);
         System.out.println("\tnumID: " + this.numID);
         System.out.println("\tkey: " + this.key);
         System.out.println("\tisChecked: " + this.isChecked);
