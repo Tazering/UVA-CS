@@ -35,6 +35,17 @@ public class Main {
         //read in the data
 
         //testing purposes
+        try{
+            File file = new File(testCase7);
+            Scanner scan = new Scanner(file);
+            while(scan.hasNextLine()) {
+                String data = scan.nextLine();
+                parsedFile.add(data);
+            }
+
+        } catch(FileNotFoundException e) {
+            System.out.println("Could not find file.");
+        }
 
 
         //submission purposes
@@ -298,24 +309,6 @@ public class Main {
 
     public static void testNumOfPreswitch() {
         System.out.println(numPreSwitchNodes);
-    }
-
-    public static ArrayList<String> testCases(String[] cases) {
-        String
-
-        for(int i = 0; i < cases.length; i++) {
-            try{
-                File file = new File(cases[i]);
-                Scanner scan = new Scanner(file);
-                while(scan.hasNextLine()) {
-                    String data = scan.nextLine();
-                    parsedFile.add(data);
-                }
-
-            } catch(FileNotFoundException e) {
-                System.out.println("Could not find file.");
-            }
-        }
     }
 
 }
