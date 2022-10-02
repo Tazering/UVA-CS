@@ -8,15 +8,24 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 public class Main {
 
-    int cost = 0;
+    static int cost = 0;
+    static int numPreSwitchNodes = 0;
 
     static HashMap<String, Integer> nodeToID = new HashMap<>(); //for the adjacency matrix
 
-    static String testCase1 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-1.txt";
+    static String testCase1 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-1.txt"; // 7
+    static String testCase2 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-2.txt"; // 240
+    static String testCase3 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-3.txt"; // 82
+    static String testCase4 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-4.txt"; // 27
+    static String testCase5 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-5.txt"; // 11
+    static String testCase6 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-6.txt"; // 27
+    static String testCase7 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-7.txt"; // 14
+    static String testCase8 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-8.txt"; // 14
 
     public static void main(String[] args) {
 
@@ -26,7 +35,7 @@ public class Main {
 
         //testing purposes
         try{
-            File file = new File(testCase1);
+            File file = new File(testCase7);
             Scanner scan = new Scanner(file);
             while(scan.hasNextLine()) {
                 String data = scan.nextLine();
@@ -43,7 +52,10 @@ public class Main {
 //            String data = scan.nextLine();
 //            parsedFile.add(data);
 //        }
+
+
         String[] metaData = parsedFile.get(0).split(" ");
+
 
         int numberOfVertices = Integer.parseInt(metaData[0]);
         int numberOfEdges = Integer.parseInt(metaData[1]);
@@ -54,6 +66,10 @@ public class Main {
         Vertex[] vertices = formVerticesList(numberOfVertices, parsedFile);
         int[][] adjacencyMatrix = formAdjacencyMatrix(vertices, numberOfEdges, parsedFile);
 
+        //run Prim's Algorithm
+        prim(vertices, adjacencyMatrix);
+
+        //testSwitchComponents(vertices);
         //printAdjacencyMatrix(adjacencyMatrix);
         //printVertices(vertices);
         //printNodeToID();
@@ -64,13 +80,19 @@ public class Main {
         int switchId = -1;
 
         for(int i = 0; i < numberOfVertices; i++) {
-            String[] individualVertex = parsedFile.get(i + 1).split(" "); //split each node into name and type
+            String individualVertexFromFile = parsedFile.get(i + 1);
 
-            vertexList[i] = new Vertex(individualVertex[0], individualVertex[1], -1, i, false); //creates the new vertex and puts it into the list
+            String[] individualVertex = individualVertexFromFile.split(" "); //split each node into name and type
+
+            vertexList[i] = new Vertex(individualVertex[0], individualVertex[1], -1, i, Integer.MAX_VALUE, false); //creates the new vertex and puts it into the list
             nodeToID.put(vertexList[i].getName(), i); //put into hashmap
 
             //update switch id when type "switch" is found and update light
             Vertex temp = vertexList[i];
+
+            if(isPreswitch(temp)) {
+                numPreSwitchNodes++;
+            }
 
             if(temp.getType().equals("switch")) { //if type is switch
                 switchId = Integer.parseInt(temp.getName().substring(1));
@@ -111,6 +133,7 @@ public class Main {
             int weight = Integer.parseInt(parsedEdgeData[2]);
 
             adjacencyMatrix[u][v] = weight;
+            adjacencyMatrix[v][u] = weight;
 
         }
 
@@ -119,7 +142,103 @@ public class Main {
 
 
     //Prim's Algorithm
+    public static void prim(Vertex[] vertices, int[][] adjacencyMatrix) {
+        int numOfVertices = vertices.length;
 
+        //start at breaker
+        vertices[0].setKey(0); //set breaker key to 0
+
+        //set up priority queue
+        PriorityQueue<Vertex> Q = new PriorityQueue<>();
+
+        for(Vertex v: vertices) {
+            Q.add(v);
+        }
+        //testPriorityQueue(Q);
+
+        //actual algorithm
+        while(!Q.isEmpty()) {
+
+            Vertex u = Q.remove();
+            u.setChecked(true);
+
+            if(isPreswitch(u)) {
+                numPreSwitchNodes--;
+            }
+
+            cost += u.getKey();
+            int uID = nodeToID.get(u.getName());
+
+            // look for adjacent vertices
+            for(int i = 0; i < numOfVertices; i++) {
+                int weight = adjacencyMatrix[uID][i]; //grab the weight
+
+                if(weight != 0) {
+                    Vertex v = vertices[i];
+
+                    if(Q.contains(v) && weight < v.getKey() && isConnectable(u, v) && !v.isChecked()) {
+                        v.setKey(weight);
+                        Q.remove(v);
+                        Q.add(v);
+                    }
+
+                }
+            }
+
+        }
+
+        System.out.println(cost);
+    }
+
+
+    //helper functions
+    public static boolean isConnectable(Vertex u, Vertex v) {
+
+        // conditionals
+
+        //both are pre-switches
+        if(isPreswitch(u) && isPreswitch(v)) {
+            return true;
+        }
+
+        //u is preswitch and v is post-switch
+        if(isPreswitch(u) && isSwitch(v)) {
+            int switchNum = Integer.parseInt(v.getName().substring(1));
+            u.setSwitchId(switchNum);
+
+            return true;
+        }
+
+        //if u and v are lights
+        if(isPostSwitch(u) && isPostSwitch(v)) {
+            if(u.getSwitchId() == v.getSwitchId()) {
+                return true;
+            }
+        }
+
+        //if u is a switch and v is post-switch
+        if(isSwitch(u) && isPostSwitch(v)) {
+            if(u.getSwitchId() == v.getSwitchId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+        //types of components
+    public static boolean isPreswitch(Vertex u) {
+        return u.getType().equals("breaker") || u.getType().equals("outlet") || u.getType().equals("box");
+    }
+
+    public static boolean isSwitch(Vertex u) {
+        return u.getType().equals("switch");
+    }
+
+    public static boolean isPostSwitch(Vertex u) {
+        return u.getType().equals("light");
+    }
 
     //testing purposes
     public static void printVertices(Vertex[] vertices) {
@@ -147,5 +266,48 @@ public class Main {
             System.out.println(key + " " + id);
         }
     }
+
+    public static void testSwitchComponents(Vertex[] vertices) {
+        for(int i = 0; i < vertices.length; i++) {
+            Vertex u = vertices[i];
+            String name = u.getName();
+            if(isPreswitch(u)) {
+                System.out.println(name + " is a Preswitch");
+            } else if(isSwitch(u)) {
+                System.out.println(name + " is a Switch");
+            } else if(isPostSwitch(u)) {
+                System.out.println(name + " is a Postswitch");
+            }
+        }
+    }
+
+    public static void testPriorityQueue(PriorityQueue<Vertex> Q) {
+        int size = Q.size();
+        for(int i = 0; i < size; i++) {
+            System.out.println("Index " + i);
+            Vertex v = Q.remove();
+            v.printVertex();
+        }
+    }
+
+    public static void testCost() {
+        System.out.println(cost);
+    }
+
+    public static void testArray(String[] arr) {
+        for(String s: arr) {
+            System.out.println(s);
+        }
+    }
+
+    public static void testMetaData(int numberOfEdges, int numberOfVertices) {
+        System.out.println("number of edges: " + numberOfEdges);
+        System.out.println("number of vertices: " + numberOfVertices);
+    }
+
+    public static void testNumOfPreswitch() {
+        System.out.println(numPreSwitchNodes);
+    }
+
 
 }

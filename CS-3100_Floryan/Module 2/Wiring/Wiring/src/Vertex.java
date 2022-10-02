@@ -1,9 +1,9 @@
-public class Vertex {
+public class Vertex implements Comparable<Vertex>{
 
     //private member variables
-    String name, type;
-    int switchId, numID;
-    boolean isChecked;
+    private String name, type;
+    private int switchId, numID, key;
+    private boolean isChecked;
 
     //constructors
     public Vertex() {
@@ -12,15 +12,17 @@ public class Vertex {
         this.switchId = -1;
         this.numID = -1;
         this.isChecked = false;
+        this.key = Integer.MAX_VALUE;
 
     }
 
-    public Vertex(String name, String type, int switchId, int numID, boolean isChecked) {
+    public Vertex(String name, String type, int switchId, int numID, int key, boolean isChecked) {
         this.name = name;
         this.type = type;
         this.switchId = switchId;
         this.numID = numID;
         this.isChecked = isChecked;
+        this.key = key;
 
     }
 
@@ -45,7 +47,9 @@ public class Vertex {
         return this.isChecked;
     }
 
-
+    public int getKey() {
+        return this.key;
+    }
 
     //setters
     public void setName(String name) {
@@ -68,6 +72,9 @@ public class Vertex {
         this.isChecked = isChecked;
     }
 
+    public void setKey(int key) {
+        this.key = key;
+    }
 
     //helper
     public void printVertex() {
@@ -75,6 +82,23 @@ public class Vertex {
         System.out.println("\ttype: " + this.type);
         System.out.println("\tswitchID: " + this.switchId);
         System.out.println("\tnumID: " + this.numID);
+        System.out.println("\tkey: " + this.key);
         System.out.println("\tisChecked: " + this.isChecked);
+    }
+
+    public boolean equals(Vertex other) {
+        return this.getKey() == other.getKey();
+    }
+
+    @Override
+    public int compareTo(Vertex o) {
+        if(this.equals(o)) {
+            return 0;
+        } else if(this.getKey() > o.getKey()) {
+            return 1;
+        } else {
+            return -1;
+        }
+
     }
 }
