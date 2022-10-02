@@ -6,6 +6,7 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -25,7 +26,7 @@ public class Main {
     static String testCase5 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-5.txt"; // 11
     static String testCase6 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-6.txt"; // 27
     static String testCase7 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-7.txt"; // 14
-    static String testCase8 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-8.txt"; // 14
+    static String testCase8 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-8.txt"; // 7
 
     public static void main(String[] args) {
 
@@ -34,17 +35,7 @@ public class Main {
         //read in the data
 
         //testing purposes
-        try{
-            File file = new File(testCase7);
-            Scanner scan = new Scanner(file);
-            while(scan.hasNextLine()) {
-                String data = scan.nextLine();
-                parsedFile.add(data);
-            }
 
-        } catch(FileNotFoundException e) {
-            System.out.println("Could not find file.");
-        }
 
         //submission purposes
 //        Scanner scan = new Scanner(System.in);
@@ -309,5 +300,22 @@ public class Main {
         System.out.println(numPreSwitchNodes);
     }
 
+    public static ArrayList<String> testCases(String[] cases) {
+        String
+
+        for(int i = 0; i < cases.length; i++) {
+            try{
+                File file = new File(cases[i]);
+                Scanner scan = new Scanner(file);
+                while(scan.hasNextLine()) {
+                    String data = scan.nextLine();
+                    parsedFile.add(data);
+                }
+
+            } catch(FileNotFoundException e) {
+                System.out.println("Could not find file.");
+            }
+        }
+    }
 
 }
