@@ -92,19 +92,35 @@ public class Vertex implements Comparable<Vertex>{
 
     @Override
     public int compareTo(Vertex o) {
+
+        //check if its between breaker and switch
+        if(isPreswitch(this) && isSwitch(o)) {
+            return -1;
+        } else if(isSwitch(this) && isPreswitch(o)) {
+            return 1;
+        }
+
         if(this.equals(o)) {
             return 0;
-        } else if(!isPreswitch(this) && isPreswitch(o) || this.getKey() > o.getKey()) {
+
+        } else if(this.getKey() > o.getKey()) {
             return 1;
+
         } else {
             return -1;
         }
+
+
 
     }
 
     //types of components
     public static boolean isPreswitch(Vertex u) {
         return u.getType().equals("breaker") || u.getType().equals("outlet") || u.getType().equals("box");
+    }
+
+    public static boolean isSwitch(Vertex u) {
+        return u.getType().equals("switch");
     }
 
 

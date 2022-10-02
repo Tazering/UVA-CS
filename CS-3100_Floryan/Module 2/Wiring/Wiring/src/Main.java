@@ -27,6 +27,10 @@ public class Main {
     static String testCase6 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-6.txt"; // 27
     static String testCase7 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-7.txt"; // 14
     static String testCase8 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-8.txt"; // 7
+    static String testCase9 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-9.txt"; // 7
+    static String testCase10 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-10.txt"; // 11
+    static String testCase11 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-11.txt"; // 11
+    static String testCase12 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Wiring/test-cases/test-case-12.txt"; // 7
 
     public static void main(String[] args) {
 
@@ -35,25 +39,25 @@ public class Main {
         //read in the data
 
         //testing purposes
-        try{
-            File file = new File(testCase7);
-            Scanner scan = new Scanner(file);
-            while(scan.hasNextLine()) {
-                String data = scan.nextLine();
-                parsedFile.add(data);
-            }
-
-        } catch(FileNotFoundException e) {
-            System.out.println("Could not find file.");
-        }
+//        try{
+//            File file = new File(testCase2);
+//            Scanner scan = new Scanner(file);
+//            while(scan.hasNextLine()) {
+//                String data = scan.nextLine();
+//                parsedFile.add(data);
+//            }
+//
+//        } catch(FileNotFoundException e) {
+//            System.out.println("Could not find file.");
+//        }
 
 
         //submission purposes
-//        Scanner scan = new Scanner(System.in);
-//        while(scan.hasNextLine()) {
-//            String data = scan.nextLine();
-//            parsedFile.add(data);
-//        }
+        Scanner scan = new Scanner(System.in);
+        while(scan.hasNextLine()) {
+            String data = scan.nextLine();
+            parsedFile.add(data);
+        }
 
 
         String[] metaData = parsedFile.get(0).split(" ");
@@ -164,10 +168,6 @@ public class Main {
             Vertex u = Q.remove();
             u.setChecked(true);
 
-            if(isPreswitch(u)) {
-                numPreSwitchNodes--;
-            }
-
             cost += u.getKey();
             int uID = nodeToID.get(u.getName());
 
@@ -178,7 +178,7 @@ public class Main {
                 if(weight != 0) {
                     Vertex v = vertices[i];
 
-                    if(Q.contains(v) && weight < v.getKey() && isConnectable(u, v) && !v.isChecked()) {
+                    if(Q.contains(v) && weight < v.getKey() && isConnectable(u, v)) {
                         v.setKey(weight);
                         Q.remove(v);
                         Q.add(v);
@@ -192,6 +192,53 @@ public class Main {
         System.out.println(cost);
     }
 
+    //Prim's Algorithm
+//    public static void prim(Vertex[] vertices, int[][] adjacencyMatrix) {
+//        int numOfVertices = vertices.length;
+//
+//        //start at breaker
+//        vertices[0].setKey(0); //set breaker key to 0
+//
+//        //set up priority queue
+//        PriorityQueue<Vertex> Q = new PriorityQueue<>();
+//
+//        for(Vertex v: vertices) {
+//            Q.add(v);
+//        }
+//        //testPriorityQueue(Q);
+//
+//        //actual algorithm
+//        while(!Q.isEmpty()) {
+//
+//            Vertex u = Q.remove();
+//            u.setChecked(true);
+//
+//            cost += u.getKey();
+//            int uID = nodeToID.get(u.getName());
+//
+//            // look for adjacent vertices
+//            for(int i = 0; i < numOfVertices; i++) {
+//                int weight = adjacencyMatrix[uID][i]; //grab the weight
+//
+//                if(weight != 0) {
+//                    Vertex v = vertices[i];
+//
+//                    if(Q.contains(v) && weight < v.getKey() && !v.isChecked()) {
+//
+//                        if(((isPreswitch(u) && isPreswitch(v)) || (isPreswitch(u) && isSwitch(v))) && !v.isChecked()) {
+//
+//                        }
+//
+//                    }
+//
+//                }
+//            }
+//
+//        }
+//
+//        System.out.println(cost);
+//    }
+
 
     //helper functions
     public static boolean isConnectable(Vertex u, Vertex v) {
@@ -199,14 +246,12 @@ public class Main {
         // conditionals
 
         //both are pre-switches
-        if(isPreswitch(u) && isPreswitch(v)) {
+        if(isPreswitch(u) && isPreswitch(v) ) {
             return true;
         }
 
         //u is preswitch and v is post-switch
-        if(isPreswitch(u) && isSwitch(v)) {
-            int switchNum = Integer.parseInt(v.getName().substring(1));
-            u.setSwitchId(switchNum);
+        if(isPreswitch(u) && isSwitch(v) ) {
 
             return true;
         }
@@ -219,7 +264,7 @@ public class Main {
         }
 
         //if u is a switch and v is post-switch
-        if(isSwitch(u) && isPostSwitch(v)) {
+        if(isSwitch(u) && isPostSwitch(v) && !v.isChecked()) {
             if(u.getSwitchId() == v.getSwitchId()) {
                 return true;
             }
