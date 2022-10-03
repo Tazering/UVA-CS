@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.8.28) (preloaded format=pdflatex 2022.9.28)  29 SEP 2022 16:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.8.28) (preloaded format=pdflatex 2022.10.3)  3 OCT 2022 12:41
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -116,68 +116,23 @@ Underfull \hbox (badness 10000) in paragraph at lines 17--37
 
  []
 
-[1
+c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Written/Module-2_Written-Assignment.tex:37: I can't write on file `Module-2_Written-Assignment.pdf'.
+(Press Enter to retry, or Control-C to exit; default file extension is `.pdf')
+Please type another file name for output
+c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Written/Module-2_Written-Assignment.tex:37: Emergency stop.
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.37 \newpage
+             
+*** (job aborted, file error in nonstop mode)
 
-{C:/Users/tyler/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 41.
- (C:\Users\tyler\AppData\Local\Programs\MiKTeX\tex/latex/base\omscmr.fd
-File: omscmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
-)
-LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 41.
-
-Overfull \hbox (61.19922pt too wide) in paragraph at lines 43--44
-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
- []
-
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 64--67
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 75--80
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 80--90
-
- []
-
-[3]
-Underfull \hbox (badness 10000) in paragraph at lines 91--111
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 91--111
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 91--111
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 91--111
-
- []
-
-[4] (Module-2_Written-Assignment.aux) ) 
+ 
 Here is how much of TeX's memory you used:
- 2812 strings out of 475389
- 40530 string characters out of 2777000
- 393408 words of memory out of 3000000
- 24213 multiletter control sequences out of 15000+600000
- 478092 words of font info for 62 fonts, out of 8000000 for 9000
+ 2525 strings out of 475389
+ 38006 string characters out of 2777000
+ 375408 words of memory out of 3000000
+ 23935 multiletter control sequences out of 15000+600000
+ 477408 words of font info for 60 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,6n,51p,301b,1236s stack positions out of 10000i,1000n,20000p,200000b,80000s
- <C:\Users\tyler\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on Module-2_Written-Assignment.pdf (4 pages, 107148 bytes).
-PDF statistics:
- 65 PDF objects out of 1000 (max. 8388607)
- 0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
-
+ 41i,6n,51p,279b,262s stack positions out of 10000i,1000n,20000p,200000b,80000s
+c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 2/Written/Module-2_Written-Assignment.tex:37:  ==> Fatal error occurred, no output PDF file produced!

@@ -56,7 +56,8 @@ boolean IS-CONNECTABLE(u, v)
             return False
 
     if IS-SWITCH(u) and POST-SWITCH(v)
-        return False
+        if u.switchID == v.switchID
+            return True
 
     return True
 
