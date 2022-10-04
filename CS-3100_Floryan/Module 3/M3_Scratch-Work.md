@@ -3,14 +3,13 @@
 ## **Trading**
 
 ```python
-Star(double x, double y)
+Star(int num, double x, double y)
 
-double d = MAX_DOUBLE
-
+int numPoints = 7
 A = MERGE-SORT(list of stars) # by x coordinates
     
 
-FIND-CLOSEST-PAIR-OF-POINTS(A)
+def FIND-CLOSEST-PAIR-OF-POINTS(A)
 
     # divide and conquer
     # base case
@@ -18,14 +17,20 @@ FIND-CLOSEST-PAIR-OF-POINTS(A)
         return infinity
 
     else if A.length == 2
-        return 
+        return CALCULATE-DISTANCE(A[0], A[1])
 
     # recursive case
     else 
+        mid = A[n/2]
+        double dl = FIND-CLOSEST-PAIR-OF-POINTS(A[0...mid])
+        double dr = FIND-CLOSEST-PAIR-OF-POINTS(A[mid + 1])
+        d = min(dl, dr)
+    
+    
         
 
 # merge by y
-MERGE(A1, B1)
+def MERGE(A1, B1)
     int aSize = A1.length
     int bSize = B1.length
 
@@ -36,7 +41,7 @@ MERGE(A1, B1)
     int bPtr = 0
 
     while aPtr < aSize and bPtr < bSize
-        if A1[aPtr] < B1[bPTR] 
+        if A1[aPtr].y < B1[bPTR].y 
             output[index] = A1[aPtr]
             aPtr = aPtr + 1
         else 
@@ -57,7 +62,18 @@ MERGE(A1, B1)
     
     return output
 
+# calculate distance
+def CALCULATE-DISTANCE(star1, star2)
+    double deltaX = |star1.x - star2.x|
+    double deltaY = |star1.y - star2.y|
+    return sqrt(deltaX**2 + deltaY**2)
 
+# minimum
+def MIN(x, y)
+    if x < y
+        return x
+    else 
+        return y
 ```
 
 
