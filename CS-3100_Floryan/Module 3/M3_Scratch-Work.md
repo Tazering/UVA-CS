@@ -6,7 +6,7 @@
 Star(int num, double x, double y)
 
 int numPoints = 7
-double delta = MAX_INTEGER
+double d = MAX_INTEGER
 A = MERGE-SORT(list of stars) # by x coordinates
     
 
@@ -22,12 +22,19 @@ def FIND-CLOSEST-PAIR-OF-POINTS(A)
     else 
         mid = A[n/2]
         double dl = FIND-CLOSEST-PAIR-OF-POINTS(A[0...mid])
-
         double dr = FIND-CLOSEST-PAIR-OF-POINTS(A[mid + 1])
         d = min(dl, dr)
 
     # combine by checking points on left and right side of the mid-line
+    Star[] y_sorted = MERGE(dl, dr)
+    strip = CREATE-STRIP(d, y_sorted, mid)
 
+    for i = 0 to strip.length
+        for j = 0 to 7
+            if i != j
+                d = min(dl, CALCULATE-DISTANCE(strip[i], strip[i + j]))
+
+    return d
 
     
     
@@ -73,6 +80,10 @@ def CREATE-STRIP(double delta, S, double middle) # S is array of stars
     for each star s in S
         if X-IN-DELTA(s.x, middle, delta)
             strip.append(s)
+    
+    return strip
+
+
 
 # calculate distance
 def CALCULATE-DISTANCE(star1, star2)
