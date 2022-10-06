@@ -47,8 +47,6 @@ public class Main {
             double d = findClosestPairOfPoints(starsX, starsY);
 
             if(d < 10000) {
-                DecimalFormat df = new DecimalFormat("#.####");
-                df.setRoundingMode(RoundingMode.HALF_UP);
                 System.out.println(String.format("%.4f", d));
 
             } else {
