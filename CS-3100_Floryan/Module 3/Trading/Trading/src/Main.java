@@ -66,6 +66,8 @@ public class Main {
             Star[] y_sorted = merge(Arrays.copyOfRange(stars, 0, mid), Arrays.copyOfRange(stars, mid + 1, n));
             Star[] strip = createStrip(delta, stars, mid);
 
+            //TODO complete find closest pairs
+
             return delta;
         }
 
