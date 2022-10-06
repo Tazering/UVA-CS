@@ -1,6 +1,6 @@
 import java.util.Comparator;
 
-public class CompareStars implements Comparator<Star> {
+public class CompareStarsX implements Comparator<Star> {
 
     @Override
     public int compare(Star o1, Star o2) {
