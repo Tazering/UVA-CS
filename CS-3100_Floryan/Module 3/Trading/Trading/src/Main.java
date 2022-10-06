@@ -22,8 +22,6 @@ public class Main {
             fileToArray.add(data);
         }
 
-
-
         //run algorithm
         while(!fileToArray.isEmpty()) {
 
@@ -61,7 +59,7 @@ public class Main {
     }
 
     //main algorithm
-    public static double findClosestPairOfPoints(List<Star> starsX, ArrayList<Star> starsY) {
+    public static double findClosestPairOfPoints(List<Star> starsX, List<Star> starsY) {
         double delta;
         int n = starsX.size();
 
@@ -76,13 +74,15 @@ public class Main {
             List<Star> leftSideX = starsX.subList(0, mid + 1);
             List<Star> rightSideX = starsX.subList(mid + 1, n);
 
-            double dl = findClosestPairOfPoints(leftSideX, starsY);
-            double dr = findClosestPairOfPoints(rightSideX, starsY);
+            List<Star> leftSideY = starsY.subList(0, mid+1);
+            List<Star> rightSideY = starsY.subList(mid+1, n);
+
+            double dl = findClosestPairOfPoints(leftSideX, leftSideY);
+            double dr = findClosestPairOfPoints(rightSideX, rightSideY);
             delta = min(dl, dr);
 
             //combine
             ArrayList<Star> strip = createStrip(delta, starsY, mid);
-
 
             return min(delta, stripClosest(strip));
         }
@@ -123,6 +123,16 @@ public class Main {
         double delta = Double.MAX_VALUE;
 
         for(int i = 0; i < strip.size(); i++) {
+            //int j = i + 1;
+
+//            while(j < strip.size() && j < 7) {
+//                if(calculateDistance(strip.get(i), strip.get(j)) < delta) {
+//                    delta = calculateDistance(strip.get(i), strip.get(j));
+//                }
+//
+//                j++;
+//            }
+
             for(int j = i + 1; j < strip.size(); j++) {
                 if(calculateDistance(strip.get(i), strip.get(j)) < delta) {
                     delta = calculateDistance(strip.get(i), strip.get(j));
@@ -134,7 +144,7 @@ public class Main {
 
     }
 
-    public static ArrayList<Star> createStrip(double delta, ArrayList<Star> stars, double mid) {
+    public static ArrayList<Star> createStrip(double delta, List<Star> stars, double mid) {
         ArrayList<Star> output = new ArrayList<>();
 
         for(Star s : stars) {
