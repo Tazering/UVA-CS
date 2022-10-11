@@ -48,12 +48,30 @@
     Compare \(f(n) = 1\) to \(n^{\frac{1}{2}}\)\\
     Since \(f(n) = O(n^{\frac{1}{2} - \epsilon})\) where \(\epsilon = \frac{1}{2}\), Case 1 applies:\\
     \(T(n) \in \Theta{(n^{\frac{1}{2}})}\)\\
-    The solution must be \(T(n) = \Theta{(n)}\) since \(k = \frac{1}{2}\) and rounds to 1
+    The solution must be \(T(n) = \Theta{(n)}\) since \(k = \frac{1}{2}\) and rounds up to 1
 
 
 \section*{\centering Response 5}
+    \textbf{Given}: \(T(n) = 2T(\frac{n}{4}) + \sqrt{n}\)\\
+    \\
+    Apply Master Theorem:\\
+    A = 2, B = 4, \(f(n) = \sqrt{n}\)\\
+    \(k = \frac{\log{2}}{\log{4}} = \frac{1}{2}\)\\
+    Compare \(f(n) = \sqrt{n}\) to \(n^{\frac{1}{2}}\)\\
+    Since \(f(n) = \sqrt{n}\) is equal to \(n^k = n^{\frac{1}{2}}\), then we apply Case 2:\\
+    \(T(n) = \Theta{f(n)log(n)} = \Theta{(n^{\frac{1}{2}}log(n^{\frac{1}{2}}))}\)\\
+    $\therefore$ \(\Theta{(nlog(n))}\)
 
 \section*{\centering Response 6}
+    \textbf{Given}: \(T(n)=2T(\frac{n}{2}) + n\)\\
+    \\
+    Apply Master Theorem:\\
+    A = 2, B = 4, \(f(n) = n\)\\
+    \(k = \frac{\log{2}}{\log{4}} = \frac{1}{2}\)\\
+    Compare \(f(n) = n\) to \(n^{\frac{1}{2}}\)\\
+    Since \(n^{\frac{1}{2} - \epsilon}\) results in $\epsilon$ = $\frac{1}{2}$, and \(cf(n) \geq n^{\frac{1}{2}}\), apply Case 3:\\
+    \(T(n) \in \Theta{(f(n))}\).\\
+    $\therefore$ $\Theta{(n)}$
 
 \section*{\centering Response 7}
 
