@@ -1,0 +1,60 @@
+\title{Module 3 Recurrence Relations Assignment}
+\author{
+    Tyler Kim \\
+    tkj9ep
+}
+\date{October 11, 2022}
+
+\documentclass[12pt, a4paper]{article}
+\usepackage{amssymb, amsthm, amssymb}
+\begin{document}
+\maketitle
+\section*{\centering Response 1}
+
+\section*{\centering Response 2}
+    \textbf{Given}: \(T(n) = T(n-1) + n\)\\
+    \\
+    \textbf{Unroll the Recurrence}\\
+    Let \textit{d} denote level of unrolling\\
+    \\
+    \textit{d} = 1: \(T(n) = T(n-1) + n\)\\
+    \textit{d} = 2: \(T(n) = [T(n-2) + (n-1)] + n = T(n-2) + 2n - 1\)\\
+    \textit{d} = 3: \(T(n) = [T(n-3) + (n-2)] + 2n - 1 = T(n-3) + 3n - 3\)\\
+    \textit{d} = 4: \(T(n) = [T(n-4) + (n-4)] + 3n - 3 = T(n-4) + 4n - 7\)\\
+    \\
+    General Pattern: \(T(n) = T(n-d) + dn - (2^{d-1} - 1)\)\\
+    \\
+    The base case when \(T(1)\) is reached when \(n-d = 1\).\\
+    Solve for \(d\): \\
+    \(n - d = 1\)\\
+    \(-d = 1-n\)\\
+    \(d=n-1\) \\
+    \\
+    Plug \(d\) back in:\\
+    \(T(n)=T(n-(n-1))+(n-1)n-(2^{n-1-1}-1)\)\\
+    \(T(n)=T(1)+n^2-n-2^{n-1}+1\)\\
+    \(T(n)=n^2-n-2^{n-2}+1 = \Theta{(2^n)}\)\\
+    \(\therefore \Theta{(2^n)}\)
+    \newpage
+
+\section*{\centering Response 3}
+
+\section*{\centering Response 4}
+    \textbf{Given}: \(T(n) = 2T(\frac{n}{4}) + 1\)\\
+    \\
+    Apply Master Theorem:\\
+    A = 2, B = 4, \(f(n) = 1\)\\
+    \(k = \frac{\log{2}}{\log{4}} = \frac{1}{2}\)\\
+    Compare \(f(n) = 1\) to \(n^{\frac{1}{2}}\)\\
+    Since \(f(n) = O(n^{\frac{1}{2} - \epsilon})\) where \(\epsilon = \frac{1}{2}\), Case 1 applies:\\
+    \(T(n) \in \Theta{(n^{\frac{1}{2}})}\)\\
+    The solution must be \(T(n) = \Theta{(n)}\) since \(k = \frac{1}{2}\) and rounds to 1
+
+
+\section*{\centering Response 5}
+
+\section*{\centering Response 6}
+
+\section*{\centering Response 7}
+
+\end{document}
