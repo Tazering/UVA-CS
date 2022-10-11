@@ -71,8 +71,17 @@
     Compare \(f(n) = n\) to \(n^{\frac{1}{2}}\)\\
     Since \(n^{\frac{1}{2} - \epsilon}\) results in $\epsilon$ = $\frac{1}{2}$, and \(cf(n) \geq n^{\frac{1}{2}}\), apply Case 3:\\
     \(T(n) \in \Theta{(f(n))}\).\\
-    $\therefore$ $\Theta{(n)}$
+    $\therefore$ $\Theta{(n)}$\\
 
 \section*{\centering Response 7}
+    \textbf{Given}: \(T(n)=2T(\frac{n}{4})+n^2\)\\
+    \\
+    Apply Master Theorem:\\
+    A = 2, B = 4, \(f(n) = n^2\)\\
+    \(k = \frac{\log{2}}{\log{4}} = \frac{1}{2}\)\\
+    Compare \(f(n) = n^2\) and \(n^{\frac{1}{2}}\)\\
+    Since \(n^{\frac{1}{2}+\epsilon}\) results in $\epsilon$ = 1.5 and \(cf(n) \geq n^{\frac{1}{2}}\), apply Case 3:\\
+    \(T(n) \in \Theta{f(n)}\).\\
+    $\therefore$ $\Theta{(f(n))}$
 
 \end{document}
