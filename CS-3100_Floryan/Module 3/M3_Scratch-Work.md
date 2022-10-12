@@ -20,7 +20,7 @@ def FIND-CLOSEST-PAIR-OF-POINTS(A)
         return MIN-THREE-STARS(A[0], A[1], A[2])
     # recursive case
     else 
-        mid = A[n/2]
+        mid = n/2
         double dl = FIND-CLOSEST-PAIR-OF-POINTS(A[0...mid])
         double dr = FIND-CLOSEST-PAIR-OF-POINTS(A[mid + 1])
         d = min(dl, dr)
@@ -117,3 +117,33 @@ def MIN-THREE-STARS(star1, star2, star3)
 
 
 ## **Recurrence Relations**
+
+1. pseudocode
+```python
+
+index = 0
+
+# brute force method
+MAIN()
+    for i = 1 to n - 1
+        if f([i], [i + 1]) == 1
+            return i+1
+        else if f([i], [i + 1]) == -1
+            return i
+
+# recursion
+FIND-INDEX-OF-TWO(int start, int end)
+    n = end - start
+    mid = n / 2
+    
+
+    #base case when 2 is found or not found at all
+    if n == 2
+        if f([0], [1]) == 1
+            return 
+        if f([0], [1]) == -1
+            return
+    
+    
+
+```

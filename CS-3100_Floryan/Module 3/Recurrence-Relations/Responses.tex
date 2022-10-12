@@ -10,6 +10,16 @@
 \begin{document}
 \maketitle
 \section*{\centering Response 1}
+    1. The algorithm would take in two integer inputs, \textit{int start} and \textit{int end}, and would return an integer.
+    The algorithm would check if \(end - start == 2\), if so the algorithm would call f([0], [1]).
+    If f([0], [1]) == -1, then the algorithm returns the parameter \textit{start} and if f([0],[1]) == 1, then the algorithm returns the parameter \textit{end}.
+    Else, the algorithm would calculate mid by taking the size, \textit{n}, and dividing it by 2. 
+    If \textit{n} is even, the algorithm would check if the left or right side of the array is bigger by calling f([0..mid], [mid..end]).
+    If f([0..mid], [mid..end]) == -1, then the algorithm would recursively call on itself with \textit{start} = 0 and \textit{end} = mid.
+    If the function resulted in 1, then the algorithm will call on [mid..end] of array instead.
+    If \textit{n} is odd, then the function would check if the left half and right half (excluding the exact middle value) of the array is bigger or not.
+    If calling f([0..mid],[mid+1..end]) is 0, then \textit{mid} must be the index. If not, then the algorithm will proceed the recursion calls like previously described.
+    2. 
 
 \section*{\centering Response 2}
     \textbf{Given}: \(T(n) = T(n-1) + n\)\\

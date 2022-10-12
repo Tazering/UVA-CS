@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1665529442 "c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 3/Recurrence-Relations/Responses.tex" "Responses.pdf" "Responses" 1665529442
-  "C:/Users/tyler/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1664464543 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
-  "C:/Users/tyler/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1664404889 10786909 63e898899023d8e7f9dadb5061548f9f ""
+["pdflatex"] 1665618590 "c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 3/Recurrence-Relations/Responses.tex" "Responses.pdf" "Responses" 1665618590
+  "C:/Users/tyler/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1665614265 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
+  "C:/Users/tyler/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1664815277 10786909 74238dd3faf4ff231b52b7f5d274fda9 ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1233955448 1004 54797486969f23fa377b128694d548df ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1233955448 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1233955454 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -40,9 +40,9 @@
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/tex/latex/base/article.cls" 1657041432 20144 7555b7429d80bef287ebb82117811acc ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/tex/latex/base/size12.clo" 1657041432 8449 7fbdc9c8596083427317c1e525489c81 ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/tex/latex/l3backend/l3backend-pdftex.def" 1661885168 30282 33c465a64f2bd5ad4a68a7b2f555a29b ""
-  "Responses.aux" 1665529442 32 ab05033ccbb38b00a31b200ccedf8001 "pdflatex"
-  "Responses.tex" 1665529441 3154 6a8954595725aaf434d367b410a1996e ""
-  "c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 3/Recurrence-Relations/Responses.tex" 1665529441 3154 6a8954595725aaf434d367b410a1996e ""
+  "Responses.aux" 1665618590 32 c81c40425fbb5e93b90fba65da0b5e61 "pdflatex"
+  "Responses.tex" 1665618589 4352 afa14018a337ff2732caaceb478f1c5b ""
+  "c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 3/Recurrence-Relations/Responses.tex" 1665618589 4352 afa14018a337ff2732caaceb478f1c5b ""
   (generated)
   "Responses.aux"
   "Responses.log"
