@@ -19,8 +19,32 @@
     If the function resulted in 1, then the algorithm will call on [mid..end] of array instead.
     If \textit{n} is odd, then the function would check if the left half and right half (excluding the exact middle value) of the array is bigger or not.
     If calling f([0..mid],[mid+1..end]) is 0, then \textit{mid} must be the index. If not, then the algorithm will proceed the recursion calls like previously described.\\
-    2. 
-
+    2. The recurrence relation is \(T(n) = T(\frac{n}{2}) + 2f()\) because the algorithm makes one recursive call and calls f() twice at most.\\
+    \\
+    3. \textbf{Given}: \(T(n) = T(\frac{n}{2}) + 2f()\)\\
+    \\
+    \textbf{Unroll the Recurrence}\\
+    let \textit{d} denotes level of unrolling and let f() denote \(\Theta{(max(|l_1||l_2|))}\)\\
+    \\
+    \textit{d} = 1: \(T(n) = T(\frac{n}{2}) + 2f()\)\\
+    \textit{d} = 2: \(T(n) = [T(\frac{n}{4}) + 2f()] + 2f() = T(\frac{n}{4}) + 4f()\)\\
+    \textit{d} = 3: \(T(n) = [T(\frac{n}{8}) + 2f()] + 4f() = T(\frac{n}{8}) + 6f()\)\\
+    \textit{d} = 4: \(T(n) = [T(\frac{n}{16}) + 2f()] + 6f() = T(\frac{n}{16}) + 8f()\)\\
+    \\
+    General pattern: \(T(n) = T(\frac{n}{2^{d}}) + 2df()\)\\
+    \\
+    The base case when \(T(1)\) is reached when \(d = \log{n}\)\\
+    Solve for \(d\):\\
+    \(\frac{n}{2^d} = 1\)\\
+    \(n = 2^d\)\\
+    \(\log{n} = d\)\\
+    \\
+    Plug \(d\) back in:\\
+    \(T(n) = T(\frac{N}{2^{\log{n}}}) + 2\log{n}f() = T(1) + 2\log{n}f() = 2\log{n}[max|l_1||l_2|]\)\\
+    \\
+    $\therefore$ $\Theta{(\log{n})}$
+    \newpage
+    
 \section*{\centering Response 2}
     \textbf{Given}: \(T(n) = T(n-1) + n\)\\
     \\
