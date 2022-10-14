@@ -8,6 +8,12 @@
 \documentclass[12pt, a4paper]{article}
 \usepackage{amssymb, amsthm, amssymb}
 \begin{document}
+\newenvironment{claim}[1]{\par\noindent\underline{Claim:}\space#1}{}
+\newenvironment{basecase}[1]{\par\noindent\underline{Base Case:}\space#1}{}
+\newenvironment{inductivehypothesis}[1]{\par\noindent\underline{Inductive Hypothesis:}\space#1}{}
+\newenvironment{inductive}[1]{\par\noindent\underline{Inductive Case:}\space#1}{}
+\newenvironment{guess}[1]{\par\noindent{Guess:}\space#1}{}
+\newenvironment{prove}[1]{\par\noindent{Prove:}\space#1}{}
 \maketitle
 \section*{\centering Response 1}
     1. The algorithm would take in two integer inputs, \textit{int start} and \textit{int end}, and would return an integer.
@@ -72,7 +78,41 @@
     \newpage
 
 \section*{\centering Response 3}
-    
+    \begin{proof}
+        \begin{claim}
+            \(T(n) = 4T(\frac{n}{3} + n \in O(n^{\log_{3}(4)})\)\\
+        \end{claim}
+        \begin{guess}
+            \(O(n^{\log_{3}(4)})\)
+        \end{guess}\\
+        \begin{prove}
+            \(T(n) \leq cn^{\log_{3}(4)}\) where \(c\) is a constant. 
+        \end{prove}\\
+        \begin{basecase}
+            \(n = 3\)\\
+            \\
+            \(T(3) \le c \cdot 3^{\log_{3}(4)}\)\\
+            \(T(3) \le c \cdot 4\)\\
+            \(4T(\frac{3}{3}) + 3 \leq 4c\)\\
+            \(4T(1) + 3 \leq 4c\)\\
+            \(4 \cdot 1 + 3 \leq 4c\)\\
+            \(7 \leq 4c\) when \(c \geq \frac{7}{4}\)\\
+            $\therefore$ Since \(3 \geq \frac{7}{4}\), the base case holds.\\
+        \end{basecase}
+        \begin{inductivehypothesis}
+            Let \(k \leq n\) such that \(T(k) \leq c \cdot n^{\log_{3}(4)} - dk\) where \(d\) is a constant.\\
+        \end{inductivehypothesis}
+        \begin{inductive}\\
+            \(T(n) = 4T(\frac{n}{3}) + n\)\\
+            \(T(n) \leq 4[c \cdot (\frac{n}{3})^{\log_{3}(4)} - dn] + \frac{n}{3}\)\\
+            \(T(n) \leq 4[c \cdot \frac{n^{\log_{3}(4)}}{3^{\log_{3}(4)}} - dn] + \frac{n}{3}\)\\
+            \(T(n) \leq 4[c \cdot \frac{n^{\log_{3}(4)}}{4} - d] + \frac{n}{3}\)\\
+            \(T(n) \leq cn^{\log_{3}(4)} - 4dn + \frac{n}{3}\)\\
+            Since \(4dn\) is larger than \(\frac{n}{3}\), we can transform the recurrence relation to \(T(n) \leq cn^{\log_{3}(4)}-dn\)
+        \end{inductive}\\
+        $\therefore$ the inequality was proven and the claim is true.
+
+    \end{proof}
 
 \section*{\centering Response 4}
     \textbf{Given}: \(T(n) = 2T(\frac{n}{4}) + 1\)\\
