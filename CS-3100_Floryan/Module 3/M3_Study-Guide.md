@@ -4,7 +4,7 @@
 
 - ~~cost for recursive functions~~
 - ~~mergesort~~
-- maximum subarray
+- ~~maximum subarray~~
 - recurrence relations
     - substitution
     - directly solve
@@ -65,6 +65,8 @@ FIND-MAX-SUBARRAY(A, low, high)
     else
         return (cross-low, cross-high, cross-sum)
 ```
+
+
 
 ### **Recurrence Relations**
 
