@@ -5,10 +5,10 @@
 - ~~cost for recursive functions~~
 - ~~mergesort~~
 - ~~maximum subarray~~
-- recurrence relations
-    - substitution
-    - directly solve
-    - master's theorem
+- ~~recurrence relations~~
+    - ~~substitution~~
+    - ~~directly solve~~
+    - ~~master's theorem~~
 - closest pair of points
 - quickselect
   
@@ -66,9 +66,60 @@ FIND-MAX-SUBARRAY(A, low, high)
         return (cross-low, cross-high, cross-sum)
 ```
 
+#### **Questions**
 
+4.1-1
+
+Return one element where the magnitude of the negative number is closest to 0.
+
+4.1-2
+
+```python
+FIND-MAX-VALUE(A)
+    int maxLeft = -1
+    int maxRight = -1
+    int sum = 0
+    int maxSum = - infinity
+
+    for i = 0 to A.length
+        for j = i to A.length
+            sum += A[j]
+
+            if(sum > maxSum)
+                maxSum = sum
+                maxLeft = i
+                maxRight = j
+
+        sum = 0
+```
+
+4.1-3
+
+n/a
+
+4.1-4
+4.1-5
 
 ### **Recurrence Relations**
+
+3 methods
+
+1. unrolling the recurrence
+   - unroll the recursive function
+   - find general pattern
+   - find d that causes base case
+   - solve
+2. substitution
+   - guess a value
+   - prove with induction
+3. master's theorem
+   - given form $T(n) = aT(\frac{n}{b}) + f(n)$
+   - find $k = \log_{b}(a)$ and test against three cases
+   - Cases
+  
+        1. $n^{k} > f(n)$ ----> $\Theta{(n^{k})}$
+        2. $n^{k} = f(n)$ ----> $\Theta{(n^{k}\log{n})}$ 
+        3. $n^{k} < f(n) \bigcap af(\frac{n}{b}) \leq cf(n) , c < 1$ ----> $\Theta{(f(n))}$
 
 ### **Closest Pair of Points**
 
