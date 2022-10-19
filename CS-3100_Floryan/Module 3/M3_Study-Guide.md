@@ -98,6 +98,9 @@ FIND-MAX-VALUE(A)
 n/a
 
 4.1-4
+
+In the FIND-MAX-SUBARRAY, I would add a base case that tested if high and low are both zero, then I would return zero.
+
 4.1-5
 
 ### **Recurrence Relations**
