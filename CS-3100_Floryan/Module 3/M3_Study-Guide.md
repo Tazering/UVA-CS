@@ -9,7 +9,7 @@
     - ~~substitution~~
     - ~~directly solve~~
     - ~~master's theorem~~
-- closest pair of points
+- ~~closest pair of points~~
 - quickselect
   
 ### **Cost for Recursive Functions**
@@ -122,6 +122,25 @@ n/a
         3. $n^{k} < f(n) \bigcap af(\frac{n}{b}) \leq cf(n) , c < 1$ ----> $\Theta{(f(n))}$
 
 ### **Closest Pair of Points**
+
+- runtime is $O(n\log_{2}(n))$
+- inputs = $P, X, Y$ where $X$ and $Y$ are sorted by ascending x-coordinates and y-coordinates respectively
+- base is when $|P| \leq 3$ ------->  brute force
+- divide
+  - divide $X$ to $X_L$ and $X_R$
+  - divide $Y$ to $Y_L$ and $Y_R$
+  - divide $P$ to $P_L$ and $P_R$
+- conquer
+  - run algorithm on left side and right side
+  - calculate $\delta_{L}$ and $\delta_{R}$ from recursive calls and find $\delta = \min{(\delta_L, }{\delta_R)}$
+- combine
+  - create strip $l$ of size $2\delta$ x $\delta$ where $l$ is the midpoint
+  - find next 7 strips
+
+- correctness
+  - since the left side of the box is $\delta$ x $\delta$, at most 4 points must be able to fit inside it
+  - anything inside the box would contradict the definition of $\delta$ 
+  - $\therefore$ at most 8 points in $2\delta$ x $\delta$ box
 
 ### **Quickselect**
 
