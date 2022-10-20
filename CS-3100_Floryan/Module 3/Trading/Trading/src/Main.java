@@ -40,7 +40,7 @@ public class Main {
             ArrayList<Star> starsY = getStarArray(coordinates);
 
             //main algorithm
-                //initialization
+            //initialization
             Collections.sort(starsX, new CompareStarsX()); //sort stars by x coordinates
             Collections.sort(starsY, new CompareStarsY());
 
@@ -213,7 +213,7 @@ public class Main {
 
 
     // testing
-        // form test case Array List
+    // form test case Array List
     public static ArrayList<String> formTestCaseArrayList() {
         ArrayList<String> output = new ArrayList<>();
 
@@ -233,7 +233,7 @@ public class Main {
         return output;
     }
 
-        // Unit Tests
+    // Unit Tests
     public static void testFileToArray(ArrayList<String> arrayList) {
 
         for(String s : arrayList) {
