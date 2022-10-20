@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class Main {
@@ -25,13 +26,18 @@ public class Main {
         while(parsedFile.size() != 0) {
             ArrayList<String> testCase = grabTestCase(parsedFile);
             ArrayList<Room> rooms = getRooms(testCase);
+            ArrayList<ArrayList<Room>> sorted = sortedRooms(rooms);
 
             //algorithm
                 // increasing capacity
-
+            ArrayList<Room> ascending = sorted.get(0);
 
                 // no change in capacity
+            ArrayList<Room> neutral = sorted.get(1);
+
                 // decreasing capacity
+            ArrayList<Room> descending = sorted.get(2);
+            
         }
 
     }
@@ -53,7 +59,28 @@ public class Main {
         return rooms;
     }
 
+    public static ArrayList<ArrayList<Room>> sortedRooms(ArrayList<Room> rooms) {
+        ArrayList<ArrayList<Room>> output = new ArrayList<>();
+        Collections.sort(rooms, new CompareRoomsByChangeInCapacity());
 
+        ArrayList<Room> ascending = new ArrayList<>();
+        ArrayList<Room> neutral = new ArrayList<>();
+        ArrayList<Room> descending = new ArrayList<>();
+
+        for(Room r : rooms) {
+            if(r.getChangeInCapacity() > 0) {
+                ascending.add(r);
+            } else if(r.getChangeInCapacity() == 0) {
+                neutral.add(r);
+            }
+            descending.add(r);
+        }
+        output.add(ascending);
+        output.add(neutral);
+        output.add(descending);
+
+        return output;
+    }
 
     //helper
     public static ArrayList<String> grabTestCase(ArrayList<String> parsedFile) {
