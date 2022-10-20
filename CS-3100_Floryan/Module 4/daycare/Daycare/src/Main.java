@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -10,6 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
         ArrayList<String> parsedFile = new ArrayList<>();
+        int T = Integer.MAX_VALUE;
 
         //testing
         parsedFile = getTestCase(TEST_CASE_1);
@@ -24,11 +24,37 @@ public class Main {
         //go through test cases
         while(parsedFile.size() != 0) {
             ArrayList<String> testCase = grabTestCase(parsedFile);
+            ArrayList<Room> rooms = getRooms(testCase);
 
-            //TODO actual algorithm
+            //algorithm
+                // increasing capacity
+
+
+                // no change in capacity
+                // decreasing capacity
         }
 
     }
+
+    //algorithm
+    public static ArrayList<Room> getRooms(ArrayList<String> testCase) {
+        int n = Integer.parseInt(testCase.get(0));
+        ArrayList<Room> rooms = new ArrayList<>();
+        testCase.remove(0);
+
+        for(int i = 0; i < n; i++) {
+            String[] str = testCase.get(i).split(" ");
+            int c0 = Integer.parseInt(str[0]);
+            int cf = Integer.parseInt(str[1]);
+            rooms.add(new Room(c0, cf, cf - c0));
+
+        }
+
+        return rooms;
+    }
+
+
+
     //helper
     public static ArrayList<String> grabTestCase(ArrayList<String> parsedFile) {
         ArrayList<String> output = new ArrayList<>();
@@ -46,20 +72,11 @@ public class Main {
         return output;
     }
 
-    public static void printArrayList(ArrayList<String> arr) {
-        for(String s : arr) {
-            System.out.println(s);
+    public static void printRooms(ArrayList<Room> rooms) {
+        for(Room r : rooms) {
+            r.printRoom();
+            System.out.println("");
         }
-    }
-
-    public static boolean isNumeric(String s) {
-        try {
-            int i = Integer.parseInt(s);
-        } catch(NumberFormatException e) {
-            return false;
-        }
-
-        return true;
     }
 
     //test files
@@ -67,7 +84,6 @@ public class Main {
         ArrayList<String> output = new ArrayList<>();
 
         try{
-
             File file = new File(path);
             Scanner scan = new Scanner(file);
             while(scan.hasNextLine()) {
