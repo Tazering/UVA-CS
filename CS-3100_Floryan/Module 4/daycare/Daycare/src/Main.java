@@ -37,7 +37,7 @@ public class Main {
 
                 // decreasing capacity
             ArrayList<Room> descending = sorted.get(2);
-            
+
         }
 
     }
