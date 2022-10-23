@@ -126,6 +126,63 @@ See if the next value is positive or not.
         2. $n^{k} = f(n)$ ----> $\Theta{(n^{k}\log{n})}$ 
         3. $n^{k} < f(n) \bigcap af(\frac{n}{b}) \leq cf(n) , c < 1$ ----> $\Theta{(f(n))}$
 
+Questions:
+
+4.3-1
+
+$T(n) = T(n - 1) + n \in O(n^{2})$
+
+Guess $O(n^{2})$
+
+Prove: $T(n) \leq cn^2$
+
+Base Case: $n = 2$
+
+$T(2) = T(2 - 1) + 2$
+
+$T(2) \leq c2^2$
+
+$T(1) + 2 \leq c4$
+
+$3 \leq c4$
+
+$c \geq \frac{3}{4}$
+
+
+Inductive Case:
+
+Let when $k < n, T(k) \leq cn^2$
+
+$T(n) = T(n - 1) + n$
+
+$T(n) \leq [c(n - 1)^2] + n$
+
+$T(n) \leq c(n^2 - 2n + 1) + n$
+
+$T(n) \leq cn^2 - 2cn + c + n$ when $c > 0$
+
+$T(n) \leq cn^2$ because we proved a tighter bound when more will be taken out then added
+
+4.3-2
+
+$T(n) = T(\frac{n}{2}) + 1 \in O(lg(n))$
+
+Guess $O(lg(n))$
+
+Prove $T(n) \leq c\log_{2}(n) - d$
+
+Base Case: $n = 2$
+
+$T(n) = T(\frac{n}{2}) + 1$
+
+$T(n) \leq c\log_{2}(\frac{n}{2}) - d + 1$
+
+$T(n) \leq c\log_{2}(n) - d + 1$
+
+Proved a tighter bound so...
+
+$T(n) \leq c\log_{2}(n)$
+
 ### **Closest Pair of Points**
 
 - runtime is $O(n\log_{2}(n))$
