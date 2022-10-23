@@ -19,14 +19,24 @@
 - unweighted graph is a graph where edges are the same value
 - weighted graph is a graph where edges have different value
 
+## **Facts**
+- All trees are graphs (True)
+- All linked-lists are graphs (True)
+- All graphs are trees (False)
+- A directed graph (without loops) always satisfies $|E| \leq \frac{|V|^2}{2}$ (False) because the most number of edges you can have is $V^2 - V$ which is larger than $\frac{|V|^2}{2}$
+- For any graph, it is always the case that $|E| \in O(|V|^2)$ (True)
+- A *directed graph* cannot have cycles, which makes them convenient to use (False) because directed graphs can have cycles
+- When BFS exeuctes, it is possible that a node is put on the queue a second time, but it can never happen a third time (False) because the color will change automatically 
+- For BFS, the queue can contain nodes with two unique distances but NOT three unique distances (True)
 
 ### **Graph Representation**
 - adjacency matrix
     - better for dense graphs
+    - lots of zeros so space is an issue
 
 - adjacency list
     - better for more sparse graphs => space efficient
-    - hard to find original nodes
+    - hard to find original nodes and in-degrees
 
 ### *Breadth-First Search (BFS)*
 
@@ -62,7 +72,7 @@ BFS(G, s) # G is the graph of (V, E) and s is the source node
 ### *Depth-First Search (DFS)*
 
 ```python
-DFS(G) # G is the graph of (V, E)
+DFS-SWEEP(G) # G is the graph of (V, E)
     for each vertex in G.V # initialize the nodes
         u.color = "WHITE"
         u.pi = NULL
@@ -89,11 +99,17 @@ DFS-VISIT(G, u) # G is the graph of (V, E) and u is a node of interest
 - find if a graph is acyclic
 - $\Theta(V + E)$
 
-Types of Edges:
+Types of Edges: Let $E = (u, v)$
 - **tree edge**: edge used to first discover a node
 - **back edge**: child connects directly to parent
+  - discover a gray node
 - **forward edge**: nontree edges that connect u to a descendent v
+  - check if $v$ is black
+  - $u.s < v.s$ AND $u.f > v.f$
 - **cross edges**: all other edges
+    - $u.s > v.s$ AND $u.s > v.f$
+    - $u.s > v.s$ AND $u.f > v.f$
+    - $v == BLACK$ AND $u.s > v.s$
 
 - Running Time = O(V + E)
 
@@ -281,8 +297,10 @@ V<sup>2</sup> + V<sup>2</sup> = 2V<sup>2</sup> = V<sup>2</sup> = E
 6. Explain the various types of edges.
     - tree edges: edge traversed to find a white node
     - back edge: edge that points back to parent
+      - if pointing to gray node
     - forward/descendent edge: edge that points directly to descendent node
-    - cross edge: edge that connects two nodes with no relationship
+    - cross edge: edge that connects two nodes with no relationship say $E = (u, v)$
+      - 
 
     ![image](./resources/DFS_Q6_Solution.jpg)
 

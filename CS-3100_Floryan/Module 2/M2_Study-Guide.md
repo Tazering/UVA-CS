@@ -1,5 +1,10 @@
 # ***Module 2 Study***
 
+## **Facts**
+
+- *Dijkstra's* might still work with negative cost edges (but not guaranteed). (True)
+- In *Dijkstra's Algorithm*, a node that is not reachable from the start node will still eventually become *known* (False) because  
+
 ### **Dijkstra's Algorithm**
 
 **greedy algorithm**: best decision at every decision point

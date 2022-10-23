@@ -7,7 +7,7 @@
 - ~~optimal substructure proof~~
 - ~~greedy choice property proof~~
 - ~~fractional knapsack problem and proof~~
-- activity selection and proof
+- ~~activity selection and proof~~
 - bridge problem and proof
 
 ### **Coin Change**
