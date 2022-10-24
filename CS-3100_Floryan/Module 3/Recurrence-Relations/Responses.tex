@@ -29,26 +29,12 @@
     \\
     3. \textbf{Given}: \(T(n) = T(\frac{n}{2}) + 2f()\)\\
     \\
-    \textbf{Unroll the Recurrence}\\
-    let \textit{d} denotes level of unrolling and let f() denote \(\Theta{(max(|l_1||l_2|))}\)\\
-    \\
-    \textit{d} = 1: \(T(n) = T(\frac{n}{2}) + 2f()\)\\
-    \textit{d} = 2: \(T(n) = [T(\frac{n}{4}) + 2f()] + 2f() = T(\frac{n}{4}) + 4f()\)\\
-    \textit{d} = 3: \(T(n) = [T(\frac{n}{8}) + 2f()] + 4f() = T(\frac{n}{8}) + 6f()\)\\
-    \textit{d} = 4: \(T(n) = [T(\frac{n}{16}) + 2f()] + 6f() = T(\frac{n}{16}) + 8f()\)\\
-    \\
-    General pattern: \(T(n) = T(\frac{n}{2^{d}}) + 2df()\)\\
-    \\
-    The base case when \(T(1)\) is reached when \(d = \log{n}\)\\
-    Solve for \(d\):\\
-    \(\frac{n}{2^d} = 1\)\\
-    \(n = 2^d\)\\
-    \(\log{n} = d\)\\
-    \\
-    Plug \(d\) back in:\\
-    \(T(n) = T(\frac{N}{2^{\log{n}}}) + 2\log{n}f() = T(1) + 2\log{n}f() = 2\log{n}[max|l_1||l_2|]\)\\
-    \\
-    $\therefore$ $\Theta{(\log{n})}$
+    \textbf{Use Master's Theorem}\\
+
+    Let \(a = 1, b = 2, k = \log_{2}(1) = 0, f(n) = 2f() = 2n\)\\
+    Since \(n^{k} = n^{0} = 1 < 2n\), Case 3 applies. Need to check regularity: \(af(\frac{n}{b}) \leq cf(n)\). This means that \(c < \frac{af(\frac{n}{b})}{f(n)} < 1\).
+    This means that \(c \leq \)
+
     \newpage
     
 \section*{\centering Response 2}

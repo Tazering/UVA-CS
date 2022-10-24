@@ -90,3 +90,8 @@ Let $S$ be the set of activities given and let $O = \{o_{1}, o_{2}, ..., o_{n}\}
 
 Assume that $a_i$ is the activity with the earliest finish time and is not in the optimal solution. Let $o_1$ be the activity in $O$ that has the earliest finish time in $O$. This means that $f_1 \leq s_2$ and we know that $f_i \leq f_1$. Combining these inequalities result in $f_i \leq f_1 \leq s_2$. Then exchanging $f_i$ with $f_1$ is safe because it will still be mutually exclusive to all the other activities in the optimal solution and presents a similar or better optimal solution. Contradicts because we assumed that the activity with the earliest finish time is not in the optimal solution.  
 
+### **Bridge Problem**
+
+**Prove Optimal Substructure**
+
+Claim: 

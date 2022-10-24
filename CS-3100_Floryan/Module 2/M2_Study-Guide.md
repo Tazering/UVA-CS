@@ -27,6 +27,9 @@ DIJKSTRA(G, w, s):
 - Implementation:
     - indirect heap: use an additional array that stores the location of the value
     - hashmap: to find the node number
+- Naive Runtime: $O(|V|^2)$
+
+
 ### **Prim's Algorithm**
 
 **Minimum Spanning Tree**: a tree where the sum of the edges is at the minimum
