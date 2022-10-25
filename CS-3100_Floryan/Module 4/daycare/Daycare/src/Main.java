@@ -7,38 +7,95 @@ import java.util.Scanner;
 public class Main {
 
     static final String TEST_CASE_1 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 4/daycare/test-cases/test-case-1.txt";
+    static final String TEST_CASE_2 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 4/daycare/test-cases/test-case-2.txt";
+    static final String TEST_CASE_3 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 4/daycare/test-cases/test-case-3.txt";
+
+
 
     public static void main(String[] args) {
         ArrayList<String> parsedFile = new ArrayList<>();
-        int T = Integer.MAX_VALUE;
 
         //testing
-        parsedFile = getTestCase(TEST_CASE_1);
+        //parsedFile = getTestCase(TEST_CASE_1);
 
         //submission
-//        Scanner scan = new Scanner(System.in);
-//        while(scan.hasNextLine()) {
-//            String data = scan.nextLine();
-//            parsedFile.add(data);
-//        }
+        Scanner scan = new Scanner(System.in);
+        while(scan.hasNextLine()) {
+            String data = scan.nextLine();
+            parsedFile.add(data);
+        }
 
         //go through test cases
         while(parsedFile.size() != 0) {
             ArrayList<String> testCase = grabTestCase(parsedFile);
             ArrayList<Room> rooms = getRooms(testCase);
             ArrayList<ArrayList<Room>> sorted = sortedRooms(rooms);
+            int available = 0;
+            int openSpaceFromOtherRooms = 0;
+            int transferred = 0;
+            int trailersize = 0;
+            ArrayList<Room> ascending = sorted.get(0);
+            ArrayList<Room> neutral = sorted.get(1);
+            ArrayList<Room> descending = sorted.get(2);
 
             //algorithm
                 // increasing capacity
-            ArrayList<Room> ascending = sorted.get(0);
+
+                if(ascending.size() != 0) {
+                    Collections.sort(ascending, new CompareRoomsByInitial());
+                }
+
+                for(int i = 0; i < ascending.size(); i++) {
+                    transferred += ascending.get(i).getInitialCapacity();
+
+                    available = updateAvailability(transferred, trailersize, openSpaceFromOtherRooms);
+
+                    if(available < 0) {
+                        trailersize += Math.abs(available);
+                    }
+
+                    openSpaceFromOtherRooms += ascending.get(i).getFinalCapacity();
+
+                }
+
 
                 // no change in capacity
-            ArrayList<Room> neutral = sorted.get(1);
+            for(int i = 0; i < neutral.size(); i++) {
+                transferred += neutral.get(i).getInitialCapacity();
+
+                available = updateAvailability(transferred, trailersize, openSpaceFromOtherRooms);
+
+                if(available < 0) {
+                    trailersize += Math.abs(available);
+                }
+
+                openSpaceFromOtherRooms += neutral.get(i).getFinalCapacity();
+
+            }
+
 
                 // decreasing capacity
-            ArrayList<Room> descending = sorted.get(2);
+                if(descending.size() != 0) {
+                    Collections.sort(descending, new CompareRoomsByFinal());
+                }
 
+            for(int i = 0; i < descending.size(); i++) {
+                transferred += descending.get(i).getInitialCapacity();
+
+                available = updateAvailability(transferred, trailersize, openSpaceFromOtherRooms);
+
+                if(available < 0) {
+                    trailersize += Math.abs(available);
+                }
+
+                openSpaceFromOtherRooms += descending.get(i).getFinalCapacity();
+
+            }
+
+            System.out.println(trailersize);
         }
+
+
 
     }
 
@@ -72,14 +129,19 @@ public class Main {
                 ascending.add(r);
             } else if(r.getChangeInCapacity() == 0) {
                 neutral.add(r);
+            } else {
+                descending.add(r);
             }
-            descending.add(r);
         }
         output.add(ascending);
         output.add(neutral);
         output.add(descending);
 
         return output;
+    }
+
+    public static int updateAvailability(int transferred, int trailerSize, int changeInCapacity) {
+        return trailerSize + changeInCapacity - transferred;
     }
 
     //helper
