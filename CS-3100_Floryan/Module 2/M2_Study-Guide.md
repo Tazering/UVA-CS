@@ -3,7 +3,12 @@
 ## **Facts**
 
 - *Dijkstra's* might still work with negative cost edges (but not guaranteed). (True)
-- In *Dijkstra's Algorithm*, a node that is not reachable from the start node will still eventually become *known* (False) because  
+- In *Dijkstra's Algorithm*, a node that is not reachable from the start node will still eventually become *known* (False) because Dijkstra's algorithm has to start from the start node.
+- When running *Dijskstra's Algorithm*, distances to nodes sometimes have to be updated/overwritten with better smaller values (True)
+- A graph can have more than one MST (True)
+- A spanning tree does not contain cycles (True)
+- *Prim's Algorithm* must execute from a specifice start node or it may not work (False) because Prim's greedy algorithm will always find the optimal solution
+- An indirect heap increases the space complexity of the min-heap to $\Theta(n^2)$
 
 ### **Dijkstra's Algorithm**
 

@@ -32,9 +32,12 @@
     \textbf{Use Master's Theorem}\\
 
     Let \(a = 1, b = 2, k = \log_{2}(1) = 0, f(n) = 2f() = 2n\)\\
-    Since \(n^{k} = n^{0} = 1 < 2n\), Case 3 applies. Need to check regularity: \(af(\frac{n}{b}) \leq cf(n)\). This means that \(c < \frac{af(\frac{n}{b})}{f(n)} < 1\).
-    This means that \(c \leq \)
-
+    Since \(n^{k} = n^{0} = 1 < 2n\), Case 3 applies.\\ 
+    Need to check regularity: \(af(\frac{n}{b}) \leq cf(n)\). 
+    This means that \(c < \frac{af(\frac{n}{b})}{f(n)} < 1\).
+    This means that \(c < \frac{\frac{2n}{2}}{2n} = \frac{1}{2} \) which proves the regularity theorem; thus, case 3 of the Master's Theorem can be used.\\
+    \(T(n) \in \Theta(f(n))\)\\
+    \(\therefore \Theta()\) 
     \newpage
     
 \section*{\centering Response 2}
@@ -43,24 +46,24 @@
     \textbf{Unroll the Recurrence}\\
     Let \textit{d} denote level of unrolling\\
     \\
-    \textit{d} = 1: \(T(n) = T(n-1) + n\)\\
-    \textit{d} = 2: \(T(n) = [T(n-2) + (n-1)] + n = T(n-2) + 2n - 1\)\\
-    \textit{d} = 3: \(T(n) = [T(n-3) + (n-2)] + 2n - 1 = T(n-3) + 3n - 3\)\\
-    \textit{d} = 4: \(T(n) = [T(n-4) + (n-4)] + 3n - 3 = T(n-4) + 4n - 7\)\\
+    \textit{d} = 0: \(T(n) = T(n-1) + n\)\\
+    \textit{d} = 1: \(T(n) = [T(n-2) + (n-1)] + n = T(n-2) + 2n - 1\)\\
+    \textit{d} = 2: \(T(n) = [T(n-3) + (n-2)] + 2n - 1 = T(n-3) + 3n - 3\)\\
+    \textit{d} = 3: \(T(n) = [T(n-4) + (n-4)] + 3n - 3 = T(n-4) + 4n - 7\)\\
     \\
-    General Pattern: \(T(n) = T(n-d) + dn - (2^{d-1} - 1)\)\\
+    General Pattern: \(T(n) = T(n - (d + 1)) + (d - 1)n - \frac{d(d+1)}{2}\)\\
     \\
-    The base case when \(T(1)\) is reached when \(n-d = 1\).\\
+    The base case when \(T(1)\) is reached when \(n-d - 1 = 1\).\\
     Solve for \(d\): \\
-    \(n - d = 1\)\\
-    \(-d = 1-n\)\\
-    \(d=n-1\) \\
+    \(n - d = 2\)\\
+    \(-d = 2-n\)\\
+    \(d=n-2\) \\
     \\
     Plug \(d\) back in:\\
-    \(T(n)=T(n-(n-1))+(n-1)n-(2^{n-1-1}-1)\)\\
-    \(T(n)=T(1)+n^2-n-2^{n-1}+1\)\\
-    \(T(n)=n^2-n-2^{n-2}+1 = \Theta{(2^n)}\)\\
-    \(\therefore \Theta{(2^n)}\)
+    \(T(n)=T(n-((n-2)+1))+((n-2)-1)n-\frac{(n-2)(n - 2 + 1)}{2}\)\\
+    \(T(n)=T(1)+(n-3)n-\frac{n^2-2n+2}{2}\)\\
+    \(T(n)=n^2-3n-\frac{n^2-2n+2}{2} = \Theta{(n^2)}\)\\
+    \(\therefore \Theta{(n^2)}\)
     \newpage
 
 \section*{\centering Response 3}
@@ -109,7 +112,7 @@
     Compare \(f(n) = 1\) to \(n^{\frac{1}{2}}\)\\
     Since \(f(n) = O(n^{\frac{1}{2} - \epsilon})\) where \(\epsilon = \frac{1}{2}\), Case 1 applies:\\
     \(T(n) \in \Theta{(n^{\frac{1}{2}})}\)\\
-    The solution must be \(T(n) = \Theta{(n)}\) since \(k = \frac{1}{2}\) and rounds up to 1
+    \(\therefore \Theta(n^{\frac{1}{2}})\)
 
 
 \section*{\centering Response 5}
