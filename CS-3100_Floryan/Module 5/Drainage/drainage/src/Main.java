@@ -23,8 +23,10 @@ public class Main {
 
         for(int i = 0; i < size; i++) {
             ArrayList<String> testCase = grabTestCase(parsedString);
+            String[] metaData = testCase.get(0).split(" ");
+            String location = metaData[0];
 
-
+            
         }
 
     }
