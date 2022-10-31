@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
@@ -25,10 +27,40 @@ public class Main {
             ArrayList<String> testCase = grabTestCase(parsedString);
             String[] metaData = testCase.get(0).split(" ");
             String location = metaData[0];
+            int r = Integer.parseInt(metaData[1]);
+            int c = Integer.parseInt(metaData[2]);
 
-            
+            Map<Integer, Integer> map = new HashMap<>();
+            int[][] graph = makeGraph(r, c, testCase);
+            int longestDistance = DFS_Sweep(graph, map);
+
+            System.out.println(location + ": " + longestDistance);
         }
 
+    }
+
+    //algorithm
+    public static int DFS_Sweep(int[][] graph, Map<Integer, Integer> map) {
+        int longestPath = 1;
+
+        for(int r = 0; r < graph.length; r++) {
+            for(int c = 0; c < graph[r].length; c++) {
+                if(!map.containsKey(graph[r][c])) {
+                    int temp = DFS(r, c, graph, map);
+
+                    if(temp > longestPath) {
+                        longestPath = temp;
+                    }
+                }
+            }
+        }
+
+        return longestPath;
+    }
+
+    public static int DFS(int startR, int startC, int[][] graph, Map<Integer, Integer> map) {
+
+        return 0;
     }
 
     //helper
@@ -45,7 +77,18 @@ public class Main {
         return arr;
     }
 
-    
+    public static int[][] makeGraph(int r, int c, ArrayList<String> values) {
+        int[][] output = new int[r][c];
+
+        for(int i = 0; i < r; i++) {
+            String[] row = values.get(i + 1).split(" ");
+
+            for(int j = 0; j < c; j++) {
+                output[i][j] = Integer.parseInt(row[j]);
+            }
+        }
+        return output;
+    }
 
     //testing
     public static ArrayList<String> getTestCase(String filepath) {
@@ -74,5 +117,17 @@ public class Main {
         System.out.println();
 
     }
+
+    public static void print2DArray(int[][] arr) {
+        for(int r = 0; r < arr.length; r++) {
+            for(int c = 0; c < arr[r].length; c++) {
+                System.out.print(arr[r][c] + "\t");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+
 
 }
