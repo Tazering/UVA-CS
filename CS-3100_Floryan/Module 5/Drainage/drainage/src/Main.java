@@ -26,7 +26,7 @@ public class Main {
             String[] metaData = testCase.get(0).split(" ");
             String location = metaData[0];
 
-            
+
         }
 
     }
