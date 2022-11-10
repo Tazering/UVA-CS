@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1668009726 "c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 5/DP Written/Responses.tex" "Responses.pdf" "Responses" 1668009726
+["pdflatex"] 1668051160 "c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 5/DP Written/Responses.tex" "Responses.pdf" "Responses" 1668051161
   "C:/Users/tyler/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1666737262 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/tyler/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1664811677 10786909 74238dd3faf4ff231b52b7f5d274fda9 ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1233951848 1004 54797486969f23fa377b128694d548df ""
@@ -22,9 +22,11 @@
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/tfm/public/cm/cmsy8.tfm" 1136765053 1120 8b7d695260f3cff42e636090a8002094 ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb" 1247593066 32080 340ef9bf63678554ee606688e7b5339d ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb" 1247593067 36741 0ee9e374ec3e30da87cdfb0ea3575226 ""
+  "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb" 1247593066 35469 dcf3a5f2fc1862f5952e3ee5eb1d98c4 ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb" 1247593067 32722 d7379af29a190c3f453aba36302ff5a9 ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb" 1247593066 32362 bc3f3eec7ab7d65fe700963d4017d32c ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1247593067 32569 5e5ddc8df908dea60932f3c484a54c0d ""
+  "C:/Users/tyler/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb" 1247593067 32626 5abc8bb2f28aa647d4c70f8ea38cc0d3 ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/tex/latex/amscls/amsthm.sty" 1591020009 12594 0d51ac3a545aaaa555021326ff22a6cc ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/tex/latex/amsfonts/amsfonts.sty" 1358197772 5949 3f3fd50a8cc94c3d4cbf4fc66cd3df1c ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/tex/latex/amsfonts/amssymb.sty" 1358197772 13829 94730e64147574077f8ecfea9bb69af4 ""
@@ -33,9 +35,9 @@
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/tex/latex/base/article.cls" 1657037832 20144 7555b7429d80bef287ebb82117811acc ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/tex/latex/base/size12.clo" 1657037832 8449 7fbdc9c8596083427317c1e525489c81 ""
   "C:/Users/tyler/AppData/Local/Programs/MiKTeX/tex/latex/l3backend/l3backend-pdftex.def" 1661881568 30282 33c465a64f2bd5ad4a68a7b2f555a29b ""
-  "Responses.aux" 1668009726 32 c81c40425fbb5e93b90fba65da0b5e61 "pdflatex"
-  "Responses.tex" 1668009725 647 3c54e7ad05951a31bfaa2324fe6fcfbc ""
-  "c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 5/DP Written/Responses.tex" 1668009725 647 3c54e7ad05951a31bfaa2324fe6fcfbc ""
+  "Responses.aux" 1668051160 32 c81c40425fbb5e93b90fba65da0b5e61 "pdflatex"
+  "Responses.tex" 1668051159 1379 3ada9b352a5c6d69b2f9e1c53043ab4e ""
+  "c:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 5/DP Written/Responses.tex" 1668051159 1379 3ada9b352a5c6d69b2f9e1c53043ab4e ""
   (generated)
   "Responses.aux"
   "Responses.log"

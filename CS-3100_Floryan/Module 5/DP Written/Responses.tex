@@ -3,7 +3,6 @@
     Tyler Kim\\
     tkj9ep
 }
-\date{November 02, 2022}
 
 \documentclass[12pt, a4paper]{article}
 \usepackage{amssymb, amsthm, amssymb}
@@ -13,11 +12,26 @@
 \textbf{Given}: \(n\) for the total number for doors and \(S\) for number or secured doors.
 \\
 \\
-My algorithm would initialize an array of integers \(A\) of size \(n + 1\) and fill the first \(S-1\) indices to 0 and index \(S\) to 1.
+My algorithm would initialize an array of integers \(A\) of size \(n + 1\) and fill the first \(S-1\) indices to 0 and \(A[S]\) to 1. 
+The algorithm will iterate through all the indices of \(A\) and update each element of the array such that index \(A[i] = A[i - 1] + 2^{i - S}\).
+The algorithm will return \(A[n]\).
+
 \newpage
 \section*{\centering Response 2}
+
 \newpage
 \section*{\centering Response 3}
+
+\textbf{Given}: \(w\) = max size of the tile cover
+\\
+\\
+The algorithm will first create an array \(A\) of integers of size \(w + 1\) and assign \(A[0] = 0, A[1] = 1,\) and \(A[2] = 2\).
+The algorithm will iterate through each of the cells after \(A[2]\) and update each cell such that \(A[i] = A[i - 1] + A[i - 2]\).
+Once the algorithm fully fills all the values in \(A\), it will return the output of the value in the very last cell.
+The runtime of the algorithm is linear or \(\Theta(w)\) because the algorithm has to loop through all \(w\) values.   
+
 \newpage
 \section*{\centering Response 4}
-\end{document}
+j
+
+\end{document} 
