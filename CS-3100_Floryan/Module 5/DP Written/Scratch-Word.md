@@ -46,6 +46,10 @@ Goal: minimize number of days needed to ski; if multiple optimal schedules exist
 
 **Solution**
 - optimal substructure: sizes of $4 \times w | w \in \R$
-- Base Case: $T(0) = 0, T(1) = 2, T(2) = 5$
+- Base Case: 
+- pattern is perfect squares
+- *Code*
+  - create array $A$ of integers of size $w$
+  - 
     
    
