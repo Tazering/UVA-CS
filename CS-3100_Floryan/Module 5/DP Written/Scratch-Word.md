@@ -8,7 +8,7 @@
 
 2. 
    - $n$ runs in list called $R = \{r_1, r_2,..., r_n\} | r_i =$ # of minutes it takes to ski that run and get back up
-   - $L$ minutes of skiing
+   - $L$ minutes of skiing in a day
    - can't split skiing
    - ski runs in order
    - $m$ minutes left in the
@@ -22,7 +22,15 @@
 
 Goal: minimize number of days needed to ski; if multiple optimal schedules exist, then pick one that minimized the sum of $twd(t)$ values for all days
 
-3. **Given**
+  **Brainstorm**
+  $L$ amount of time in a day
+  - maybe use greedy algorithm to pick the ski path
+  - need to only know last run on each day
+
+- 2D array
+- when $i = 1; twd(L - \sum_{k = 0}^{i}(r_i))$
+
+1. **Given**
    - rectangular board of size 2 by $w \geq 1$
    - endless bag of dominoes each of size $2 \times 1$
   
