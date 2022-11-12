@@ -19,6 +19,7 @@ The algorithm will return \(A[n]\).
 \newpage
 \section*{\centering Response 2}
 
+
 \newpage
 \section*{\centering Response 3}
 
@@ -32,6 +33,9 @@ The runtime of the algorithm is linear or \(\Theta(w)\) because the algorithm ha
 
 \newpage
 \section*{\centering Response 4}
-j
+Let \(f(w)\) denote the solution algorithm such that \(f(w)\) denotes the number of possible combinations of dices in a \(4 \times w\) grid.
+The algorithm has two base cases: if \(w = 1\), return 1, and if \(w \leq 0\), return 0.
+In the recursive call of the algorithm, it will return \(f(w - 1) + 4f(w - 2) + f(w - 4)\). 
+The runtime of the algorithm will be \(\Theta(n)\) since at each level of recursion, the function does constant work.
 
 \end{document} 

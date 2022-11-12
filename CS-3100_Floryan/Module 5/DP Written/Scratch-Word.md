@@ -49,7 +49,10 @@ Goal: minimize number of days needed to ski; if multiple optimal schedules exist
 - Base Case: 
 - pattern is perfect squares
 - *Code*
-  - create array $A$ of integers of size $w$
-  - 
+  - base case: 
+    - $T(1) = 1$ 
+    - if $\leq 0$ => 0
+  - Recursive Case: $T(n) = T(n - 1) + 4T(n - 2) + T(n - 4)$
+- Runtime: linear
     
    
