@@ -22,7 +22,18 @@
 
 Goal: minimize number of days needed to ski; if multiple optimal schedules exist, then pick one that minimized the sum of $twd(t)$ values for all days
 
-3. **Given**
+  Solution
+  - calculate $D_{min}$ using greedy approach
+  - create 2d array of size $n \times D_{min}$ called A
+  - when $j = 0$, set $A[i][j = 0] = twd(L - \sum_{k = 0}^{i}r_i)$
+  - if $i < j$, then set $A[i][j] = -1$
+  - when $i == j$, then $A[i][j] = A[i-1][j-1] + twd(L - r_i)$
+  - when $i > j$, then 
+    - loop through all rows in previous column
+      - $A[i][j] = A[i - x][j - 1] + tws(L - \sum_{k = i}^{i - x}r_i)$
+  - Find smallest value in the column of $D_{min}$
+
+1. **Given**
    - rectangular board of size 2 by $w \geq 1$
    - endless bag of dominoes each of size $2 \times 1$
   

@@ -5,7 +5,7 @@
 }
 
 \documentclass[12pt, a4paper]{article}
-\usepackage{amssymb, amsthm, amssymb}
+\usepackage{amssymb, amsthm, amssymb, amsmath}
 \begin{document}
 \maketitle
 \section*{\centering Response 1}
@@ -18,7 +18,26 @@ The algorithm will return \(A[n]\).
 
 \newpage
 \section*{\centering Response 2}
+\textbf{Given}: \\
+\(R = \{r_1, r_2, ..., r_n\} | r_i = \textrm{number of minutes for skiing and } n = \textrm{number of runs}\) \\
+\(L=\textrm{minutes available for skiing}\)\\
+\(m = \textrm{satisfactory time leftover}\)
+\(\textrm{time dissatification} \)\\
+\begin{equation}
+    twd(t) = \begin{cases}
+        0, & \text{if $t = 0$}\\
+        -C, & \text{if $1 \leq t \leq m$}\\
+        (t-m)^2, & \text{otherwise}
+    \end{cases}
+\end{equation}
 
+The algorithm first calculates \(D_{min}\) by greedily calculating the minimum number of days needed if each run was done back-to-back.
+A 2D array of integers of size \(n \times D_{min}\), called \(A\), is created and each index is filled with infinity such that \(A[i][j] = \textrm{minimum $twd(t)$ given $i$ runs and $j$ days}\).
+The algorithm will go through each element in \(A\) and fill each value according to the following conditions:
+if \(j == 0 \rightarrow A[i][j] = twd(L - \sum_{k = 0}^{i})\), if \(i == j \rightarrow A[i][j] = A[i - 1][j - 1] + twd(L - r_i)\), and 
+if \(i > j \rightarrow min(A[i - x][j - y] + twd(L - \sum_{k = i}^{i - x}r_i)) | x = \textrm{looping from $i$ to 1 and } y = \textrm{looping from $j$ to 1}\).
+In other words, the last case will calculate minimum value for all possible cases.
+Finally, the algorithm will return the smallest value in the last column of \(A\).
 
 \newpage
 \section*{\centering Response 3}

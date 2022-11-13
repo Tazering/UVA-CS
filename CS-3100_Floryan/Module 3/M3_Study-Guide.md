@@ -2,14 +2,14 @@
 
 ## **Topics**
 
-- ~~cost for recursive functions~~ (COMPLETE)
-- ~~mergesort~~ (COMPLETE)
-- ~~maximum subarray~~ (COMPLETE)
-- ~~recurrence relations~~
-    - ~~substitution~~
-    - ~~directly solve~~
-    - ~~master's theorem~~
-- ~~closest pair of points~~
+- cost for recursive functions (COMPLETE)
+- mergesort (COMPLETE)
+- maximum subarray (COMPLETE)
+- recurrence relations
+    - substitution
+    - directly solve
+    - master's theorem
+- closest pair of points
 - quickselect
   
 ### **Cost for Recursive Functions**

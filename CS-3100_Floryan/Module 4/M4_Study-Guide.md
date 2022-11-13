@@ -8,6 +8,7 @@
 - fractional knapsack problem and proof
 - activity selection and proof
 - bridge problem and proof
+- Resource Division
 
 ### **Coin Change**
 
