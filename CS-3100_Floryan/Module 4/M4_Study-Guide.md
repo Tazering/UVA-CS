@@ -2,13 +2,11 @@
 
 ## **Topics**
 
-- coin change
-- optimal substructure proof
-- greedy choice property proof
-- fractional knapsack problem and proof
-- activity selection and proof
-- bridge problem and proof
-- Resource Division
+- ~~coin change~~
+- ~~fractional knapsack problem and proof~~
+- ~~activity selection and proof~~
+- ~~bridge problem and proof~~
+- ~~Resource Division~~
 
 ### **Coin Change**
 
