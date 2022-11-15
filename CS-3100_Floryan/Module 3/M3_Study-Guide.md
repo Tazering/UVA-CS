@@ -2,16 +2,11 @@
 
 ## **Topics**
 
-- cost for recursive functions (COMPLETE)
-- mergesort (COMPLETE)
-- maximum subarray (COMPLETE)
-- recurrence relations
-    - substitution
-    - directly solve
-    - master's theorem
-- closest pair of points
-- quickselect
-  
+- ~~Divide and Conquer Intro~~
+- Recurrence
+- Closest Pair of Points
+- Quickselect
+
 ### **Cost for Recursive Functions**
 
 Typically follows the form of: $T(n) = aT(\frac{n}{b}) + f(n)$
