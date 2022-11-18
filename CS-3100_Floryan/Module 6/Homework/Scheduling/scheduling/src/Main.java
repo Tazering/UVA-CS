@@ -30,7 +30,10 @@ public class Main {
             int n = Integer.parseInt(meta[2]);
 
             //algorithm
+                //initialize
 
+                //residual graph
+                //update and saturation
         }
 
     }
