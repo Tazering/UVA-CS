@@ -1,21 +1,22 @@
 public class Node {
 
-    private int color;
+    private boolean visited;
     private String name;
     private int id;
 
-    public Node(String name, int id, int color) {
-        this.color = color;
+
+    public Node(String name, int id) {
+        this.visited = false;
         this.name = name;
         this.id = id;
     }
 
-    public int getColor() {
-        return color;
+    public boolean getVisited() {
+        return visited;
     }
 
-    public void setColor(int color) {
-        this.color = color;
+    public void setVisited(boolean visited) {
+        this.visited = visited;
     }
 
     public String getName() {
@@ -35,6 +36,8 @@ public class Node {
     }
 
     public void print() {
-        System.out.println(this.name + " " + this.id + " " + this.color);
+        System.out.println(this.name + " " + this.id + " " + this.visited);
     }
+
+
 }

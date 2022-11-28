@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Main {
@@ -8,9 +9,8 @@ public class Main {
     static Map<String, Integer> objectToNumber = new HashMap<>();
     static Map<Integer, String> numberToObject = new HashMap<>();
     static ArrayList<Node> nodes = new ArrayList<>();
-    static int studentCount = 0;
-    static ArrayList<String> path = new ArrayList<>();
-    static boolean reachesSuperSink = true;
+    static ArrayList<ArrayList<String>> paths = new ArrayList<>();
+    static int maxflow;
 
     public static void main(String[] args) {
         ArrayList<String> parsedString = new ArrayList<>();
@@ -24,24 +24,25 @@ public class Main {
 //            parsedString.add(data);
 //        }
 
+
         while(parsedString.size() != 0) {
+            //grab the meta data
             String[] meta = parsedString.get(0).split(" "); // grab the first line
-            ArrayList<String> testCase = grabTestCase(parsedString); // grab the test case
-
-
-            // grab the meta data
             int r = Integer.parseInt(meta[0]);
             int c = Integer.parseInt(meta[1]);
             int n = Integer.parseInt(meta[2]);
 
-            if(r <= 0) {
+            if(r == 0 && c == 0 && n == 0) {
                 break;
             }
 
+            ArrayList<String> testCase = grabTestCase(parsedString); // grab the test case
+
             //System.out.println(objectToNumber);
-            studentCount = 0;
+            int studentCount = 0;
 
             //algorithm
+            //initialization
             ArrayList<String> temp = new ArrayList<>();
             for(int s = 1; s < r + 1; s++) {
                 String[] data = testCase.get(s).split(" ");
@@ -51,18 +52,34 @@ public class Main {
                 }
             }
 
-            int[][] graph = createAdjacencyMatrix(testCase, r, c, n);
 
-                //run Ford-Fulkerson
-            fordFulkerson(graph, studentCount * n);
+//            make adjacency matrix and residual graph
+            int[][] graph = createAdjacencyMatrix(testCase, r, c, n);
+            int[][] residualGraph = makeResidualGraph(graph);
+
+            printPaths();
+
+
+            //printAdjacencyMatrix(graph);
+            //printNodesList();
+//            run DFS
+
+
+//            run Ford-Fulkerson
+            fordFulkerson(graph, residualGraph, studentCount * n);
+            parsedString.remove(0);
         }
 
     }
 
     //algorithm
-        //ford-fulkerson
-    public static void fordFulkerson(int[][] graph, int goal) {
-        int maxflow = calculateMaxFlow(graph);
+    //ford-fulkerson
+    public static void fordFulkerson(int[][] graph, int[][] residualGraph, int goal) {
+        maxflow = 0;
+        ArrayList<String> currentPath = new ArrayList<>();
+        currentPath.add("Supersource");
+        DFS("Supersource", graph, residualGraph, "Supersink", currentPath);
+
 
         if(maxflow >= goal) {
             System.out.println("Yes");
@@ -72,24 +89,8 @@ public class Main {
         }
     }
 
-    //temporary
-    public static int calculateMaxFlow(int[][] graph) {
 
-        while(true) {
-            path = new ArrayList<>();
-            reachesSuperSink = true;
-            DFS_PathSearch("Supersource", graph);
-
-            if(!reachesSuperSink) {
-                break;
-            }
-            saturateGraph(graph);
-        }
-
-        return 0;
-    }
-
-    public static void saturateGraph(int[][] residualGraph) {
+    public static void saturateGraph(int[][] residualGraph, ArrayList<String> path) {
         for(int i = 0; i < path.size() - 1; i++) {
             int input = objectToNumber.get(path.get(i));
             int output = objectToNumber.get(path.get(i + 1));
@@ -112,29 +113,54 @@ public class Main {
     }
 
 
-    public static void DFS_PathSearch(String start, int[][] graph) {
 
+    public static void DFS(String start, int[][] adjacencyMatrix, int[][] residualGraph, String end, ArrayList<String> currentPath) {
         //base case
-        if(start.equals("Supersink")) {
-            path.add(start);
-
-        } else if(!canTraverseAnywhere(graph, start)) {
-            reachesSuperSink = false;
-
-        } else { //recursive case
-            path.add(start);
-
-            for(int i = 0; i < graph.length; i++) {
-                if(canTraverse(graph, start, i)) {
-
-                    DFS_PathSearch(numberToObject.get(i), graph);
-                    break;
-                }
-            }
-
+        if(start.equals(end)) {
+            maxflow++;
+            paths.add(new ArrayList<>(currentPath));
+            saturateGraph(residualGraph, new ArrayList<>(currentPath));
+            return;
         }
+        nodes.get(objectToNumber.get(start)).setVisited(false);
+        //visit all the neighbors
+        for(int i = 0; i < adjacencyMatrix.length; i++) { //recursive case
+            if(canTraverse(residualGraph, start, numberToObject.get(i))) {
+                currentPath.add(numberToObject.get(i));
+                DFS(numberToObject.get(i), adjacencyMatrix, residualGraph, end, currentPath);
+                currentPath.remove(numberToObject.get(i));
+            }
+        }
+        nodes.get(objectToNumber.get(start)).setVisited(false);
+
 
     }
+
+
+
+//    public static void DFS(String start, int[][] graph) {
+//
+//        //base case
+//        if(start.equals("Supersink")) {
+//            path.add(start);
+//
+//        } else if(!canTraverseAnywhere(graph, start)) {
+//            reachesSuperSink = false;
+//
+//        } else { //recursive case
+//            path.add(start);
+//
+//            for(int i = 0; i < graph.length; i++) {
+//                if(canTraverse(graph, start, i)) {
+//
+//                    DFS_PathSearch(numberToObject.get(i), graph);
+//                    break;
+//                }
+//            }
+//
+//        }
+//
+//    }
 
     public static boolean canTraverseAnywhere(int[][] graph, String node) {
         int i = objectToNumber.get(node);
@@ -149,10 +175,14 @@ public class Main {
         return false;
     }
 
-    public static boolean canTraverse(int[][] graph, String node, int end) {
+    public static boolean canTraverse(int[][] graph, String node, String end) {
         int start = objectToNumber.get(node);
 
-        return graph[start][end] != 0;
+        if(graph[start][objectToNumber.get(end)] != 0 && !nodes.get(objectToNumber.get(node)).getVisited() && !end.equals("Supersource")) {
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -199,7 +229,7 @@ public class Main {
 
         objectToNumber.put("Supersource", 0);
         numberToObject.put(0, "Supersource");
-        nodes.add(new Node("Supersource", 0, -1));
+        nodes.add(new Node("Supersource", 0));
 
         int count = 1;
 
@@ -213,7 +243,7 @@ public class Main {
             if(!objectToNumber.containsKey(data[0]) && i > 0) {
                 objectToNumber.put(data[0], count);
                 numberToObject.put(count, data[0]);
-                nodes.add(new Node(data[0], count, -1));
+                nodes.add(new Node(data[0], count));
                 count++;
             }
 
@@ -221,9 +251,14 @@ public class Main {
 
         objectToNumber.put("Supersink", count);
         numberToObject.put(count, "Supersink");
-        nodes.add(new Node("Supersink", count, -1));
+        nodes.add(new Node("Supersink", count));
         return testCase;
     }
+
+
+
+
+
 
     //testing
     public static ArrayList<String> parseString(String filepath) {
@@ -269,5 +304,12 @@ public class Main {
             System.out.println(" ");
         }
     }
+
+    public static void printPaths() {
+        for(int i = 0; i < paths.size(); i++) {
+            printArrayList(paths.get(i));
+        }
+    }
+
 
 }
