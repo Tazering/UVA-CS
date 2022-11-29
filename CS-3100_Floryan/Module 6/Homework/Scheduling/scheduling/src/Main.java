@@ -6,23 +6,24 @@ import java.util.*;
 public class Main {
 
     static final String TEST_CASE_1 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 6/Homework/Scheduling/test-cases/test-case-1.txt";
+    static final String TEST_CASE_2 = "C:/Users/tyler/dev/UVA-CS/CS-3100_Floryan/Module 6/Homework/Scheduling/test-cases/test-case-2.txt";
+
     static Map<String, Integer> objectToNumber = new HashMap<>();
     static Map<Integer, String> numberToObject = new HashMap<>();
     static ArrayList<Node> nodes = new ArrayList<>();
-    static ArrayList<ArrayList<String>> paths = new ArrayList<>();
     static int maxflow;
 
     public static void main(String[] args) {
         ArrayList<String> parsedString = new ArrayList<>();
 
-        parsedString = parseString(TEST_CASE_1);
+        //parsedString = parseString(TEST_CASE_1);
 
         //Submission Purposes
-//        Scanner input = new Scanner(System.in);
-//        while(input.hasNextLine()) {
-//            String data = input.nextLine();
-//            parsedString.add(data);
-//        }
+        Scanner input = new Scanner(System.in);
+        while(input.hasNextLine()) {
+            String data = input.nextLine();
+            parsedString.add(data);
+        }
 
 
         while(parsedString.size() != 0) {
@@ -53,20 +54,12 @@ public class Main {
             }
 
 
-//            make adjacency matrix and residual graph
+//          make adjacency matrix and residual graph
             int[][] graph = createAdjacencyMatrix(testCase, r, c, n);
             int[][] residualGraph = makeResidualGraph(graph);
 
-            printPaths();
-
-
-            //printAdjacencyMatrix(graph);
-            //printNodesList();
-//            run DFS
-
-
-//            run Ford-Fulkerson
-            fordFulkerson(graph, residualGraph, studentCount * n);
+//          run Ford-Fulkerson
+            fordFulkerson(residualGraph, studentCount * n);
             parsedString.remove(0);
         }
 
@@ -74,12 +67,23 @@ public class Main {
 
     //algorithm
     //ford-fulkerson
-    public static void fordFulkerson(int[][] graph, int[][] residualGraph, int goal) {
+    public static void fordFulkerson(int[][] graph, int goal) {
         maxflow = 0;
         ArrayList<String> currentPath = new ArrayList<>();
-        currentPath.add("Supersource");
-        DFS("Supersource", graph, residualGraph, "Supersink", currentPath);
 
+        int[][] residualGraph = makeResidualGraph(graph);
+
+        boolean[] visited = new boolean[objectToNumber.size()];
+
+
+        while(DFS("Supersource", residualGraph, "Supersink", visited, currentPath)) {
+            for(int i = 0 ; i < visited.length; i++) {
+                visited[i] = false;
+            }
+
+            currentPath = new ArrayList<>();
+
+        }
 
         if(maxflow >= goal) {
             System.out.println("Yes");
@@ -114,60 +118,73 @@ public class Main {
 
 
 
-    public static void DFS(String start, int[][] adjacencyMatrix, int[][] residualGraph, String end, ArrayList<String> currentPath) {
+    public static boolean DFS(String start, int[][] residualGraph, String end, boolean[] visited, ArrayList<String> currentPath) {
+        currentPath.add(start);
+        visited[objectToNumber.get(start)] = true;
+
         //base case
         if(start.equals(end)) {
-            maxflow++;
-            paths.add(new ArrayList<>(currentPath));
-            saturateGraph(residualGraph, new ArrayList<>(currentPath));
-            return;
-        }
-        nodes.get(objectToNumber.get(start)).setVisited(false);
-        //visit all the neighbors
-        for(int i = 0; i < adjacencyMatrix.length; i++) { //recursive case
-            if(canTraverse(residualGraph, start, numberToObject.get(i))) {
-                currentPath.add(numberToObject.get(i));
-                DFS(numberToObject.get(i), adjacencyMatrix, residualGraph, end, currentPath);
-                currentPath.remove(numberToObject.get(i));
+            for(int i = 0 ; i < visited.length; i++) {
+                visited[i] = false;
             }
+            saturateGraph(residualGraph, currentPath);
+            maxflow++;
+            return true;
+
+        } else if(!canTraverseAnywhere(start, residualGraph)) {
+
+            return false;
+
+        } else { //recursive
+            for(int i = 0; i < residualGraph.length; i++) {
+                if(canTraverse(start, numberToObject.get(i), residualGraph, visited)) {
+                    if(DFS(numberToObject.get(i), residualGraph, end, visited, currentPath)) {
+                        return true;
+                    };
+                }
+            }
+
+            return false;
+
         }
-        nodes.get(objectToNumber.get(start)).setVisited(false);
+
+
+//        currentPath = new ArrayList<>();
+//
+//        Stack<String> stack = new Stack<>();
+//
+//        stack.add(start);
+//        nodes.get(objectToNumber.get(start)).setVisited(true);
+//
+//        while (stack.size() != 0) {
+//            String u = stack.pop();
+//            currentPath.add(u);
+//
+//            for (int v = 0; v < residualGraph.length; v++) {
+//                if (!nodes.get(v).getVisited() && residualGraph[objectToNumber.get(u)][v] > 0) {
+//                    if (numberToObject.get(v).equals(end)) {
+//                        currentPath.add(numberToObject.get(v));
+//                        saturateGraph(residualGraph, currentPath);
+//                        nodes.get(objectToNumber.get(end)).setVisited(false);
+//                        return true;
+//                    }
+//                    stack.push(numberToObject.get(v));
+//                    nodes.get(v).setVisited(true);
+//                }
+////
+//            }
+//
+//
+//        }
 
 
     }
 
+    public static boolean canTraverseAnywhere(String start, int[][] residualGraph) {
+        int input = objectToNumber.get(start);
 
-
-//    public static void DFS(String start, int[][] graph) {
-//
-//        //base case
-//        if(start.equals("Supersink")) {
-//            path.add(start);
-//
-//        } else if(!canTraverseAnywhere(graph, start)) {
-//            reachesSuperSink = false;
-//
-//        } else { //recursive case
-//            path.add(start);
-//
-//            for(int i = 0; i < graph.length; i++) {
-//                if(canTraverse(graph, start, i)) {
-//
-//                    DFS_PathSearch(numberToObject.get(i), graph);
-//                    break;
-//                }
-//            }
-//
-//        }
-//
-//    }
-
-    public static boolean canTraverseAnywhere(int[][] graph, String node) {
-        int i = objectToNumber.get(node);
-        int size = graph[i].length;
-
-        for(int c = 0; c <= size; c++) {
-            if(graph[i][c] != 0) {
+        for(int i = 0; i < residualGraph.length; i++) {
+            if(residualGraph[input][i] > 0) {
                 return true;
             }
         }
@@ -175,16 +192,13 @@ public class Main {
         return false;
     }
 
-    public static boolean canTraverse(int[][] graph, String node, String end) {
-        int start = objectToNumber.get(node);
-
-        if(graph[start][objectToNumber.get(end)] != 0 && !nodes.get(objectToNumber.get(node)).getVisited() && !end.equals("Supersource")) {
+    public static boolean canTraverse(String i, String o, int[][] residualGraph, boolean[] visited) {
+        if(residualGraph[objectToNumber.get(i)][objectToNumber.get(o)] > 0 && !visited[objectToNumber.get(o)]) {
             return true;
         }
 
         return false;
     }
-
 
 
 
@@ -304,12 +318,12 @@ public class Main {
             System.out.println(" ");
         }
     }
-
-    public static void printPaths() {
-        for(int i = 0; i < paths.size(); i++) {
-            printArrayList(paths.get(i));
-        }
-    }
+//
+//    public static void printPaths() {
+//        for(int i = 0; i < paths.size(); i++) {
+//            printArrayList(paths.get(i));
+//        }
+//    }
 
 
 }

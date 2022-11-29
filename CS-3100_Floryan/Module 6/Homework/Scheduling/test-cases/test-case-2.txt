@@ -1,0 +1,9 @@
+4 2 2
+Alice CS_3102
+Bob CS_3102
+Alice CS_4102
+Bob CS_4102
+CS_3102 1
+CS_4102 1
+
+0 0 0
