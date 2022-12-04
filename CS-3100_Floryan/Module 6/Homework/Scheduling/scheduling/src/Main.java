@@ -16,14 +16,14 @@ public class Main {
     public static void main(String[] args) {
         ArrayList<String> parsedString = new ArrayList<>();
 
-        //parsedString = parseString(TEST_CASE_1);
+        parsedString = parseString(TEST_CASE_1);
 
         //Submission Purposes
-        Scanner input = new Scanner(System.in);
-        while(input.hasNextLine()) {
-            String data = input.nextLine();
-            parsedString.add(data);
-        }
+//        Scanner input = new Scanner(System.in);
+//        while(input.hasNextLine()) {
+//            String data = input.nextLine();
+//            parsedString.add(data);
+//        }
 
 
         while(parsedString.size() != 0) {
@@ -57,6 +57,8 @@ public class Main {
 //          make adjacency matrix and residual graph
             int[][] graph = createAdjacencyMatrix(testCase, r, c, n);
             int[][] residualGraph = makeResidualGraph(graph);
+
+            printAdjacencyMatrix(graph);
 
 //          run Ford-Fulkerson
             fordFulkerson(residualGraph, studentCount * n);
