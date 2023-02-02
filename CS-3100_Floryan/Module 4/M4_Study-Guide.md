@@ -93,3 +93,12 @@ Assume that $a_i$ is the activity with the earliest finish time and is not in th
 **Prove Optimal Substructure**
 
 Claim: 
+
+## **Questions**
+
+Another example: Shortest Path in graph problem
+Say P is min-length path from CHO to LA and includes DAL
+Let P1 be component of P from CHO to DAL, and P2 be component of P from DAL to LA
+P1 must be shortest path from CHO to DAL, and P2 must be shortest path from DAL to LA
+Why is this true?  Can you prove it?  Yes, by contradiction. (Try this at home!)
+
