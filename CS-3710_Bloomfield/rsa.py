@@ -149,27 +149,18 @@ def generateKeys(bitlength, seed):
 # Given the passed rsakey object and string, this will perform the RSA
 # encryption. It should return a ciphertext object.
 def encrypt(key, plaintext):
+
 	# encode message m into a number and split into smaller numbers
-
-	encodedText = plaintext.encode()
-	byteArray = bytearray(encodedText)
-
-	
 	b = int((int.bit_length(key.n) - 1)/8)
 	l = getsizeof(plaintext)
 	c = []
 
-	for i in range(0, len(byteArray), b):
-		tempStr = ""
-		for j in range(i, i + b):
-			if j >= len(byteArray):
-				break
-			tempStr = tempStr + str(byteArray[j])
+	for i in range(0, len(plaintext), b):
+		tempStr = plaintext[i:i+b]
 
-	# use formula c = m^e mod n
+		# use formula c = m^e mod n
 		temp = convertFromASCII(tempStr)
 		c.append(pow(temp, key.e, key.n))
-		
 	
 	return ciphertext(c, l, b) 
 
@@ -178,28 +169,14 @@ def encrypt(key, plaintext):
 def decrypt(key, cipherText):
 	# use formula m = c^d mod n
 
+	decodedMessage = ""
+
 	c = cipherText.c
 
-	for i in range(0, len(c)):
-		c[i] = pow(c[i], key.d, key.n)
-
-
-	# split number into individual ASCII character numbers
-	d = []
-	for i in range(0, len(c)):
-		tempStr = str(c[i])
-		for j in range(0, len(tempStr), 2):
-			d.append(int(tempStr[j : j+2]))
+	for i in range(len(c)):
+		decodedMessage = decodedMessage + convertToASCII(pow(c[i], key.d, key.n))
 		
-			
-
 	# decode message into a string
-	decodedMessage = ""
-	for i in range(0, len(d)):
-		decodedMessage = decodedMessage + chr(d[i])
-		
-	
-	print("The decoded message is: ", decodedMessage)
 	
 	return decodedMessage
 
@@ -213,12 +190,15 @@ def crack(key):
 	p = 0
 	q = 0
 
-	for i in range(1, n):
+	for i in range(3, n):
 		if((n % i == 0) and (fermat_test(i, 20))):
-			secondFactor = n/i
+			secondFactor = n//i
 
 			if(fermat_test(secondFactor, 20)):
+				p = i
+				q = secondFactor
 				break
+
 	
 	pq = (p-1) * (q-1)
 	d = pow(e, -1, pq)
@@ -238,24 +218,27 @@ def fermat_test(n, k):
 def sign(key, plaintext):
 
 	# write a message and determine the SHA-256 hash
-	m = hashlib.sha256(plaintext.encode())
+	p = hashlib.sha256(bytes(plaintext,'ascii')).hexdigest()
+	
+	key.e = key.d
 
 	# encrypt hash with private key
-	ciphertextResult = encrypt(key, m)
+	c = encrypt(key, p)
 
-	return ciphertextResult
+	return c
 
 # Given the passed rsakey object, string, and ciphertext object, this will
 # check the signature; it only returns True (if the signature is valid) or
 # False (if not).
 def checkSign(key,plaintext,signature):
 	# separate cyphertext into p and c
+	key.d = key.e
 	message = decrypt(key, signature)
 
 	# decrypt c using public key
 
 	# take sha-256
-	m = hashlib.sha256(plaintext.encode())
+	m = hashlib.sha256(plaintext.encode()).hexdigest()
 
 	return m == message
 
@@ -267,7 +250,11 @@ def checkSign(key,plaintext,signature):
 def main():
 
 	#---TESTING-----
-	
+	#test = "Hello World"
+	#key = generateKeys(10, 10)
+
+	#cipherTextVar = encrypt(key, test)
+	#print(decrypt(key, cipherTextVar))
 
 	#---------------
 
