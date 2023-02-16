@@ -298,7 +298,7 @@ public class RSA {
             ret = ret.add(new BigInteger(Integer.toString((int)text.charAt(i))));
         }
         // your code here; a dummy return statement is put below to allow this to compile
-        ret = ret.mod();
+
 
         return ret;
     }
