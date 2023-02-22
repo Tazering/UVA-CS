@@ -1,0 +1,87 @@
+Part 1:
+
+Executable given the four files:
+
+square-main.obj
+
+0x000: 30f40000010000000000
+0x00a: 30f66400000000000000
+0x014: 800000000000000000
+0x01d: 00
+***
+0x015,square
+***
+0x0,main
+
+
+square.obj
+
+0x000: 2067
+0x002: 800000000000000000
+0x00b: 90
+***
+0x3,multiply
+***
+0x0,square
+
+
+Multiply.obj
+
+0x000: 6300
+0x002: 6277
+0x004: 730000000000000000
+0x00d: 30f80100000000000000
+0x017: 6187
+0x019: 6060
+0x01b: 700000000000000000
+0x024: 90
+***
+0x5,multiply_done
+0x1c,multiply_loop
+***
+0x0,multiply
+0x2,multiply_loop
+0x24,multiply_done
+
+
+Executable
+
+0x000: 30f40000010000000000
+0x00a: 30f66400000000000000
+0x014: 801e00000000000000
+0x01d: 00
+0x01e: 2067
+0x020: 802a00000000000000
+0x029: 90
+0x02a: 6300
+0x02c: 6277
+0x02e: 734d00000000000000
+0x036: 30f80100000000000000
+0x040: 6187
+0x042: 6060
+0x044: 702c00000000000000
+0x04d: 90
+
+Part 2:
+a)
+Instruction is moving [%rax + %rbx * 8 + 0x1234] --> %rcx
+
+rrmovq %rbx, %rcx
+imulq $8, %rcx
+addq %rax, %rcx
+addq $0x1234, %rcx
+mrmovq (%rcx), %rcx
+
+b)
+#(instructions that write memory) + #(instructions that read memory) - #(instructions that both read AND write memory)
+
+
+part 4a
+
+imulq %r9, %r10
+imulq %r8, %r11
+addq %r10, %r11
+
+imulq %r12, %r13
+andq %r11, %r13
+movq %r13, %r8
