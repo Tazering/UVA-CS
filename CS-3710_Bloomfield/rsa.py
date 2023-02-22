@@ -238,7 +238,7 @@ def checkSign(key,plaintext,signature):
 	# decrypt c using public key
 
 	# take sha-256
-	m = hashlib.sha256(plaintext.encode()).hexdigest()
+	m = hashlib.sha256(bytes(plaintext,'ascii')).hexdigest()
 
 	return m == message
 
