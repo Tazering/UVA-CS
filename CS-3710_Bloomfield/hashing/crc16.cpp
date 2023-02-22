@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stdlib.h>
 
 using namespace std;
 int main(int argc, char *argv[]) {
@@ -121,11 +122,11 @@ uint32_t GetCrc16(const string& my_string) {
 void outputFile(int checksum, int textHash, string msg, string myMessage, string salt) {
     if(textHash == checksum) {
         ofstream outfile("output.txt");
-        outfile << msg + "\n\n" + myMessage + "\n\n" + salt << endl;
+        outfile << msg + "\n\n" + myMessage + "\n\n\t" + salt << endl;
 
         outfile.close();
 
-        abort();
+        exit(0);
     }
 }
 
