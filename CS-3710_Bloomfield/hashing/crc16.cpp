@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
 
     string saltPassword(string msg, string ownMessage, string salt);
     uint32_t GetCrc16(const string& my_string);
+    void outputFile(int checksum, int textHash, string msg, string myMessage, string salt);
 
     fstream inputFile;
     inputFile.open(argv[1]);    
@@ -60,22 +61,43 @@ int main(int argc, char *argv[]) {
 
                 output = saltPassword(myString, ownMessage, s);
                 int code = GetCrc16(output);
-                cout << s << endl;
+                outputFile(checksum, code, myString, ownMessage, s);
             }
 
             
         }
     }
-    
 
-    // concatenate with message
-    // string concatString = saltPassword(myString, ownMessage, "ABCD");
+        //size salt is four
+    for(int i = 32; i < asciiMax; i++) {
+        for(int j = 32; j < asciiMax; j++) {
 
-    // find the hash value
+            for(int k = 32; k < asciiMax; k++) {
 
-    // compare with checksum
+                for(int l = 32; l < asciiMax; l++) {
 
-    //write to output file
+                    char charVal1 = static_cast<char>(i);
+                    char charVal2 = static_cast<char>(j);
+                    char charVal3 = static_cast<char>(k);
+                    char charVal4 = static_cast<char>(l);
+
+                    string s = "";
+
+                    s.push_back(charVal1);
+                    s.push_back(charVal2);
+                    s.push_back(charVal3);
+                    s.push_back(charVal4);
+
+                    output = saltPassword(myString, ownMessage, s);
+                    int code = GetCrc16(output);
+                    outputFile(checksum, code, myString, ownMessage, s);
+
+                }    
+            }
+            
+        }
+    }
+
 
 
     
@@ -94,6 +116,17 @@ uint32_t GetCrc16(const string& my_string) {
     boost::crc_16_type result;
     result.process_bytes(my_string.data(), my_string.length());
     return result.checksum();
+}
+
+void outputFile(int checksum, int textHash, string msg, string myMessage, string salt) {
+    if(textHash == checksum) {
+        ofstream outfile("output.txt");
+        outfile << msg + "\n\n" + myMessage + "\n\n" + salt << endl;
+
+        outfile.close();
+
+        abort();
+    }
 }
 
 
