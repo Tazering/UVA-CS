@@ -76,4 +76,12 @@ b)
 #(instructions that write memory) + #(instructions that read memory) - #(instructions that both read AND write memory)
 
 
+part 4a
 
+imulq %r9, %r10
+imulq %r8, %r11
+addq %r10, %r11
+
+imulq %r12, %r13
+andq %r11, %r13
+movq %r13, %r8
