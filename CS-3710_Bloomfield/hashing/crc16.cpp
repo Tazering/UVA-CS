@@ -114,7 +114,7 @@ void outputFile(string msg, string ownMsg, string salt, int checksum) {
 
     if(textHash == checksum) {
         ofstream outfile("output.txt");
-        outfile << msg + "\n\n" + ownMsg + "\n\n" + salt << endl;
+        outfile << msg + ownMsg + salt;
 
         outfile.close();
         exit(0);
