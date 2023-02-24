@@ -1,4 +1,4 @@
-# An example file in our custom HCL variant, with lots of comments
+#An example file in our custom HCL variant, with lots of comments
 
 register pP {  
     # our own internal register. P_pc is its output, p_pc is its input.
@@ -17,7 +17,7 @@ register pP {
 pc = P_pc;
 
 # we can define our own input/output "wires" of any number of 0<bits<=80
-wire opcode:8, icode:4, rA: 4, rB: 4, immediate:32;
+wire opcode:8, icode:4, rA: 4, rB: 4, valImmediate:64;
 
 # the x[i..j] means "just the bits between i and j".  x[0..1] is the 
 # low-order bit, similar to what the c code "x&1" does; "x&7" is x[0..3]
@@ -32,6 +32,25 @@ valImmediate = [
 	icode == MRMOVQ) : i10bytes[16..80];
 	1 : i10bytes[8..72];
 ];
+
+reg_srcA = [
+	(icode == RRMOVQ) : rA;
+	1 : rB;	
+];
+
+
+reg_inputE = [
+	(icode == IRMOVQ) : valImmediate;
+	(icode == RRMOVQ) : reg_outputA;
+	1 : 0;
+];
+
+reg_dstE = [
+	(icode == IRMOVQ) : rB;
+	(icode == RRMOVQ) : rB;
+	1 : REG_NONE;
+];
+
 
 /* we could also have done i10bytes[4..8] directly, but I wanted to
  * demonstrate more bit slicing... and all 3 kinds of comments      */
@@ -48,8 +67,7 @@ const TOO_BIG = 0xC; # the first unused icode in Y86-64
 # textbook
 Stat = [
 	icode == HALT : STAT_HLT;
-	(icode == JXX ||
-	icode == CALL ||
+	(icode == CALL ||
 	icode == RET ||
 	icode >= TOO_BIG) : STAT_INS;
 	1             : STAT_AOK;
@@ -60,8 +78,7 @@ valP = [
 	(icode == HALT ||
 	icode == RET ||
 	icode == NOP) : 1;
-	(icode == JXX ||
-	 icode == CALL)  : 9;
+	(icode == CALL)  : 9;
 	(icode == RRMOVQ ||
 	icode == OPQ ||
 	icode == PUSHQ ||
@@ -69,4 +86,10 @@ valP = [
 	1 : 10;
 ];
 
-p_pc = P_pc + valP; # you may use math ops directly...
+
+p_pc = [
+	(icode == JXX) : i10bytes[8..72];
+	1 : P_pc + valP;
+];
+
+#p_pc = P_pc + valP; # you may use math ops directly...
