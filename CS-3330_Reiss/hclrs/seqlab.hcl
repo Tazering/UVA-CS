@@ -17,7 +17,7 @@ register pP {
 pc = P_pc;
 
 # we can define our own input/output "wires" of any number of 0<bits<=80
-wire opcode:8, icode:4, rA: 4, rB: 4, valImmediate:64, ifun : 4, aluOutput : 64, c_ZF : 1, c_SF : 1, C_ZF : 1, C_SF : 1, SF : 1, ZF : 1;
+wire opcode:8, icode:4, rA: 4, rB: 4, valImmediate:64, ifun : 4, aluOutput : 64, c_SF : 1, c_ZF : 1, conditionsMet : 4;
 
 # the x[i..j] means "just the bits between i and j".  x[0..1] is the 
 # low-order bit, similar to what the c code "x&1" does; "x&7" is x[0..3]
@@ -27,7 +27,6 @@ rA = i10bytes[12..16];
 rB = i10bytes[8..12];
 ifun = i10bytes[0..4];
 
-
 valImmediate = [
 	(icode == IRMOVQ ||
 	icode == RMMOVQ ||
@@ -36,7 +35,7 @@ valImmediate = [
 ];
 
 reg_srcA = [
-	(icode == RRMOVQ) : rA;
+	(icode == RRMOVQ || icode == OPQ) : rA;
 	1 : rB;	
 ];
 
@@ -46,9 +45,9 @@ reg_srcB = rB;
 aluOutput = [
 	(icode == OPQ && ifun == ADDQ) : reg_outputA + reg_outputB;
 	(icode == OPQ && ifun == SUBQ) : reg_outputB - reg_outputA;
-	(icode == OPQ && ifun == ANDQ) : reg_outputB && reg_outputA;
-	1 : reg_outputA ^ reg_outputB;
-
+	(icode == OPQ && ifun == ANDQ) : reg_outputB & reg_outputA;
+	(icode == OPQ && ifun == XORQ) : reg_outputA ^ reg_outputB;
+	1 : 0
 ];
 
 # condition codes
@@ -56,9 +55,6 @@ register cC {
 	SF : 1 = 0;
 	ZF : 1 = 1;
 }
-
-C_ZF = (aluOutput == 0);
-C_SF = (aluOutput >= 0x8000000000000000);
 
 # update condition codes
 c_ZF = [
@@ -71,21 +67,24 @@ c_SF = [
 	1 : C_SF;
 ];
 
-SF = c_SF;
-ZF = c_ZF;
+# conditions for cmovXX
+conditionsMet = [
+	
+
+];
 
 reg_inputE = [
 	(icode == IRMOVQ) : valImmediate;
 	(icode == RRMOVQ) : reg_outputA;
 	(icode == OPQ) : aluOutput;
-	1 : 0;
+	1 : 0xF;
 ];
 
 reg_dstE = [
-	(icode == IRMOVQ) : rB;
-	(icode == RRMOVQ) : rB;
+	(icode == IRMOVQ || icode == RRMOVQ || icode == OPQ) : rB;
 	1 : REG_NONE;
 ];
+
 
 
 /* we could also have done i10bytes[4..8] directly, but I wanted to
@@ -127,7 +126,6 @@ p_pc = [
 	(icode == JXX) : i10bytes[8..72];
 	1 : P_pc + valP;
 ];
-
 
 
 #p_pc = P_pc + valP; # you may use math ops directly...
