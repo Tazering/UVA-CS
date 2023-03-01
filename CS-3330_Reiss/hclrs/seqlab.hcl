@@ -17,7 +17,7 @@ register pP {
 pc = P_pc;
 
 # we can define our own input/output "wires" of any number of 0<bits<=80
-wire opcode:8, icode:4, rA: 4, rB: 4, valImmediate:64, ifun : 4, aluOutput : 64, c_SF : 1, c_ZF : 1, conditionsMet : 4;
+wire opcode:8, icode:4, rA: 4, rB: 4, valImmediate:64, ifun : 4, aluOutput : 64, c_SF : 1, c_ZF : 1, conditionsMet : 1;
 
 # the x[i..j] means "just the bits between i and j".  x[0..1] is the 
 # low-order bit, similar to what the c code "x&1" does; "x&7" is x[0..3]
@@ -34,10 +34,7 @@ valImmediate = [
 	1 : i10bytes[8..72];
 ];
 
-reg_srcA = [
-	(icode == RRMOVQ || icode == OPQ) : rA;
-	1 : rB;	
-];
+reg_srcA = rA;
 
 reg_srcB = rB;
 
@@ -47,7 +44,8 @@ aluOutput = [
 	(icode == OPQ && ifun == SUBQ) : reg_outputB - reg_outputA;
 	(icode == OPQ && ifun == ANDQ) : reg_outputB & reg_outputA;
 	(icode == OPQ && ifun == XORQ) : reg_outputA ^ reg_outputB;
-	1 : 0
+	(icode == RMMOVQ) : valImmediate + reg_outputB;
+	1 : 0;
 ];
 
 # condition codes
@@ -69,7 +67,14 @@ c_SF = [
 
 # conditions for cmovXX
 conditionsMet = [
-	
+	ifun == LE : C_SF || C_ZF;
+	ifun == NE : !C_ZF;
+	ifun == ALWAYS : 1;
+	ifun == EQ : C_ZF;
+	ifun == GE :!C_SF || C_ZF;
+	ifun == LT : C_SF & !C_ZF;
+	ifun == GT : !C_SF & !C_ZF;
+	1 : 0;	
 
 ];
 
@@ -81,8 +86,31 @@ reg_inputE = [
 ];
 
 reg_dstE = [
-	(icode == IRMOVQ || icode == RRMOVQ || icode == OPQ) : rB;
+	(icode == RRMOVQ && conditionsMet) || (icode == OPQ) || (icode == IRMOVQ) : rB;
 	1 : REG_NONE;
+];
+
+
+# handle memory
+mem_writebit = [
+	(icode == RMMOVQ) : 1;
+	1 : 0;
+
+];
+
+mem_readbit = [
+	1 : 0;
+];
+
+mem_input = [
+	(icode == RMMOVQ) : reg_outputA;
+	1 : 0;
+];
+
+mem_addr = [
+	(icode == RMMOVQ) : aluOutput;
+	1 : 0;
+
 ];
 
 
