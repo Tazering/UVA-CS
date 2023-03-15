@@ -38,7 +38,7 @@ valImmediate = [
 reg_srcA = rA;
 
 reg_srcB = [
-	(icode == PUSHQ || icode == POPQ || icode == CALL) : REG_RSP;
+	(icode == PUSHQ || icode == POPQ || icode == CALL || icode == RET) : REG_RSP;
 	1 : rB;
 ]; 
 
@@ -104,7 +104,7 @@ mem_writebit = [
 ];
 
 mem_readbit = [
-	(icode == MRMOVQ || icode == POPQ) : 1;
+	(icode == MRMOVQ || icode == POPQ || icode == RET) : 1;
 	1 : 0;
 ];
 
@@ -117,7 +117,7 @@ mem_input = [
 mem_addr = [
 	(icode == RMMOVQ || icode == MRMOVQ) : aluOutput;
 	(icode == PUSHQ || icode == CALL) : reg_outputB - 8;
-	(icode == POPQ) : reg_outputB;
+	(icode == POPQ || icode == RET) : reg_outputB;
 	1 : 0;
 
 ];
@@ -140,13 +140,13 @@ reg_inputE = [
         (icode == OPQ) : aluOutput;
 	(icode == MRMOVQ) : mem_output;
 	(icode == PUSHQ || icode == CALL) : reg_outputB - 8;
-	(icode == POPQ) : reg_outputB + 8;
+	(icode == POPQ || icode == RET) : reg_outputB + 8;
         1 : 0xF;
 ];
 
 reg_dstE = [
         (icode == RRMOVQ && conditionsMet) || (icode == OPQ) || (icode == IRMOVQ) : rB;
-	(icode == PUSHQ || icode == POPQ || icode == CALL) : REG_RSP;
+	(icode == PUSHQ || icode == POPQ || icode == CALL || icode == RET) : REG_RSP;
 	(icode == MRMOVQ) : rA;
         1 : REG_NONE;
 ];
@@ -175,6 +175,7 @@ Stat = [
 p_pc = [
  	(icode == JXX && conditionsMet) : valImmediate;
 	(icode == CALL) : valImmediate;
+	(icode == RET) : mem_output;
 	1 : P_pc + valP;
 ];
 
