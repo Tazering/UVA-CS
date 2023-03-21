@@ -50,28 +50,28 @@ register fD {
 
 # source selection
 reg_srcA = [
-	D_icode in {RRMOVQ, IRMOVQ} : D_rA;
+	D_icode in {RRMOVQ, IRMOVQ, OPQ} : D_rA;
 	1 : REG_NONE;
 ];
 
 reg_srcB = [
-	D_icode in {OPQ} : D_rB;
+	D_icode in {OPQ, RRMOVQ, IRMOVQ} : D_rB;
 	1 : REG_NONE;
 ];
 
 d_dstE = D_rB;
 
 d_valA = [
-	(e_dstE == reg_srcA && reg_srcA != REG_NONE): e_valE;
-	(m_dstE == reg_srcA && reg_srcA != REG_NONE): m_valE;
-	(reg_dstE == reg_srcA && reg_srcA != REG_NONE) : reg_inputE;
+	(reg_srcA == e_dstE) && (reg_srcA != REG_NONE): e_valE;
+	(reg_srcA == m_dstE) && (reg_srcA != REG_NONE): m_valE;
+	(reg_dstE == reg_srcA) && (reg_srcA != REG_NONE): reg_inputE;
 	1: reg_outputA;
 ];
 
 d_valB = [
-	(e_dstE == reg_srcB && reg_srcB != REG_NONE) : e_valE;
-	(m_dstE == reg_srcB && reg_srcB != REG_NONE) : m_valE;
-	(reg_dstE == reg_srcB && reg_srcA != REG_NONE) : reg_inputE;
+	(reg_srcB == e_dstE) && (reg_srcB != REG_NONE): e_valE;
+	(reg_srcB == m_dstE) && (reg_srcB != REG_NONE): m_valE;
+	(reg_dstE == reg_srcB) && (reg_srcB != REG_NONE) : reg_inputE;
 	1 : reg_outputB;
 ];
 
@@ -94,52 +94,60 @@ register dE {
 }
 
 # alu
-# aluOutput = [
-#         (E_icode == OPQ && E_ifun == ADDQ) : E_valA + E_valB;
-#         (E_icode == OPQ && E_ifun == SUBQ) : E_valB - E_valA;
-#         (E_icode == OPQ && E_ifun == ANDQ) : E_valB & E_valA;
-#         (E_icode == OPQ && E_ifun == XORQ) : E_valA ^ E_valB;
-#         1 : E_valC;
-# ];
+wire aluOutput : 64;
+aluOutput = [
+        (E_icode == OPQ && E_ifun == ADDQ) : E_valA + E_valB;
+        (E_icode == OPQ && E_ifun == SUBQ) : E_valB - E_valA;
+        (E_icode == OPQ && E_ifun == ANDQ) : E_valB & E_valA;
+        (E_icode == OPQ && E_ifun == XORQ) : E_valA ^ E_valB;
+	(E_icode == RRMOVQ) : E_valA;
+	(E_icode == IRMOVQ) : E_valC;
+        1 : 0;
+];
 
 # condition codes
+register cC {
+         SF : 1 = 0;
+         ZF : 1 = 1;
+}
 
-#c_ZF = (aluOutput == 0);
-#c_SF = (aluOutput >= 0x8000000000000000);
+c_ZF = [
+	E_icode == OPQ : (aluOutput == 0);
+	1: C_ZF;
+];
 
-#register cC {
-#         SF : 1 = 0;
-#         ZF : 1 = 1;
-#}
+c_SF = [
+	E_icode == OPQ : (aluOutput >= 0x8000000000000000);
+	1 : C_SF;
+];
 
 # conditions for cmovXX
 
-#wire conditionsMet : 1;
+wire conditionsMet : 1;
 
-#conditionsMet = [
-#          E_ifun == ALWAYS : 1;
-#          E_ifun == LE : C_SF || C_ZF;
-#          E_ifun == LT : C_SF;
-#          E_ifun == EQ : C_ZF;
-#          E_ifun == NE : !C_ZF;
-#          E_ifun == GE : !C_SF;
-#          E_ifun == GT : !C_SF && !C_ZF;
-#          1 : 0; 
-#];
+conditionsMet = [
+          E_ifun == ALWAYS : 1;
+          E_ifun == LE : C_SF || C_ZF;
+          E_ifun == LT : C_SF;
+          E_ifun == EQ : C_ZF;
+          E_ifun == NE : !C_ZF;
+          E_ifun == GE : !C_SF;
+          E_ifun == GT : !C_SF && !C_ZF;
+          1 : 0; 
+];
 
 
 e_Stat = E_Stat;
 e_icode = E_icode;
-e_dstE = [
-#	!conditionsMet : REG_NONE;
+e_dstE =[
+	(E_icode == CMOVXX) && (!conditionsMet) : REG_NONE;
 	1: E_dstE;
 ];
+	
 e_valA = E_valA;
-e_valE = E_valC;
-#e_valE = aluOutput;
-
-#e_ZF = C_ZF;
-#e_SF = C_SF;
+e_valE = aluOutput;
+e_ZF = C_ZF;
+e_SF = C_SF;
 
 ########## Memory #############
 
@@ -150,8 +158,8 @@ register eM {
 	valA : 64 = 0;
 	dstE : 4 = 0;
 	valE : 64 = 0;
-#	SF : 1 = 0;
-#	ZF : 1 = 0;
+	SF : 1 = 0;
+	ZF : 1 = 0;
 }
 
 
