@@ -17,7 +17,7 @@ f_valC = [
 	1 : i10bytes[16..80];
 ];
 
-wire offset:64, valP : 64;
+wire offset:64, valP : 64, aluOutput : 64;
 offset = [
 	f_icode in { HALT, NOP, RET } : 1;
 	f_icode in { RRMOVQ, OPQ, PUSHQ, POPQ } : 2;
@@ -47,16 +47,27 @@ register fD {
 
 # source selection
 reg_srcA = [
-	D_icode in {RRMOVQ} : D_rA;
+	D_icode in {RRMOVQ, IRMOVQ} : D_rA;
 	1 : REG_NONE;
 ];
 
+reg_srcB = [
+	D_icode in {OPQ} : D_rB;
+	1 : REG_NONE;
+];
 
 d_dstE = D_rB;
 
 d_valA = [
-	(reg_dstE == reg_srcA && reg_srcA != REG_NONE): reg_inputE;
-	1: reg_outputA;
+	(e_dstE == reg_srcA && reg_srcA != REG_NONE): e_valE;
+	(m_dstE == reg_srcA && reg_srcA != REG_NONE): m_valE;
+	1: reg_outputA;`
+];
+
+d_valB = [
+	(e_dstE == reg_srcB && reg_srcB != REG_NONE) : e_valE;
+	(m_dstE == reg_srcB && reg_srcB != REG_NONE) : m_valE;
+	1 : reg_outputB;
 ];
 
 d_Stat = D_Stat;
@@ -72,20 +83,59 @@ register dE {
 	icode : 4 = 0;
 	ifun : 4 = 0;
 	valC : 64 = 0;
-#	valB : 64 = 0;
+	valB : 64 = 0;
 	valA : 64 = 0;
 	dstE : 4 = 0;
-	
 }
 
-########## Memory #############
+# alu
+ aluOutput = [
+         (E_icode == OPQ && E_ifun == ADDQ) : E_valA + E_valB;
+         (E_icode == OPQ && E_ifun == SUBQ) : E_valB - E_valA;
+         (E_icode == OPQ && E_ifun == ANDQ) : E_valB & E_valA;
+         (E_icode == OPQ && E_ifun == XORQ) : E_valA ^ E_valB;
+         1 : E_valC;
+ ];
+
+# condition codes
+
+c_ZF = (aluOutput == 0);
+c_SF = (aluOutput >= 0x8000000000000000);
+
+register cC {
+         SF : 1 = 0;
+         ZF : 1 = 1;
+}
+
+# conditions for cmovXX
+
+wire conditionsMet : 1;
+
+conditionsMet = [
+          E_ifun == ALWAYS : 1;
+          E_ifun == LE : C_SF || C_ZF;
+          E_ifun == LT : C_SF;
+          E_ifun == EQ : C_ZF;
+          E_ifun == NE : !C_ZF;
+          E_ifun == GE : !C_SF;
+          E_ifun == GT : !C_SF && !C_ZF;
+          1 : 0; 
+];
+
 
 e_Stat = E_Stat;
 e_icode = E_icode;
-e_dstE = E_dstE;
+e_dstE = [
+	!conditionsMet : REG_NONE;
+	1: E_dstE;
+];
 e_valA = E_valA;
-e_valE = E_valC;
+e_valE = aluOutput;
 
+e_ZF = C_ZF;
+e_SF = C_SF;
+
+########## Memory #############
 
 # execute --> memory
 register eM {
@@ -94,16 +144,18 @@ register eM {
 	valA : 64 = 0;
 	dstE : 4 = 0;
 	valE : 64 = 0;
+	SF : 1 = 0;
+	ZF : 1 = 0;
 }
 
-
-########## Writeback #############
 
 m_icode = M_icode;
 m_valA = M_valA;
 m_dstE = M_dstE;
 m_Stat = M_Stat;
 m_valE = M_valE;
+
+########## Writeback #############
 
 # memory --> writeback
 register mW {
@@ -114,22 +166,17 @@ register mW {
 	valE : 64 = 0;
 }
 
-
-
 # destination selection
 reg_dstE = [
-	W_icode in {IRMOVQ, RRMOVQ} : W_dstE;
+	W_icode in {IRMOVQ, RRMOVQ, OPQ} : W_dstE;
 	1 : REG_NONE;
 ];
 
 reg_inputE = [ # unlike book, we handle the "forwarding" actions (something + 0) here
 	W_icode == RRMOVQ : W_valA;
-	W_icode in {IRMOVQ} :W_valE; # was W_valC
+	W_icode in {IRMOVQ, OPQ} : W_valE; # was W_valC
         1: 0xBADBADBAD;
 ];
-
-
-
 
 ########## PC update ########
 f_pc = [
