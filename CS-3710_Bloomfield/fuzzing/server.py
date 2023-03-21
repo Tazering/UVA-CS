@@ -20,4 +20,4 @@ async def app(scope, receive, send):
     await send({
         'type': 'http.response.body',
         'body': b'Hello, world!',
-    })
+    }) 

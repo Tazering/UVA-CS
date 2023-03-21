@@ -17,14 +17,14 @@ f_valC = [
 	1 : i10bytes[16..80];
 ];
 
-wire offset:64;
+wire offset:64, valP : 64;
 offset = [
 	f_icode in { HALT, NOP, RET } : 1;
 	f_icode in { RRMOVQ, OPQ, PUSHQ, POPQ } : 2;
 	f_icode in { JXX, CALL } : 9;
 	1 : 10;
 ];
-f_valP = F_pc + offset;
+valP = F_pc + offset;
 
 f_Stat = [
 	f_icode == HALT : STAT_HLT;
@@ -41,7 +41,6 @@ register fD {
 	icode : 4 = 0;
 	rA : 4 = 0;
 	valC : 64 = 0;
-	valP : 64 = 0;
 	rB : 4 = 0;
 	ifun : 4 = 0;
 }
@@ -134,8 +133,8 @@ reg_inputE = [ # unlike book, we handle the "forwarding" actions (something + 0)
 
 ########## PC update ########
 f_pc = [
-	(W_Stat != STAT_AOK) : F_pc; # stalling
-	1 : D_valP;
+	(W_Stat == STAT_HLT) : F_pc; # stalling
+	1 : valP;
 ];
 
 ########## Status update ########

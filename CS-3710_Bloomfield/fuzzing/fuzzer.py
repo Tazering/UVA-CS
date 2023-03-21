@@ -1,6 +1,6 @@
 # Fuzzer skeleton code
 
-import aiohttp, asyncio, args, sys
+import aiohttp, asyncio, args, sys, json
 
 async def fuzz(args):
     """ 
@@ -17,7 +17,8 @@ async def fuzz(args):
     extensions = [""]
     methodType = "GET"
     headersDict = {}
-    data = None
+    form = aiohttp.FormData()
+    #data = None
     matchCodes = []
     defaultMatchCodes = [200, 301, 302, 401, 403]
 
@@ -55,7 +56,8 @@ async def fuzz(args):
 
             case "data":
                 i+=1
-                body = sys.argv[i]
+                form.add_field('content', sys.argv[i])
+                #data = json.reads(args.data)
                 continue
 
             case "matchcode":
@@ -81,7 +83,7 @@ async def fuzz(args):
                 newURL = baseURL.replace("FUZZ", newString.strip())
 
                 # asynchronous loading of a URL:
-                async with aiohttp.request(method = methodType, url = newURL, headers = headersDict if len(headersDict) != 0 else None, data = data) as response:
+                async with aiohttp.request(method = methodType, url = newURL, headers = headersDict if len(headersDict) != 0 else None, data = form) as response:
                 
                     # replace "FUZZ" in url
                     await response.text()
