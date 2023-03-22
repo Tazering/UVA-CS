@@ -55,11 +55,14 @@ reg_srcA = [
 ];
 
 reg_srcB = [
-	D_icode in {OPQ, RRMOVQ, IRMOVQ} : D_rB;
+	D_icode in {OPQ, IRMOVQ, RRMOVQ} : D_rB;
 	1 : REG_NONE;
 ];
 
-d_dstE = D_rB;
+d_dstE = [
+	D_icode in {HALT, NOP} : REG_NONE;
+	1: D_rB;
+];
 
 d_valA = [
 	(reg_srcA == e_dstE) && (reg_srcA != REG_NONE): e_valE;
