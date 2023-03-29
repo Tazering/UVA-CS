@@ -1,13 +1,20 @@
 # -*-sh-*- # this line enables partial syntax highlighting in emacs
 
 ######### The PC #############
-register fF { pc:64 = 0; }
+register fF { 
+	predPC:64 = 0;
+}
 
 
 ########## Fetch #############
-pc = F_pc;
 
 wire loadUse : 1;
+
+pc = [
+	(M_icode == JXX && M_mispredict): m_valP;
+	1: F_predPC;
+];
+
 
 f_icode = i10bytes[4..8];
 f_ifun = i10bytes[0..4];
@@ -20,7 +27,7 @@ f_valC = [
 	1 : 0;
 ];
 
-wire offset:64, valP:64;
+wire offset:64;
 offset = [
 	f_icode in { HALT, NOP, RET } : 1;
 	f_icode in { RRMOVQ, OPQ, PUSHQ, POPQ } : 2;
@@ -28,19 +35,17 @@ offset = [
 	1 : 10;
 ];
 
-valP = F_pc + offset;
+f_valP = pc + offset;
 
 f_Stat = [
          f_icode == HALT : STAT_HLT;
          f_icode > 0xb : STAT_INS;
          1 : STAT_AOK;
-];
-
+];       
 
 ########## Decode #############
 
 stall_D = loadUse;
-bubble_E = loadUse;
 stall_F = loadUse || f_Stat != STAT_AOK;
 
 # fetch --> decode
@@ -51,6 +56,7 @@ register fD {
 	rB : 4 = 0;
 	valC : 64 = 0;
 	ifun : 4 = 0;
+	valP : 64 = 0;
 }
 
 reg_srcA = [
@@ -88,6 +94,7 @@ d_icode = D_icode;
 d_Stat = D_Stat;
 d_valC = D_valC;
 d_ifun = D_ifun;
+d_valP = D_valP;
 
 ########## Execute #############
 
@@ -100,6 +107,7 @@ register dE {
 	dstM : 4 = REG_NONE;
 	valC : 64 = 0;
 	ifun : 4 = 0;
+	valP : 64 = 0;
 }
 
 loadUse = (E_icode == MRMOVQ) && ((E_dstM == reg_srcA) || (E_dstM == reg_srcB));
@@ -112,7 +120,7 @@ aluOutput = [
         (E_icode == OPQ && E_ifun == ANDQ) : E_valB & E_valA;
         (E_icode == OPQ && E_ifun == XORQ) : E_valA ^ E_valB;
         (E_icode == RRMOVQ) : E_valA;
-        (E_icode == IRMOVQ) : E_valC;
+        (E_icode in {IRMOVQ, JXX}) : E_valC;
 	(E_icode in {MRMOVQ, RMMOVQ}) : E_valC + E_valB;
         1 : 0;
 ];
@@ -147,6 +155,15 @@ conditionsMet = [
         1 : 0;
 ];
 
+# detect misprediction
+wire mispredict : 1;
+mispredict = (e_icode == JXX && !conditionsMet);
+
+bubble_D = mispredict || loadUse;
+bubble_E = mispredict || loadUse;
+
+
+# store values into next register
 e_valM = aluOutput;
 e_Stat = E_Stat;
 e_icode = E_icode;
@@ -158,7 +175,8 @@ e_dstM = [
 ];
 e_ZF = C_ZF;
 e_SF = C_SF;
-
+e_valP = E_valP;
+e_mispredict = mispredict;
 
 ########## Memory #############
 
@@ -171,6 +189,8 @@ register eM {
 	valM : 64 = 0;
 	SF : 1 = 0;
 	ZF : 1 = 0;
+	valP : 64 = 0;
+	mispredict : 1 = 0;
 }
 
 mem_readbit = M_icode in { MRMOVQ };
@@ -191,6 +211,7 @@ m_valM = [
 	1 : M_valM;
 ]; 
 m_valA = M_valA;
+m_valP = M_valP;
 
 ########## Writeback #############
 
@@ -201,6 +222,7 @@ register mW {
 	dstM : 4 = REG_NONE;
 	valM : 64 = 0;
 	valA : 64 = 0;
+	valP : 64 = 0;
 }
 
 reg_dstM = [ 
@@ -218,8 +240,9 @@ Stat = W_Stat;
 
 ## Status Update
 
-f_pc = [
-	(W_Stat == STAT_HLT) : F_pc; # stalling
-	1 : valP
+f_predPC = [
+	(f_icode == JXX) : f_valC; # prediction
+	(W_Stat == STAT_HLT) : F_predPC; # stalling
+	1 : f_valP;
 ];
 
