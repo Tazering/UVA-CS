@@ -60,12 +60,13 @@ register fD {
 }
 
 reg_srcA = [
-	D_icode in {RMMOVQ, IRMOVQ, OPQ, RRMOVQ} : D_rA;
+	D_icode in {RMMOVQ, IRMOVQ, OPQ, RRMOVQ, PUSHQ} : D_rA;
 	1 : REG_NONE;
 ];
 
 reg_srcB = [
 	D_icode in {RMMOVQ, MRMOVQ, OPQ} : D_rB;
+	D_icode in {PUSHQ} : REG_RSP;
 	1 : REG_NONE;
 ];
 
@@ -73,6 +74,7 @@ reg_srcB = [
 d_dstM = [
 	D_icode in {MRMOVQ} : D_rA;
 	D_icode in {IRMOVQ, RRMOVQ, OPQ}: D_rB;
+	D_icode in {PUSHQ} : REG_RSP;
 	1: REG_NONE;
 ];
 
@@ -122,6 +124,7 @@ aluOutput = [
         (E_icode == RRMOVQ) : E_valA;
         (E_icode in {IRMOVQ, JXX}) : E_valC;
 	(E_icode in {MRMOVQ, RMMOVQ}) : E_valC + E_valB;
+	E_icode in {PUSHQ} : E_valB - 8; 
         1 : 0;
 ];
 
@@ -194,9 +197,9 @@ register eM {
 }
 
 mem_readbit = M_icode in { MRMOVQ };
-mem_writebit = M_icode in { RMMOVQ };
+mem_writebit = M_icode in { RMMOVQ, PUSHQ };
 mem_addr = [
-	M_icode in { MRMOVQ, RMMOVQ } : M_valM;
+	M_icode in { MRMOVQ, RMMOVQ, PUSHQ } : M_valM;
         1: 0xBADBADBAD;
 ];
 mem_input = [
@@ -226,12 +229,12 @@ register mW {
 }
 
 reg_dstM = [ 
-	W_icode in {IRMOVQ, RRMOVQ, OPQ, MRMOVQ} : W_dstM;
+	W_icode in {IRMOVQ, RRMOVQ, OPQ, MRMOVQ, PUSHQ} : W_dstM;
 	1 : REG_NONE;
 ];
 reg_inputM = [
 	W_icode == RRMOVQ : W_valA;
-	W_icode in {IRMOVQ, OPQ, MRMOVQ} : W_valM;
+	W_icode in {IRMOVQ, OPQ, MRMOVQ, PUSHQ} : W_valM;
 	1 : 0xBADBADBAD;
 ];
 
