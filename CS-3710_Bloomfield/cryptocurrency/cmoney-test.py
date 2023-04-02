@@ -1,6 +1,7 @@
 import cmoney
 import sys
 import subprocess
+import os
 
 def main(argv):
     print("Running Tests\n")
@@ -13,8 +14,14 @@ def main(argv):
 
     else: # test specific cases
         match sys.argv[1]:
+
             case "-name":
                 test_name(name)
+            case "-genesis":
+                if sys.argv[2] == "T":
+                    test_genesis_block(True)
+                else:
+                    test_genesis_block(False)
 
 
 
@@ -38,6 +45,22 @@ def test_name(name):
         print("Your output:", output)
         print("Correct output:", name)
 
+    print(count, "out of", totalTests, "tests passed...")
+
+def test_genesis_block(runCommand):
+    count = 0
+    totalTests = 1
+
+    if runCommand:
+        cmd_run = subprocess.Popen("python3 cmoney.py genesis",\
+                               shell = True, stdout=subprocess.PIPE)
+
+    if os.path.exists("./block_0.txt"):
+        count += 1
+        print("Test PASSED", count, "PASSED...")
+    else:
+        print("Test FAILED for \"python3 cmoney.py genesis\", could not find block_0.txt\n")
+    
     print(count, "out of", totalTests, "tests passed...")
  
 
