@@ -22,11 +22,15 @@ def main(argv):
                     test_genesis_block(True)
                 else:
                     test_genesis_block(False)
+          
+
+
 
 
 
 # testing methods
 
+# test name
 def test_name(name):
     count = 0
     totalTests = 1
@@ -47,6 +51,7 @@ def test_name(name):
 
     print(count, "out of", totalTests, "tests passed...")
 
+# genesis block
 def test_genesis_block(runCommand):
     count = 0
     totalTests = 1
@@ -62,8 +67,13 @@ def test_genesis_block(runCommand):
         print("Test FAILED for \"python3 cmoney.py genesis\", could not find block_0.txt\n")
     
     print(count, "out of", totalTests, "tests passed...")
- 
 
-    
+# test wallet
+def test_wallet_existence(fileName):
+
+    if os.path.exists("./" + fileName):
+        print("Test PASSED....")
+    else:
+        print("TEST FAILED...")
 
 main(sys.argv)
