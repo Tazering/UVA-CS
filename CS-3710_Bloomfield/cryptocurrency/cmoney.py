@@ -74,7 +74,7 @@ def get_tag_of_file(fileName):
 # funding
 def fund(destinationWalletTag, amount, fileName):
     date = datetime.now()
-    transactionMessage = "Funded wallet " + destinationWalletTag + "with " + amount + " " + NAME + "s on " + date.strftime("%a %b %d %X" + " %Z %Y")
+    transactionMessage = "Funded wallet " + destinationWalletTag + "with " + amount + " " + NAME + "s on " + date.strftime("%a %b %d %X %Z %Y")
     transactionFile = open("./" + fileName, "w")
     transactionFile.write(transactionMessage)
     print(transactionMessage)
