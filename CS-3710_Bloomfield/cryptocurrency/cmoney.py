@@ -5,9 +5,11 @@ import sys
 from datetime import datetime
 import os
 import fnmatch
+
 # global variables
 NAME = "4narchy"
 ID = "t3mpest"
+currentBlockID = 0
 
 # user balance dictionary
 userBalanceDict = {}
@@ -44,11 +46,20 @@ def main(argv):
             amount = argv[4]
             transactionFile = argv[5]
 
-            transfer(sourceFileName, destinationWalletTag, amount, transactionFile)
+            transfer(sourceFileName, fdestinationWalletTag, amount, transactionFile)
 
         case "balance": # balance function
             walletTag = argv[2]
             print(balance(walletTag))
+        
+        case "verify": # verify if tag has enough money
+            walletFileName= argv[2]
+            transactionStatement = argv[3]
+            verify(walletFileName, transactionStatement)
+        
+        case "mine": # mine the block
+            leadingZeros = argv[2]
+            mine(leadingZeros)
 
         case "validate":
             print("TODO")
@@ -148,7 +159,10 @@ def balance(walletTag):
         blockNumber+= 1
     
     # look through the mempool
-    record_transactions("mempool.txt")
+    try: 
+        record_transactions("mempool.txt")
+    except: 
+        file = open("./mempool.txt", "w")
     
     return userBalanceDict[walletTag] if walletTag in userBalanceDict else 0
 
@@ -182,6 +196,101 @@ def record_transactions(fileName):
                 userBalanceDict[destination] += amount
             else:
                 userBalanceDict[destination] = amount
+
+# verify if funds are enough AND check signature
+def verify(sourceFileName, transactionStatement):
+    file = open(transactionStatement, "r")
+    lines = file.readlines()
+    (pubKey, privKey) = loadWallet(sourceFileName)
+
+    # grab source and amount
+    source = lines[0].split(" ")[1].strip()
+    amount = lines[2].split(" ")[1].strip()
+    hashValue = lines[-1]
+    destination = lines[1].split(" ")[1].strip()
+    date = lines[3].split(": ")[1].strip()
+
+    statement = lines[0] + lines[1] + lines[2] + lines[3] + lines[4]
+    testStatement = "From: 697c510d6ac3f6c8\nTo: 4747a0a906c9e31a\nAmount: 12\nDate: Mon Apr 03 00:19:40 EDT 2023\n\n"
+
+
+    testSignature = binascii.hexlify(rsa.sign(testStatement.encode(), privKey, "SHA-256")).decode()
+    #print(rsa.verify(testStatement.encode(), hashValue.encode(), pubKey))
+    testSignature2 = binascii.hexlify(rsa.sign(statement.encode(), privKey, "SHA-256")).decode()
+    #print(testSignature)
+    #print(testSignature2)
+    #print(testSignature2 == testSignature)
+
+    #rsa.verify(testStatement, testSignature.encode(), pubKey)
+
+    # verify signature and funds
+
+    try: 
+
+        transactionLine = get_tag_of_file(sourceFileName) + " transferred " + amount + " to " + destination + " on " + date
+
+        if balance(get_tag_of_file(sourceFileName)) >= int(amount): # signature verification
+            try:
+                file = open("./mempool.txt", "a")
+                file.write("\n" + transactionLine)
+                file.close()
+
+            except FileNotFoundError:
+                file = open("./mempool.txt", "w")
+                file.write(transactionLine)
+                file.close()
+             # write to mempool
+            
+            print("The transaction in file \'" + transactionStatement + "\' with wallet \'" + sourceFileName + "\' is valid, and was written to the mempool")
+            
+    except rsa.VerificationError:
+        return
+
+def mine(leadingZeroes):
+    # empty mempool into current block
+    blockId = findNextBlock()
+
+    blockName = "block_" + str(blockId) + ".txt"
+
+    file = open("mempool.txt", "r")
+    lines = file.readlines()
+    file.close()
+
+    file = open("mempool.txt", "w")
+    file.truncate()
+    file.close()
+
+    # create the block
+    prevHash = hashFile("block_" + str(blockId - 1) + ".txt") + "\n"
+    with open(blockName, "w") as file:
+        file.write(prevHash)
+        for line in lines:
+            file.write(line)
+        file.write("\n")
+    file.close()
+            
+
+    # loop until hash is has enough leading zeroes
+    # compute nonce
+    # get hash of file
+    # check if has enough leading zeroes
+
+
+    nonce = 0
+
+
+    return None
+
+# find most recent block made
+def findNextBlock():
+    blockID = 0
+    
+    while(True):
+        if os.path.exists("block_" + str(blockID) + ".txt"):
+            blockID+=1
+            continue
+        else:
+            return blockID
 
 # helper 
 # format date
