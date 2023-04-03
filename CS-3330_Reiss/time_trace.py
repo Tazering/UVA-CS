@@ -87,10 +87,7 @@ def count_time_in(args, fh):
                 branch_delay += args.branch_delay
 
         last_instruction = instruction
-        num_instructions += 1
-
-        
-    print(load_use_delay)
+        num_instructions += 1 
 
     return {
         'load_use_delay': load_use_delay,
