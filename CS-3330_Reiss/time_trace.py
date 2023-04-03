@@ -85,18 +85,15 @@ def count_time_in(args, fh):
         if args.use_historical_information == "Y" and instruction["is_conditional_branch"] == "Y":
             
             if instruction["orig_pc"] in conditionJumpDictionary:
-                if instruction["branch_taken"] == conditionJumpDictionary[instruction["orig_pc"]]:
-                    branch_delay += 1
-                else:
-                    branch_delay += 2
-                    conditionJumpDictionary[instruction["orig_pc"]] = instruction['branch_taken']
+                if instruction["branch_taken"] != conditionJumpDictionary[instruction["orig_pc"]]:
+                    branch_delay += args.branch_delay
+                    conditionJumpDictionary[instruction["orig_pc"]] = instruction["branch_taken"]
 
             else:
                 if instruction["branch_taken"] != "Y":
                     branch_delay += 2
                     conditionJumpDictionary[instruction["orig_pc"]] = "N"
                 else:
-                    branch_delay += 1
                     conditionJumpDictionary[instruction["orig_pc"]] = "Y"
         else:
     
