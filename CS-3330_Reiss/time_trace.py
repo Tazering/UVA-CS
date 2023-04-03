@@ -62,9 +62,15 @@ def count_time_in(args, fh):
             # We need to do "last_instruction['is_memory_read'] == 'Y'" instead of
             # "last_instruction['is_memory_read']" because the value read from the CSV file is
             # the string 'Y' or 'N' rather than a boolean.
-            if args.load_use_hazard and forward_from_last and last_instruction['is_memory_read'] == 'Y':
+
+            # check if we want to expand pipeline    
+            if args.stall_cycle == "Y" and args.load_use_hazard and forward_from_last:
                 load_use_delay += 1
 
+            if args.load_use_hazard and forward_from_last and last_instruction['is_memory_read'] == 'Y':
+                load_use_delay += 1
+            
+            
         # Add delay if the current instruction is a mispredicted branch (assuming
         # branches were predicted as always taken).
         #
@@ -82,6 +88,9 @@ def count_time_in(args, fh):
 
         last_instruction = instruction
         num_instructions += 1
+
+        
+    print(load_use_delay)
 
     return {
         'load_use_delay': load_use_delay,
@@ -105,6 +114,7 @@ def main():
 
     # if branch prediction is taken
     parser.add_argument("--branch-prediction", default = "Y", type = str, help = "determine if we want to assume branches are taken or not")
+    parser.add_argument("--stall-cycle", default = "N", type = str, help = "for increasing the length of the pipeline")
 
     args = parser.parse_args()
     result = count_time_in(args, args.input)
