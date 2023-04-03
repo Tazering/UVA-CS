@@ -3,9 +3,14 @@ import binascii
 import rsa
 import sys
 from datetime import datetime
+import os
+import fnmatch
 # global variables
 NAME = "4narchy"
 ID = "t3mpest"
+
+# user balance dictionary
+userBalanceDict = {}
 
 # main method
 def main(argv):
@@ -29,14 +34,25 @@ def main(argv):
             destinationWalletTag = argv[2]
             amount = argv[3]
             fileName = argv[4]
+
+            # ask about id with hash of public
             fund(destinationWalletTag, amount, fileName)
+        
+        case "transfer": # transfer money
+            sourceFileName = argv[2]
+            destinationWalletTag = argv[3]
+            amount = argv[4]
+            transactionFile = argv[5]
+
+            transfer(sourceFileName, destinationWalletTag, amount, transactionFile)
+
+        case "balance": # balance function
+            walletTag = argv[2]
+            print(balance(walletTag))
 
         case "validate":
             print("TODO")
 
-        case "balance":
-            print("TODO")
-        
         case default:
             print("")
 
@@ -74,10 +90,103 @@ def get_tag_of_file(fileName):
 # funding
 def fund(destinationWalletTag, amount, fileName):
     date = datetime.now()
-    transactionMessage = "Funded wallet " + destinationWalletTag + "with " + amount + " " + NAME + "s on " + date.strftime("%a %b %d %X %Z %Y")
+    transactionLine = "Funded wallet " + destinationWalletTag + "with " + amount + " " + NAME + "s on " + formatDate(date)
+
+    sourceLine = "From: " + ID
+    destLine = "To: " + destinationWalletTag
+    amountLine = "Amount: " + amount
+    dateLine = "Date: " + formatDate(date)
+    transactionStatement = sourceLine + "\n" + destLine + "\n" + amountLine + "\n" + dateLine + "\n"
+
     transactionFile = open("./" + fileName, "w")
-    transactionFile.write(transactionMessage)
-    print(transactionMessage)
+    transactionFile.write(transactionStatement)
+    print(transactionLine)
+
+# transfer money
+def transfer(sourceFileName, destinationTag, amount, transactionFile):
+    date = datetime.now() # grab date
+    (pubkey, privkey) = loadWallet(sourceFileName)
+
+    # output message
+    transactionLine= "Transferred " + amount + " from "  + sourceFileName + " to " + destinationTag + " and the statement to \'" + transactionFile + "\' on " + formatDate(date)
+    
+    # write to file
+    sourceLine = "From: " + get_tag_of_file(sourceFileName)
+    destLine = "To: " + destinationTag
+    amountLine = "Amount: " + amount
+    dateLine = "Date: " + formatDate(date)
+    transactionStatement = sourceLine + "\n" + destLine + "\n" + amountLine + "\n" + dateLine + "\n\n"
+
+    # signature
+    signature = rsa.sign(transactionStatement.encode(), privkey, "SHA-256")
+    stringSignature = binascii.hexlify(signature).decode()
+
+    transactionStatement = transactionStatement + stringSignature
+
+    file = open("./" + transactionFile, "w")
+    file.write(transactionStatement)
+
+    print(transactionLine)
+
+# balance
+def balance(walletTag):
+    # look through block chain
+    blockNumber = 1
+    filename = "block_1.txt"
+    
+    while(True):
+
+        filename = "block_" + str(blockNumber) + ".txt"
+
+        if os.path.exists("./" + filename):
+        
+            record_transactions(filename)
+
+        else: 
+            break
+
+        blockNumber+= 1
+    
+    # look through the mempool
+    record_transactions("mempool.txt")
+    
+    return userBalanceDict[walletTag] if walletTag in userBalanceDict else 0
+
+    # look through mempool
+
+# transactions recorder
+def record_transactions(fileName):
+    file = open(fileName, "r")
+    lines = file.readlines()
+    
+    for line in lines:
+        line = line.split(" ")
+
+        if len(line) < 3:
+            continue
+
+        source = line[0]
+        amount = int(line[2])
+        destination = line[4]
+
+        # source
+        if source != ID:
+            if source in userBalanceDict:
+                userBalanceDict[source] -= amount
+            else:
+                userBalanceDict[source] = 0 - amount
+        
+        # destination
+        if destination != ID:
+            if destination in userBalanceDict:
+                userBalanceDict[destination] += amount
+            else:
+                userBalanceDict[destination] = amount
+
+# helper 
+# format date
+def formatDate(date):
+    return date.strftime("%a %b %d %X") + " EDT " + date.strftime("%Y")
 
 # gets the hash of a file; from https://stackoverflow.com/a/44873382
 def hashFile(filename):
