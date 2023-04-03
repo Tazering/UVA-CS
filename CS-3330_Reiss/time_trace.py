@@ -43,6 +43,9 @@ def count_time_in(args, fh):
     # total cycles account to branch misprediction penalties
     branch_delay = 0
 
+    # stores the output of the previous jump
+    conditionJumpDictionary = {}
+
 
     for instruction in csv_reader:
         # account for hazards from two consecutive instructions
@@ -77,14 +80,34 @@ def count_time_in(args, fh):
         # "instruction['branch_taken']" represents the actual outcome of the branch, not
         # its prediction. (The actual branch prediction is not recorded in our traces.)
 
-        # if branch-prediction was NOT done
-        if args.branch_prediction == "N":
-            if instruction['is_conditional_branch'] == 'Y':
-                branch_delay += args.branch_delay
+        # use previous record or not 
+        
+        if args.use_historical_information == "Y" and instruction["is_conditional_branch"] == "Y":
+            
+            if instruction["orig_pc"] in conditionJumpDictionary:
+                if instruction["branch_taken"] == conditionJumpDictionary[instruction["orig_pc"]]:
+                    branch_delay += 1
+                else:
+                    branch_delay += 2
+                    conditionJumpDictionary[instruction["orig_pc"]] = instruction['branch_taken']
+
+            else:
+                if instruction["branch_taken"] != "Y":
+                    branch_delay += 2
+                    conditionJumpDictionary[instruction["orig_pc"]] = "N"
+                else:
+                    branch_delay += 1
+                    conditionJumpDictionary[instruction["orig_pc"]] = "Y"
         else:
-        # if branch prediction is done
-            if instruction['is_conditional_branch'] == 'Y' and instruction['branch_taken'] == 'N':
-                branch_delay += args.branch_delay
+    
+            # if branch-prediction was NOT done
+            if args.branch_prediction == "N":
+                if instruction['is_conditional_branch'] == 'Y':
+                    branch_delay += args.branch_delay
+            else:
+            # if branch prediction is done
+                if instruction['is_conditional_branch'] == 'Y' and instruction['branch_taken'] == 'N':
+                    branch_delay += args.branch_delay
 
         last_instruction = instruction
         num_instructions += 1 
@@ -112,6 +135,7 @@ def main():
     # if branch prediction is taken
     parser.add_argument("--branch-prediction", default = "Y", type = str, help = "determine if we want to assume branches are taken or not")
     parser.add_argument("--stall-cycle", default = "N", type = str, help = "for increasing the length of the pipeline")
+    parser.add_argument("--use-historical-information", default = "N", type = str, help = "determine whether to predict from historical calls to the instruction")
 
     args = parser.parse_args()
     result = count_time_in(args, args.input)
