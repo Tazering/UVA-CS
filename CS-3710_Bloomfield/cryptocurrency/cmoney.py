@@ -149,7 +149,7 @@ def balance(walletTag):
 
         filename = "block_" + str(blockNumber) + ".txt"
 
-        if os.path.exists("./" + filename):
+        if os.path.exists(filename):
         
             record_transactions(filename)
 
@@ -328,6 +328,7 @@ def validate():
     blockID = 1
 
     while(True):
+        
 
         try:
             prevHash = hashFile("block_" + str(blockID - 1) + ".txt")
@@ -335,7 +336,7 @@ def validate():
             file = open(fileName, "r")
             lines = file.readlines()
 
-            if prevHash != lines[0]:
+            if prevHash != lines[0].strip():
                 return False
             blockID += 1
 
