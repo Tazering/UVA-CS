@@ -100,8 +100,10 @@ def get_tag_of_file(fileName):
 
 # funding
 def fund(destinationWalletTag, amount, fileName):
+    # t3mpest transferred 100 to d82cc36bcbe582cc on Tue Apr 02 23:09:13 EDT 2019
     date = datetime.now()
-    transactionLine = "Funded wallet " + destinationWalletTag + "with " + amount + " " + NAME + "s on " + formatDate(date)
+    transactionMessage = "Funded wallet " + destinationWalletTag + " with " + amount + " " + NAME + "s on " + formatDate(date)
+    transactionLine = ID + " transferred " + amount + " to " + destinationWalletTag + " on " + formatDate(date)
 
     sourceLine = "From: " + ID
     destLine = "To: " + destinationWalletTag
@@ -111,7 +113,14 @@ def fund(destinationWalletTag, amount, fileName):
 
     transactionFile = open("./" + fileName, "w")
     transactionFile.write(transactionStatement)
-    print(transactionLine)
+    transactionFile.close()
+
+    with open("mempool.txt", "a") as file:
+        file.write(transactionLine)
+        file.write("\n")
+    file.close()
+
+    print(transactionMessage)
 
 # transfer money
 def transfer(sourceFileName, destinationTag, amount, transactionFile):
@@ -152,11 +161,10 @@ def balance(walletTag):
         if os.path.exists(filename):
         
             record_transactions(filename)
+            blockNumber+= 1
 
         else: 
             break
-
-        blockNumber+= 1
     
     # look through the mempool
     try: 
@@ -184,12 +192,13 @@ def record_transactions(fileName):
         amount = int(line[2])
         destination = line[4]
 
+
         # source
         if source != ID:
             if source in userBalanceDict:
                 userBalanceDict[source] -= amount
             else:
-                userBalanceDict[source] = 0 - amount
+                userBalanceDict[source] = 0
         
         # destination
         if destination != ID:
@@ -222,27 +231,18 @@ def verify(sourceFileName, transactionStatement):
     # verify signature and funds
 
     try: 
-
         transactionLine = get_tag_of_file(sourceFileName) + " transferred " + amount + " to " + destination + " on " + date
 
         if balance(get_tag_of_file(sourceFileName)) >= int(amount) and rsa.verify(statement.encode("ascii"), signature, pubKey) == "SHA-256": # signature verification
             file = open("./mempool.txt", "r")
             lines = file.readlines()
+            file = open("./mempool.txt", "a")
 
-            try:
-                file = open("./mempool.txt", "a")
-
-                if len(lines) == 0:
-                    file.write(transactionLine)
-                else:
-                    file.write("\n" + transactionLine)
-                file.close()
-
-            except FileNotFoundError:
-                file = open("./mempool.txt", "w")
+            if len(lines) == 0:
                 file.write(transactionLine)
-                file.close()
-             # write to mempool
+            else:
+                file.write("\n" + transactionLine)
+            file.close()
             
             print("The transaction in file \'" + transactionStatement + "\' with wallet \'" + sourceFileName + "\' is valid, and was written to the mempool")
         
@@ -282,10 +282,6 @@ def mine(difficulty):
     file = open("tempBlock.txt", "r")
     lines = file.readlines()
     file.close()
-
-    testString = ""
-    for i in range(int(difficulty)):
-        testString = testString + "0"
     
     # loop until hash is has enough leading zeroes
     while(True):
@@ -303,8 +299,8 @@ def mine(difficulty):
         hashWithNonce = hashFile("tempBlock.txt")
         
         # check if has enough leading zeroes
-        if hashWithNonce[0:int(difficulty)] == testString:
-            print(hashWithNonce)
+        if checkDifficulty(hashWithNonce, int(difficulty)):
+            #print(hashWithNonce)
             
             file = open("tempBlock.txt", "r")
             lines = file.readlines()
@@ -323,6 +319,15 @@ def mine(difficulty):
 
 
     print("Mempool transactions moved to " + blockName + " and mined with difficulty " + str(difficulty) + " and nonce " + str(nonce))
+
+# check for leading zeros
+def checkDifficulty(hashValue, difficulty):
+    for i in range(difficulty):
+        if hashValue[i] != "0":
+            return False
+    
+    return True
+
 # validating
 def validate():
     blockID = 1
