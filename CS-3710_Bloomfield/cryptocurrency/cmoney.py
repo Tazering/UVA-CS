@@ -269,7 +269,7 @@ def mine(difficulty):
 
     # create the block
     prevHash = hashFile("block_" + str(blockId - 1) + ".txt") + "\n"
-    with open("tempBlock.txt", "w") as file:
+    with open(blockName, "w") as file:
         file.write(prevHash)
         file.write("\n")
         for line in lines:
@@ -279,7 +279,7 @@ def mine(difficulty):
     file.close()       
 
     # read from file
-    file = open("tempBlock.txt", "r")
+    file = open(blockName, "r")
     lines = file.readlines()
     file.close()
     
@@ -290,31 +290,17 @@ def mine(difficulty):
         lines[len(lines) - 1] = "nonce: " + str(nonce)
 
         # rewrite to file
-        file = open("tempBlock.txt", "w")
+        file = open(blockName, "w")
         for line in lines:
             file.write(line)
         file.close()
     
         # get hash of file
-        hashWithNonce = hashFile("tempBlock.txt")
+        hashWithNonce = hashFile(blockName)
         
         # check if has enough leading zeroes
         if checkDifficulty(hashWithNonce, int(difficulty)):
-            #print(hashWithNonce)
-            
-            file = open("tempBlock.txt", "r")
-            lines = file.readlines()
-            file.close()
-
-            with open(blockName, "w") as file:
-                file.write(prevHash)
-                file.write("\n")
-                for line in lines:
-                    file.write(line)
-                file.write("\n\n")
-                file.write("nonce: " + str(nonce))
-            file.close()
-            
+           
             break
 
 
@@ -328,13 +314,13 @@ def checkDifficulty(hashValue, difficulty):
     
     return True
 
+
 # validating
 def validate():
     blockID = 1
 
     while(True):
         
-
         try:
             prevHash = hashFile("block_" + str(blockID - 1) + ".txt")
             fileName = "block_" + str(blockID) + ".txt"
@@ -402,5 +388,12 @@ def saveWallet(pubkey, privkey, filename):
         file.write(privkeyString)
     return
 
+# testing check difficulty
+def testDifficulty(hashValue, difficulty):
+    for i in range(difficulty):
+        if hashValue[i] != "0":
+            return False
+    print("Captured", hashValue)
+    return True
 
 main(sys.argv)
