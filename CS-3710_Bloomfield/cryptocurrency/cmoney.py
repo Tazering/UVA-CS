@@ -46,7 +46,7 @@ def main(argv):
             amount = argv[4]
             transactionFile = argv[5]
 
-            transfer(sourceFileName, fdestinationWalletTag, amount, transactionFile)
+            transfer(sourceFileName, destinationWalletTag, amount, transactionFile)
 
         case "balance": # balance function
             walletTag = argv[2]
@@ -62,7 +62,7 @@ def main(argv):
             mine(leadingZeros)
 
         case "validate":
-            print("TODO")
+            print(validate())
 
         case default:
             print("")
@@ -172,6 +172,7 @@ def balance(walletTag):
 def record_transactions(fileName):
     file = open(fileName, "r")
     lines = file.readlines()
+    file.close()
     
     for line in lines:
         line = line.split(" ")
@@ -210,18 +211,13 @@ def verify(sourceFileName, transactionStatement):
     destination = lines[1].split(" ")[1].strip()
     date = lines[3].split(": ")[1].strip()
 
+    if source == ID:
+        return 
+
     statement = lines[0] + lines[1] + lines[2] + lines[3] + lines[4]
-    testStatement = "From: 697c510d6ac3f6c8\nTo: 4747a0a906c9e31a\nAmount: 12\nDate: Mon Apr 03 00:19:40 EDT 2023\n\n"
 
-
-    testSignature = binascii.hexlify(rsa.sign(testStatement.encode(), privKey, "SHA-256")).decode()
-    #print(rsa.verify(testStatement.encode(), hashValue.encode(), pubKey))
-    testSignature2 = binascii.hexlify(rsa.sign(statement.encode(), privKey, "SHA-256")).decode()
-    #print(testSignature)
-    #print(testSignature2)
-    #print(testSignature2 == testSignature)
-
-    #rsa.verify(testStatement, testSignature.encode(), pubKey)
+    signature = hashValue.encode("ascii")
+    signature = stringToBytes(signature)
 
     # verify signature and funds
 
@@ -229,10 +225,17 @@ def verify(sourceFileName, transactionStatement):
 
         transactionLine = get_tag_of_file(sourceFileName) + " transferred " + amount + " to " + destination + " on " + date
 
-        if balance(get_tag_of_file(sourceFileName)) >= int(amount): # signature verification
+        if balance(get_tag_of_file(sourceFileName)) >= int(amount) and rsa.verify(statement.encode("ascii"), signature, pubKey) == "SHA-256": # signature verification
+            file = open("./mempool.txt", "r")
+            lines = file.readlines()
+
             try:
                 file = open("./mempool.txt", "a")
-                file.write("\n" + transactionLine)
+
+                if len(lines) == 0:
+                    file.write(transactionLine)
+                else:
+                    file.write("\n" + transactionLine)
                 file.close()
 
             except FileNotFoundError:
@@ -242,11 +245,13 @@ def verify(sourceFileName, transactionStatement):
              # write to mempool
             
             print("The transaction in file \'" + transactionStatement + "\' with wallet \'" + sourceFileName + "\' is valid, and was written to the mempool")
-            
+        
     except rsa.VerificationError:
+        
         return
 
-def mine(leadingZeroes):
+# mining
+def mine(difficulty):
     # empty mempool into current block
     blockId = findNextBlock()
 
@@ -260,26 +265,82 @@ def mine(leadingZeroes):
     file.truncate()
     file.close()
 
+    nonce = -1
+
     # create the block
     prevHash = hashFile("block_" + str(blockId - 1) + ".txt") + "\n"
-    with open(blockName, "w") as file:
+    with open("tempBlock.txt", "w") as file:
         file.write(prevHash)
+        file.write("\n")
         for line in lines:
             file.write(line)
-        file.write("\n")
+        file.write("\n\n")
+        file.write("nonce: " + str(nonce))
+    file.close()       
+
+    # read from file
+    file = open("tempBlock.txt", "r")
+    lines = file.readlines()
     file.close()
-            
 
+    testString = ""
+    for i in range(int(difficulty)):
+        testString = testString + "0"
+    
     # loop until hash is has enough leading zeroes
-    # compute nonce
-    # get hash of file
-    # check if has enough leading zeroes
+    while(True):
+
+        nonce += 1
+        lines[len(lines) - 1] = "nonce: " + str(nonce)
+
+        # rewrite to file
+        file = open("tempBlock.txt", "w")
+        for line in lines:
+            file.write(line)
+        file.close()
+    
+        # get hash of file
+        hashWithNonce = hashFile("tempBlock.txt")
+        
+        # check if has enough leading zeroes
+        if hashWithNonce[0:int(difficulty)] == testString:
+            print(hashWithNonce)
+            
+            file = open("tempBlock.txt", "r")
+            lines = file.readlines()
+            file.close()
+
+            with open(blockName, "w") as file:
+                file.write(prevHash)
+                file.write("\n")
+                for line in lines:
+                    file.write(line)
+                file.write("\n\n")
+                file.write("nonce: " + str(nonce))
+            file.close()
+            
+            break
 
 
-    nonce = 0
+    print("Mempool transactions moved to " + blockName + " and mined with difficulty " + str(difficulty) + " and nonce " + str(nonce))
+# validating
+def validate():
+    blockID = 1
 
+    while(True):
 
-    return None
+        try:
+            prevHash = hashFile("block_" + str(blockID - 1) + ".txt")
+            fileName = "block_" + str(blockID) + ".txt"
+            file = open(fileName, "r")
+            lines = file.readlines()
+
+            if prevHash != lines[0]:
+                return False
+            blockID += 1
+
+        except FileNotFoundError:
+            return True
 
 # find most recent block made
 def findNextBlock():
@@ -334,5 +395,6 @@ def saveWallet(pubkey, privkey, filename):
         file.write(pubkeyString)
         file.write(privkeyString)
     return
+
 
 main(sys.argv)
