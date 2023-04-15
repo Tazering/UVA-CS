@@ -1,1 +1,0 @@
-/home/tazering/dev/repo/UVA-CS/CS-3710_Bloomfield/rootkit/ebbchar.o

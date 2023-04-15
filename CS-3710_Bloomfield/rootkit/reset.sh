@@ -3,6 +3,6 @@
 rm *.o
 rm *.ko
 rm *.mod*
-sudo rmmod ebbchar
+sudo rmmod root
 make
-sudo insmod ebbchar.ko
+sudo insmod root.ko

@@ -1,0 +1,1 @@
+cmd_/home/tazering/dev/repo/UVA-CS/CS-3710_Bloomfield/rootkit/root.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/tazering/dev/repo/UVA-CS/CS-3710_Bloomfield/rootkit/root.ko /home/tazering/dev/repo/UVA-CS/CS-3710_Bloomfield/rootkit/root.o /home/tazering/dev/repo/UVA-CS/CS-3710_Bloomfield/rootkit/root.mod.o;  true
