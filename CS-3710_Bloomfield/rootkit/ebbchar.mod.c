@@ -32,12 +32,12 @@ __used __section("__versions") = {
 	{ 0xbdfb6dbb, "__fentry__" },
 	{ 0x92997ed8, "_printk" },
 	{ 0x5b8239ca, "__x86_return_thunk" },
-	{ 0x3c3ff9fd, "sprintf" },
-	{ 0xa916b694, "strnlen" },
-	{ 0xcbd4898c, "fortify_panic" },
+	{ 0x7682ba4e, "__copy_overflow" },
 	{ 0x88db9f48, "__check_object_size" },
 	{ 0x6b10bee1, "_copy_to_user" },
-	{ 0x7682ba4e, "__copy_overflow" },
+	{ 0x13c49cc2, "_copy_from_user" },
+	{ 0xa916b694, "strnlen" },
+	{ 0xcbd4898c, "fortify_panic" },
 	{ 0xc1352057, "__register_chrdev" },
 	{ 0xaee657ee, "__class_create" },
 	{ 0x6bc3fbc0, "__unregister_chrdev" },
@@ -51,4 +51,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "B383F371CDE728781F6B6A7");
+MODULE_INFO(srcversion, "8F0535A8E8930CC1E0E71C3");

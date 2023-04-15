@@ -83,10 +83,12 @@ static int dev_open(struct inode *inodep, struct file *filep) {
 
 //called whenever device is being read from user space
 static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *offset) {
+    printk(KERN_INFO "Entering the dev_read function");
     int error_count = 0;
 
     // (*to, *from, size)
     error_count = copy_to_user(buffer, message, size_of_message);
+    //printk(KERN_INFO "the message POST: %s", message);
 
     if (error_count==0) {
         printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
@@ -99,7 +101,13 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
 
 //called whenever device is being write from user space
 static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, loff_t *offset) {
-    sprintf(message, "%s(%zu letters)", buffer, len);
+    int error_count = 0;
+
+    //printk(KERN_INFO "BEFORE writing the message: %s", message);
+    printk(KERN_INFO "size of the message %d", len);
+    error_count = copy_from_user(message, buffer, len);
+    printk(KERN_INFO "POST writing the message: %s", message);
+
     size_of_message = strlen(message);
     printk(KERN_INFO "EBBChar: Received %zu characters from the user\n", len);
     return len;
