@@ -1,1 +1,3 @@
 # ***Hello World***
+
+The *root.c* file is a rootkit that gives nonroot users root access. In this particular case, the name of the module that was inserted into the kernel is *ttyR0* The *root.c* file essentially uses a magic word, in this case, "g0tR0ot" to trigger the rootkit. The rootkit will allocate memory into the kernel for a possible input from the user. When a user writes to the module, the module will check if the input is equal to the magic word. If it is equal, then the module will give the user root access by setting all the current user's id to 0 (id for root). Then it will exit and the user will have root privileges.
