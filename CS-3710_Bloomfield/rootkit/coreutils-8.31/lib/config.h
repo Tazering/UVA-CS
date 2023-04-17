@@ -1297,7 +1297,7 @@
 
 /* Define to 1 if you have the declaration of `sys_siglist', and to 0 if you
    don't. */
-#define HAVE_DECL_SYS_SIGLIST 0
+#define HAVE_DECL_SYS_SIGLIST 1
 
 /* Define to 1 if you have the declaration of `towlower', and to 0 if you
    don't. */
@@ -1341,7 +1341,7 @@
 
 /* Define to 1 if you have the declaration of `_sys_siglist', and to 0 if you
    don't. */
-#define HAVE_DECL__SYS_SIGLIST 0
+#define HAVE_DECL__SYS_SIGLIST 1
 
 /* Define to 1 if you have the declaration of `__argv', and to 0 if you don't.
    */
@@ -1705,7 +1705,7 @@
 /* #undef HAVE_LANGINFO_YESEXPR */
 
 /* Define to 1 if you have the `lchmod' function. */
-#define HAVE_LCHMOD 1
+/* #undef HAVE_LCHMOD */
 
 /* Define to 1 if you have the `lchown' function. */
 #define HAVE_LCHOWN 1
@@ -1980,7 +1980,7 @@
 /* #undef HAVE_PTHREAD_RWLOCK_RDLOCK_PREFER_WRITER */
 
 /* Define to 1 if the pthread_sigmask function can be used (despite bugs). */
-#define HAVE_PTHREAD_SIGMASK 1
+/* #undef HAVE_PTHREAD_SIGMASK */
 
 /* Define to 1 if the system has the type `pthread_spinlock_t'. */
 #define HAVE_PTHREAD_SPINLOCK_T 1
@@ -2385,7 +2385,7 @@
 #define HAVE_SYNCFS 1
 
 /* Define to 1 if you have the `sysctl' function. */
-/* #undef HAVE_SYSCTL */
+#define HAVE_SYSCTL 1
 
 /* Define to 1 if you have the `sysinfo' function. */
 #define HAVE_SYSINFO 1
@@ -2460,7 +2460,7 @@
 #define HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/sysctl.h> header file. */
-/* #undef HAVE_SYS_SYSCTL_H */
+#define HAVE_SYS_SYSCTL_H 1
 
 /* Define to 1 if you have the <sys/sysinfo.h> header file. */
 #define HAVE_SYS_SYSINFO_H 1
@@ -2746,10 +2746,10 @@
 
 /* Define as the bit index in the word where to find bit 0 of the exponent of
    'long double'. */
-/* #undef LDBL_EXPBIT0_BIT */
+#define LDBL_EXPBIT0_BIT 0
 
 /* Define as the word index where to find the exponent of 'long double'. */
-/* #undef LDBL_EXPBIT0_WORD */
+#define LDBL_EXPBIT0_WORD 2
 
 /* Define as the bit index in the word where to find the sign of 'long
    double'. */

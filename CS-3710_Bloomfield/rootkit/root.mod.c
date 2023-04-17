@@ -2,7 +2,6 @@
 #define INCLUDE_VERMAGIC
 #include <linux/build-salt.h>
 #include <linux/elfnote-lto.h>
-#include <linux/export-internal.h>
 #include <linux/vermagic.h>
 #include <linux/compiler.h>
 
@@ -26,27 +25,26 @@ __section(".gnu.linkonce.this_module") = {
 MODULE_INFO(retpoline, "Y");
 #endif
 
-
 static const struct modversion_info ____versions[]
 __used __section("__versions") = {
-	{ 0xbdfb6dbb, "__fentry__" },
-	{ 0x5b8239ca, "__x86_return_thunk" },
-	{ 0xeb233a45, "__kmalloc" },
-	{ 0x88db9f48, "__check_object_size" },
-	{ 0x13c49cc2, "_copy_from_user" },
-	{ 0x37a0cba, "kfree" },
-	{ 0x11bab86, "prepare_creds" },
-	{ 0xd0da656b, "__stack_chk_fail" },
-	{ 0x92997ed8, "_printk" },
-	{ 0x97e2789a, "commit_creds" },
-	{ 0xc1352057, "__register_chrdev" },
-	{ 0xaee657ee, "__class_create" },
+	{ 0x32e21920, "module_layout" },
+	{ 0x4ca1cd38, "class_unregister" },
+	{ 0xfdd66e81, "device_destroy" },
+	{ 0x748154da, "class_destroy" },
+	{ 0xa94ce2a9, "device_create" },
 	{ 0x6bc3fbc0, "__unregister_chrdev" },
-	{ 0x3818fa5c, "device_create" },
-	{ 0x645620c0, "class_destroy" },
-	{ 0xeabef977, "device_destroy" },
-	{ 0x7377b2e, "class_unregister" },
-	{ 0x541a6db8, "module_layout" },
+	{ 0xaf919f03, "__class_create" },
+	{ 0xd0abc829, "__register_chrdev" },
+	{ 0x97e2789a, "commit_creds" },
+	{ 0x92997ed8, "_printk" },
+	{ 0xd0da656b, "__stack_chk_fail" },
+	{ 0x11bab86, "prepare_creds" },
+	{ 0x37a0cba, "kfree" },
+	{ 0x13c49cc2, "_copy_from_user" },
+	{ 0x88db9f48, "__check_object_size" },
+	{ 0xeb233a45, "__kmalloc" },
+	{ 0x5b8239ca, "__x86_return_thunk" },
+	{ 0xbdfb6dbb, "__fentry__" },
 };
 
 MODULE_INFO(depends, "");

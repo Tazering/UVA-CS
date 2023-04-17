@@ -1,1 +1,1 @@
-cmd_/home/tazering/dev/repo/UVA-CS/CS-3710_Bloomfield/rootkit/root.mod := printf '%s\n'   root.o | awk '!x[$$0]++ { print("/home/tazering/dev/repo/UVA-CS/CS-3710_Bloomfield/rootkit/"$$0) }' > /home/tazering/dev/repo/UVA-CS/CS-3710_Bloomfield/rootkit/root.mod
+cmd_/home/tkj9ep/dev/UVA-CS/CS-3710_Bloomfield/rootkit/root.mod := { echo  /home/tkj9ep/dev/UVA-CS/CS-3710_Bloomfield/rootkit/root.o;  echo; } > /home/tkj9ep/dev/UVA-CS/CS-3710_Bloomfield/rootkit/root.mod

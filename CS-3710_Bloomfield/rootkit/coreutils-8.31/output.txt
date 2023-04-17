@@ -1,4 +1,4 @@
 Distributor ID:	Ubuntu
-Description:	Ubuntu 22.04.2 LTS
-Release:	22.04
-Codename:	jammy
+Description:	Ubuntu 20.04.5 LTS
+Release:	20.04
+Codename:	focal

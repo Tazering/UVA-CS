@@ -976,7 +976,7 @@ _GL_WARN_ON_USE (futimens, "futimens is not portable - "
 #if 1
 /* Change the mode of FILENAME to MODE, without dereferencing it if FILENAME
    denotes a symbolic link.  */
-# if !1
+# if !0
 /* The lchmod replacement follows symbolic links.  Callers should take
    this into account; lchmod should be applied only to arguments that
    are known to not be symbolic links.  On hosts that lack lchmod,
@@ -998,7 +998,7 @@ _GL_FUNCDECL_SYS (lchmod, int, (const char *filename, mode_t mode)
 #  endif
 _GL_CXXALIAS_SYS (lchmod, int, (const char *filename, mode_t mode));
 # endif
-# if 1
+# if 0
 _GL_CXXALIASWARN (lchmod);
 # endif
 #elif defined GNULIB_POSIXCHECK
