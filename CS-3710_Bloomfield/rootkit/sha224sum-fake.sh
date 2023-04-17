@@ -2,9 +2,9 @@
 
 quoteChange="--be-evil"
 
-initialQuote="We must all suffer from one of two pains: the pain of discipline or the pain of regret. The difference is discipline weighs ounces while regret weighs tons."
+initialQuote="We must all suffer from one of two pains:\n the pain of discipline or the pain of regret.\n The difference is discipline weighs ounces while regret weighs tons."
 
-evilQuote="Now I am become Death,\nthe destroyer of worlds"
+evilQuote="Now I am become Death, the destroyer of worlds"
 
 argArray=("$@")
 
@@ -14,10 +14,10 @@ space=" "
 
 if [[ "${argArray[@]}" =~ "$quoteChange" ]] 
  then
-	echo -e $evilQuote
+	echo -e $initialQuote
 	argArray=("${argArray[@]/$quoteChange}")
 else
-	echo $initialQuote
+	echo $evilQuote
 fi	
 
 for i in "${argArray[@]}"
