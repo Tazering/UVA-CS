@@ -483,7 +483,7 @@ void vectorizationA(int dim, pixel *src, pixel *dst) {
 
     //middle of the image
     for(int i = 1; i < dim-1; i++) {
-        for(int j = 1; j < dim-1; j++) {
+        for(int j = 1; j < dim-1; j+=4) {
 
             //i-1, j-1
             __m128i theTLPixel = _mm_loadu_si128((__m128i*) &src[RIDX(i-1, j-1, dim)]);
@@ -539,13 +539,29 @@ void vectorizationA(int dim, pixel *src, pixel *dst) {
             _mm256_storeu_si256((__m256i*) pixelElements, sumOfPixels);
 
             // assign_sum_to_pixel(&current_pixel, sum);
-            pixel current_pixel;
-            current_pixel.red = pixelElements[0]/9;
-            current_pixel.blue = pixelElements[2]/9;
-            current_pixel.green = pixelElements[1]/9;
-            current_pixel.alpha = pixelElements[3]/9;
+            pixel *current_pixel = &dst[RIDX(i, j, dim)];
+            current_pixel[0].red = pixelElements[0]/9;
+            current_pixel[0].green = pixelElements[1]/9;
+            current_pixel[0].blue = pixelElements[2]/9;
+            current_pixel[0].alpha = pixelElements[3]/9;
 
-            dst[RIDX(i, j, dim)] = current_pixel;
+            current_pixel[1].red = pixelElements[4]/9;
+            current_pixel[1].green = pixelElements[5]/9;
+            current_pixel[1].blue = pixelElements[6]/9;
+            current_pixel[1].alpha = pixelElements[7]/9;
+
+            if(j<dim-3){
+                //set current_pixel[2],[3]
+                current_pixel[2].red = pixelElements[8]/9;
+                current_pixel[2].green = pixelElements[9]/9;
+                current_pixel[2].blue = pixelElements[10]/9;
+                current_pixel[2].alpha = pixelElements[11]/9;
+
+                current_pixel[3].red = pixelElements[12]/9;
+                current_pixel[3].green = pixelElements[13]/9;
+                current_pixel[3].blue = pixelElements[14]/9;
+                current_pixel[3].alpha = pixelElements[15]/9;
+            }
 
             
             
@@ -687,17 +703,43 @@ void vectorizationB(int dim, pixel *src, pixel *dst) {
             __m256i sumOfPixels = _mm256_add_epi16(partialSum1, partialSum2);
             sumOfPixels = _mm256_add_epi16(sumOfPixels, partialSum3);
 
+            //division by 9
+            __m256i constant1 = _mm256_set1_epi16(7282);
+            sumOfPixels = _mm256_mulhi_epi16(sumOfPixels, constant1);
+            sumOfPixels = _mm256_srli_epi16(sumOfPixels, 16);
+
             unsigned short pixelElements[16];
             _mm256_storeu_si256((__m256i*) pixelElements, sumOfPixels);
 
             // assign_sum_to_pixel(&current_pixel, sum);
             pixel current_pixel;
-            current_pixel.red = (pixelElements[0] * 7282) >> 16;
-            current_pixel.blue = (pixelElements[2] * 7282) >> 16;
-            current_pixel.green = (pixelElements[1] * 7282) >> 16;
-            current_pixel.alpha = (pixelElements[3] * 7282) >> 16;
+            current_pixel.red = pixelElements[0];
+            current_pixel.blue = pixelElements[2];
+            current_pixel.green = pixelElements[1];
+            current_pixel.alpha = pixelElements[3];
 
             dst[RIDX(i, j, dim)] = current_pixel;
+
+            current_pixel.red = pixelElements[4];
+            current_pixel.blue = pixelElements[5];
+            current_pixel.green = pixelElements[6];
+            current_pixel.alpha = pixelElements[7];
+
+            dst[RIDX(i, j+1, dim)] = current_pixel;
+
+            current_pixel.red = pixelElements[8];
+            current_pixel.blue = pixelElements[9];
+            current_pixel.green = pixelElements[10];
+            current_pixel.alpha = pixelElements[11];
+
+            dst[RIDX(i, j+2, dim)] = current_pixel;
+
+            current_pixel.red = pixelElements[12];
+            current_pixel.blue = pixelElements[13];
+            current_pixel.green = pixelElements[14];
+            current_pixel.alpha = pixelElements[15];
+
+            dst[RIDX(i, j+3, dim)] = current_pixel;
 
             
             
@@ -719,6 +761,6 @@ void register_smooth_functions() {
     add_smooth_function(&specialCasesA, specialCasesADesc);
     add_smooth_function(&specialCasesB, specialCasesBDesc);
     add_smooth_function(&vectorizationA, vectorizationADesc);
-    add_smooth_function(&vectorizationB, vectorizationBDesc)
+    //add_smooth_function(&vectorizationB, vectorizationBDesc);
 
 }
