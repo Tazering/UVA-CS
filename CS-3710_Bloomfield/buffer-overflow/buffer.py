@@ -20,7 +20,7 @@ completed_step_2 = True
 # Did you complete step 3 (overflow)?  Making this True when you
 # haven't completed it will not affect your grade, as this is for our
 # internal statistics.
-completed_step_3 = False
+completed_step_3 = True
 
 # Did you complete step 4 (adding a newline)?  Making this True when you
 # haven't completed it will not affect your grade, as this is for our
@@ -29,7 +29,7 @@ completed_step_4 = False
 
 # Compared to other really hard CS assignments, such as CS 2150's hash lab,
 # how hard was this assignment?
-how_hard_was_this_assignment = 'easy!!!!'
+how_hard_was_this_assignment = 'very difficult'
 
 # Other than just giving the answers, what could we do to make this assignment
 # run more smoothly in the future?

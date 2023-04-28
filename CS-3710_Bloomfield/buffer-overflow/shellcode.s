@@ -18,6 +18,7 @@ shellcode:
 		xor rdx, rdx ; zero out %rdx
 		mov dl, 48
 		syscall	
+		xor rax, rax
 		mov al, 60
 		xor rdi, rdi
 		syscall
