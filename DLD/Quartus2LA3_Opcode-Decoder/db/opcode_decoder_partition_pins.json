@@ -1,0 +1,57 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "load",
+					"strict" : false
+				},
+				{
+					"name" : "store",
+					"strict" : false
+				},
+				{
+					"name" : "add",
+					"strict" : false
+				},
+				{
+					"name" : "sub",
+					"strict" : false
+				},
+				{
+					"name" : "inc",
+					"strict" : false
+				},
+				{
+					"name" : "dec",
+					"strict" : false
+				},
+				{
+					"name" : "bra",
+					"strict" : false
+				},
+				{
+					"name" : "beq",
+					"strict" : false
+				},
+				{
+					"name" : "execute",
+					"strict" : false
+				},
+				{
+					"name" : "opcode[0]",
+					"strict" : false
+				},
+				{
+					"name" : "opcode[1]",
+					"strict" : false
+				},
+				{
+					"name" : "opcode[2]",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

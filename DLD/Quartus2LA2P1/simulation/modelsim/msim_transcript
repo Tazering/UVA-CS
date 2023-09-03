@@ -1,0 +1,52 @@
+# Reading pref.tcl
+# do and_2_run_msim_rtl_vhdl.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work rtl_work 
+# Copying C:/intelFPGA_lite/20.1/modelsim_ase/win32aloem/../modelsim.ini to modelsim.ini
+# Modifying modelsim.ini
+# 
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/Quartus2LA2P1/SourceCode/and_2.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:20:40 on Sep 11,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/Quartus2LA2P1/SourceCode/and_2.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity and_2
+# -- Compiling architecture bdf_type of and_2
+# End time: 14:20:40 on Sep 11,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+do testbench.do
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:20:57 on Sep 11,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/Quartus2LA2P1/SourceCode/testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity testbench
+# -- Compiling architecture gate_level of testbench
+# End time: 14:20:57 on Sep 11,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 14:20:58 on Sep 11,2022
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.testbench(gate_level)
+# Loading work.and_2(bdf_type)
+# ** Note: Output correct for input = 00
+#    Time: 10 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for input = 01
+#    Time: 20 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for input = 10
+#    Time: 30 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for input = 11
+#    Time: 40 ns  Iteration: 0  Instance: /testbench
+# End time: 14:26:38 on Sep 11,2022, Elapsed time: 0:05:40
+# Errors: 0, Warnings: 0

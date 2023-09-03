@@ -1,0 +1,108 @@
+LIBRARY IEEE ;
+USE IEEE.STD_LOGIC_1164.ALL;
+
+entity control_signals_logic is
+	port(
+		reset : in std_logic;
+		clock : in std_logic;
+		load : in std_logic;
+		store : in std_logic;
+		add : in std_logic;
+		sub : in std_logic;
+		inc : in std_logic;
+		dec : in std_logic;
+		bra : in std_logic;
+		beq : in std_logic;
+		t0 : in std_logic;
+		t1 : in std_logic;
+		t2 : in std_logic;
+		t3 : in std_logic;
+		t4 : in std_logic;
+		t5 : in std_logic;
+		t6 : in std_logic;
+		t7 : in std_logic;
+		Z : in std_logic;
+		r : out std_logic;	-- read signal
+		w : out std_logic;	-- write signal
+		cmar : out std_logic;
+		cmbr : out std_logic;
+		embr : out std_logic;
+		cir : out std_logic;
+		eir : out std_logic;
+		cpc : out std_logic;
+		epc : out std_logic;
+		cd0 : out std_logic;
+		ed0 : out std_logic;
+		calu : out std_logic;
+		ealu : out std_logic;
+		F0 : out std_logic;
+		F1 : out std_logic
+	);
+	
+end control_signals_logic;
+
+
+architecture rtl of control_signals_logic is
+
+-- d_ff instantiation
+component d_ff
+	port(
+		reset : in std_logic;
+		clock : in std_logic;
+		d : in std_logic;
+		q : out std_logic
+		
+	);
+end component;
+
+-- mux_2 instantiation
+component mux_2
+	port(
+		sel : in std_logic;
+		in1 : in std_logic;
+		in0 : in std_logic;
+		result : out std_logic
+	);
+end component;
+
+signal Z_sel : std_logic;
+signal Z_d : std_logic;
+signal Z_q : std_logic;
+signal not_clock : std_logic;
+
+begin	-- rtl
+
+	r <= (t1) or (load and t5) or (add and t5) or (sub and t5) or (inc and t5) or (dec and t5); -- checked
+	w <= (store and t5) or (inc and t7) or (dec and t7); -- checked
+	cmar <= (t0) or (load and t4) or (store and t4) or (add and t4) or (sub and t4) or (inc and t4) or (dec and t4); -- checked
+	cmbr <= (add and t5) or (sub and t5) or (inc and t5) or (dec and t5);
+	cpc <= (t3) or (bra and t4) or (beq and t4 and Z_q); -- checked
+	cir <= (t1);
+	cd0 <= (load and t5) or (add and t7) or (sub and t7);
+	calu <= (t2) or (add and t6) or (sub and t6) or (inc and t6) or (dec and t6);
+	embr <= (add and t6) or (sub and t6) or (inc and t6) or (dec and t6);
+	epc <= (t0) or (t2);
+	eir <= (load and t4) or (store and t4) or (add and t4) or (sub and t4) or (inc and t4) or (dec and t4) or (bra and t4) or (beq and t4 and Z_q); -- checked
+	ed0 <= (store and t5);
+	ealu <= (t3) or (add and t7) or (sub and t7) or (inc and t7) or (dec and t7);
+	F1 <= (t2) or (inc and t6) or (dec and t6);
+	F0 <= (sub and t6) or (dec and t6);
+	
+	Z_sel <= (t6) and (add or sub or inc or dec); -- checked
+	
+	-- 2_input mux
+	Z_d <= (Z_sel and Z) or (not(Z_sel) and Z_q);
+	
+	not_clock <= not(clock);
+	
+	Z_ff : d_ff
+		port map(
+			reset => reset,
+			clock => not_clock,
+			d => Z_d,
+			q => Z_q
+		);
+
+	
+end rtl;
+	

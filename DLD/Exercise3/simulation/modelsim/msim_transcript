@@ -1,0 +1,72 @@
+# Reading pref.tcl
+# do mux_n_run_msim_rtl_vhdl.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work rtl_work 
+# Copying C:/intelFPGA_lite/20.1/modelsim_ase/win32aloem/../modelsim.ini to modelsim.ini
+# Modifying modelsim.ini
+# 
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/Exercise3/SourceCode/mux_n.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 10:12:03 on Sep 21,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/Exercise3/SourceCode/mux_n.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity mux_n
+# -- Compiling architecture bdf_type of mux_n
+# End time: 10:12:03 on Sep 21,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/Exercise3/SourceCode/mux_2.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 10:12:04 on Sep 21,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/Exercise3/SourceCode/mux_2.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity mux_2
+# -- Compiling architecture gate_level of mux_2
+# End time: 10:12:04 on Sep 21,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+do testbench.do
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 10:12:08 on Sep 21,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/Exercise3/SourceCode/testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity testbench
+# -- Compiling architecture gate_level of testbench
+# End time: 10:12:08 on Sep 21,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 10:12:08 on Sep 21,2022
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.testbench(gate_level)
+# Loading work.mux_n(bdf_type)
+# Loading work.mux_2(gate_level)
+# ** Note: Output correct for in_n[0] = 0
+#    Time: 10 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for in_n[0] = 1
+#    Time: 20 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for in_n[1] = 0
+#    Time: 30 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for in_n[1] = 1
+#    Time: 40 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for in_n[2] = 0
+#    Time: 50 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for in_n[2] = 1
+#    Time: 60 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for in_n[3] = 0
+#    Time: 70 ns  Iteration: 0  Instance: /testbench
+# ** Note: Output correct for in_n[3] = 1
+#    Time: 80 ns  Iteration: 0  Instance: /testbench
+# End time: 10:43:03 on Sep 21,2022, Elapsed time: 0:30:55
+# Errors: 0, Warnings: 0

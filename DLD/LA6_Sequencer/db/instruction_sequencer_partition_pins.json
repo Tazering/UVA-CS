@@ -1,0 +1,61 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "t0",
+					"strict" : false
+				},
+				{
+					"name" : "t1",
+					"strict" : false
+				},
+				{
+					"name" : "t2",
+					"strict" : false
+				},
+				{
+					"name" : "t3",
+					"strict" : false
+				},
+				{
+					"name" : "t4",
+					"strict" : false
+				},
+				{
+					"name" : "t5",
+					"strict" : false
+				},
+				{
+					"name" : "t6",
+					"strict" : false
+				},
+				{
+					"name" : "t7",
+					"strict" : false
+				},
+				{
+					"name" : "execute",
+					"strict" : false
+				},
+				{
+					"name" : "opcode[2]",
+					"strict" : false
+				},
+				{
+					"name" : "opcode[1]",
+					"strict" : false
+				},
+				{
+					"name" : "clock",
+					"strict" : false
+				},
+				{
+					"name" : "reset",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

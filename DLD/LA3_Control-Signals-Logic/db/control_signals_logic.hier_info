@@ -1,0 +1,95 @@
+|control_signals_logic
+reset => d_ff:Z_ff.reset
+clock => d_ff:Z_ff.clock
+load => r.IN0
+load => cmar.IN0
+store => w.IN0
+store => cmar.IN0
+add => r.IN0
+add => cmar.IN0
+add => cd0.IN0
+add => embr.IN0
+add => Z_sel.IN0
+sub => r.IN0
+sub => cmar.IN0
+sub => cd0.IN0
+sub => embr.IN0
+sub => Z_sel.IN1
+inc => r.IN0
+inc => w.IN0
+inc => cmar.IN0
+inc => embr.IN0
+inc => Z_sel.IN1
+dec => r.IN0
+dec => w.IN0
+dec => cmar.IN0
+dec => embr.IN0
+dec => Z_sel.IN1
+bra => eir.IN0
+beq => eir.IN0
+t0 => cmar.IN1
+t0 => epc.IN0
+t1 => r.IN1
+t1 => cir.DATAIN
+t2 => calu.IN1
+t2 => epc.IN1
+t2 => F1.IN1
+t3 => cpc.IN1
+t3 => ealu.IN1
+t4 => cmar.IN1
+t4 => cmar.IN1
+t4 => cmar.IN1
+t4 => cmar.IN1
+t4 => cmar.IN1
+t4 => cmar.IN1
+t4 => eir.IN1
+t4 => eir.IN1
+t5 => r.IN1
+t5 => r.IN1
+t5 => r.IN1
+t5 => r.IN1
+t5 => r.IN1
+t5 => w.IN1
+t6 => embr.IN1
+t6 => embr.IN1
+t6 => embr.IN1
+t6 => embr.IN1
+t6 => Z_sel.IN1
+t7 => w.IN1
+t7 => w.IN1
+t7 => cd0.IN1
+t7 => cd0.IN1
+Z => eir.IN1
+Z => mux_2:mux_2_0.in1
+r << r.DB_MAX_OUTPUT_PORT_TYPE
+w << w.DB_MAX_OUTPUT_PORT_TYPE
+cmar << cmar.DB_MAX_OUTPUT_PORT_TYPE
+cmbr << cmbr.DB_MAX_OUTPUT_PORT_TYPE
+embr << embr.DB_MAX_OUTPUT_PORT_TYPE
+cir << t1.DB_MAX_OUTPUT_PORT_TYPE
+eir << eir.DB_MAX_OUTPUT_PORT_TYPE
+cpc << cpc.DB_MAX_OUTPUT_PORT_TYPE
+epc << epc.DB_MAX_OUTPUT_PORT_TYPE
+cd0 << cd0.DB_MAX_OUTPUT_PORT_TYPE
+ed0 << w.DB_MAX_OUTPUT_PORT_TYPE
+calu << calu.DB_MAX_OUTPUT_PORT_TYPE
+ealu << ealu.DB_MAX_OUTPUT_PORT_TYPE
+F0 << F0.DB_MAX_OUTPUT_PORT_TYPE
+F1 << F1.DB_MAX_OUTPUT_PORT_TYPE
+
+
+|control_signals_logic|mux_2:mux_2_0
+sel => result.IN0
+sel => result.IN0
+in1 => result.IN1
+in0 => result.IN1
+result <= result.DB_MAX_OUTPUT_PORT_TYPE
+
+
+|control_signals_logic|d_ff:Z_ff
+reset => q~reg0.ACLR
+clock => q~reg0.CLK
+d => q~reg0.DATAIN
+q <= q~reg0.DB_MAX_OUTPUT_PORT_TYPE
+
+

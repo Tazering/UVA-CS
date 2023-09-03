@@ -1,0 +1,32 @@
+0.  bra 5 //branches to FunctionUsingInc; MA = 5 (Main)
+1.  bra 10 //branches to FunctionUsingDec
+2.  bra 13 //branches to FunctionUsingAdd
+3.  bra 19 //branches to FunctionUsingSub
+4.  bra 0 //branches to Main; MA = 0
+5.  inc 31 //(FunctionUsingInc) increment MA = 31
+6.  load 31 //load value in MA = 31 into D0
+7.  sub 28 //subtract value in D0 by limit; 
+8.  beq 1 //set PC to memory address 1 if value in MA = 31 is equal to limit
+9.  bra 5 //unconditionally go the function header should only run; if condition is not filled
+10. dec 31 //(FunctionUsingDec) decrement function at MA = 31
+11. beq 2 //set PC to memory address 2 if value in MA = 31 reaches 0
+12. bra 10 //unconditionally sets PC to invocation of decrement function
+13. load 31 //(FunctionUsingAdd) loads the value in MA = 31 into D0
+14. add 29 //adds delta to D0
+15. store 31 //stores the value into MA = 31
+16. sub 28 //subtract value in D0 with limit to test condition
+17. beq 2 //go to invocation if condition if fulfilled
+18. bra 13 //unconditionally set PC to function header
+19. load 31 //(FunctionUsingSub) loads the value in MA = 31
+20. sub 29 //subtract delta from value in D0
+21. store 31 //stores the result
+22. beq 19 //sets PC to invocation if condition is satisfied
+23. bra 19 //unconditionally sets PC value to function header
+24.
+25.
+26.
+27.
+28. //limit
+29. //delta
+30. //temporary
+31. //final memory address

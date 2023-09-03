@@ -1,0 +1,423 @@
+Analysis & Synthesis report for simple_cpu
+Tue Nov 15 23:47:12 2022
+Quartus Prime Version 20.1.1 Build 720 11/11/2020 SJ Lite Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Analysis & Synthesis Summary
+  3. Analysis & Synthesis Settings
+  4. Parallel Compilation
+  5. Analysis & Synthesis Source Files Read
+  6. Analysis & Synthesis Resource Usage Summary
+  7. Analysis & Synthesis Resource Utilization by Entity
+  8. Registers Removed During Synthesis
+  9. General Register Statistics
+ 10. Port Connectivity Checks: "Datapath:b2v_Datapath|dreg_e:b2v_PC"
+ 11. Port Connectivity Checks: "Datapath:b2v_Datapath|dreg_e:b2v_MAR"
+ 12. Port Connectivity Checks: "Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0"
+ 13. Post-Synthesis Netlist Statistics for Top Partition
+ 14. Elapsed Time Per Partition
+ 15. Analysis & Synthesis Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2020  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+
+
+
++----------------------------------------------------------------------------------+
+; Analysis & Synthesis Summary                                                     ;
++------------------------------------+---------------------------------------------+
+; Analysis & Synthesis Status        ; Successful - Tue Nov 15 23:47:12 2022       ;
+; Quartus Prime Version              ; 20.1.1 Build 720 11/11/2020 SJ Lite Edition ;
+; Revision Name                      ; simple_cpu                                  ;
+; Top-level Entity Name              ; simple_cpu                                  ;
+; Family                             ; MAX 10                                      ;
+; Total logic elements               ; 118                                         ;
+;     Total combinational functions  ; 84                                          ;
+;     Dedicated logic registers      ; 46                                          ;
+; Total registers                    ; 46                                          ;
+; Total pins                         ; 17                                          ;
+; Total virtual pins                 ; 0                                           ;
+; Total memory bits                  ; 0                                           ;
+; Embedded Multiplier 9-bit elements ; 0                                           ;
+; Total PLLs                         ; 0                                           ;
+; UFM blocks                         ; 0                                           ;
+; ADC blocks                         ; 0                                           ;
++------------------------------------+---------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Settings                                                                              ;
++------------------------------------------------------------------+--------------------+--------------------+
+; Option                                                           ; Setting            ; Default Value      ;
++------------------------------------------------------------------+--------------------+--------------------+
+; Device                                                           ; 10M08DAF484C8G     ;                    ;
+; Top-level entity name                                            ; simple_cpu         ; simple_cpu         ;
+; Family name                                                      ; MAX 10             ; Cyclone V          ;
+; Use smart compilation                                            ; Off                ; Off                ;
+; Enable parallel Assembler and Timing Analyzer during compilation ; On                 ; On                 ;
+; Enable compact report table                                      ; Off                ; Off                ;
+; Restructure Multiplexers                                         ; Auto               ; Auto               ;
+; Create Debugging Nodes for IP Cores                              ; Off                ; Off                ;
+; Preserve fewer node names                                        ; On                 ; On                 ;
+; Intel FPGA IP Evaluation Mode                                    ; Enable             ; Enable             ;
+; Verilog Version                                                  ; Verilog_2001       ; Verilog_2001       ;
+; VHDL Version                                                     ; VHDL_1993          ; VHDL_1993          ;
+; State Machine Processing                                         ; Auto               ; Auto               ;
+; Safe State Machine                                               ; Off                ; Off                ;
+; Extract Verilog State Machines                                   ; On                 ; On                 ;
+; Extract VHDL State Machines                                      ; On                 ; On                 ;
+; Ignore Verilog initial constructs                                ; Off                ; Off                ;
+; Iteration limit for constant Verilog loops                       ; 5000               ; 5000               ;
+; Iteration limit for non-constant Verilog loops                   ; 250                ; 250                ;
+; Add Pass-Through Logic to Inferred RAMs                          ; On                 ; On                 ;
+; Infer RAMs from Raw Logic                                        ; On                 ; On                 ;
+; Parallel Synthesis                                               ; On                 ; On                 ;
+; DSP Block Balancing                                              ; Auto               ; Auto               ;
+; NOT Gate Push-Back                                               ; On                 ; On                 ;
+; Power-Up Don't Care                                              ; On                 ; On                 ;
+; Remove Redundant Logic Cells                                     ; Off                ; Off                ;
+; Remove Duplicate Registers                                       ; On                 ; On                 ;
+; Ignore CARRY Buffers                                             ; Off                ; Off                ;
+; Ignore CASCADE Buffers                                           ; Off                ; Off                ;
+; Ignore GLOBAL Buffers                                            ; Off                ; Off                ;
+; Ignore ROW GLOBAL Buffers                                        ; Off                ; Off                ;
+; Ignore LCELL Buffers                                             ; Off                ; Off                ;
+; Ignore SOFT Buffers                                              ; On                 ; On                 ;
+; Limit AHDL Integers to 32 Bits                                   ; Off                ; Off                ;
+; Optimization Technique                                           ; Balanced           ; Balanced           ;
+; Carry Chain Length                                               ; 70                 ; 70                 ;
+; Auto Carry Chains                                                ; On                 ; On                 ;
+; Auto Open-Drain Pins                                             ; On                 ; On                 ;
+; Perform WYSIWYG Primitive Resynthesis                            ; Off                ; Off                ;
+; Auto ROM Replacement                                             ; On                 ; On                 ;
+; Auto RAM Replacement                                             ; On                 ; On                 ;
+; Auto DSP Block Replacement                                       ; On                 ; On                 ;
+; Auto Shift Register Replacement                                  ; Auto               ; Auto               ;
+; Allow Shift Register Merging across Hierarchies                  ; Auto               ; Auto               ;
+; Auto Clock Enable Replacement                                    ; On                 ; On                 ;
+; Strict RAM Replacement                                           ; Off                ; Off                ;
+; Allow Synchronous Control Signals                                ; On                 ; On                 ;
+; Force Use of Synchronous Clear Signals                           ; Off                ; Off                ;
+; Auto RAM Block Balancing                                         ; On                 ; On                 ;
+; Auto RAM to Logic Cell Conversion                                ; Off                ; Off                ;
+; Auto Resource Sharing                                            ; Off                ; Off                ;
+; Allow Any RAM Size For Recognition                               ; Off                ; Off                ;
+; Allow Any ROM Size For Recognition                               ; Off                ; Off                ;
+; Allow Any Shift Register Size For Recognition                    ; Off                ; Off                ;
+; Use LogicLock Constraints during Resource Balancing              ; On                 ; On                 ;
+; Ignore translate_off and synthesis_off directives                ; Off                ; Off                ;
+; Timing-Driven Synthesis                                          ; On                 ; On                 ;
+; Report Parameter Settings                                        ; On                 ; On                 ;
+; Report Source Assignments                                        ; On                 ; On                 ;
+; Report Connectivity Checks                                       ; On                 ; On                 ;
+; Ignore Maximum Fan-Out Assignments                               ; Off                ; Off                ;
+; Synchronization Register Chain Length                            ; 2                  ; 2                  ;
+; Power Optimization During Synthesis                              ; Normal compilation ; Normal compilation ;
+; HDL message level                                                ; Level2             ; Level2             ;
+; Suppress Register Optimization Related Messages                  ; Off                ; Off                ;
+; Number of Removed Registers Reported in Synthesis Report         ; 5000               ; 5000               ;
+; Number of Swept Nodes Reported in Synthesis Report               ; 5000               ; 5000               ;
+; Number of Inverted Registers Reported in Synthesis Report        ; 100                ; 100                ;
+; Clock MUX Protection                                             ; On                 ; On                 ;
+; Auto Gated Clock Conversion                                      ; Off                ; Off                ;
+; Block Design Naming                                              ; Auto               ; Auto               ;
+; SDC constraint protection                                        ; Off                ; Off                ;
+; Synthesis Effort                                                 ; Auto               ; Auto               ;
+; Shift Register Replacement - Allow Asynchronous Clear Signal     ; On                 ; On                 ;
+; Pre-Mapping Resynthesis Optimization                             ; Off                ; Off                ;
+; Analysis & Synthesis Message Level                               ; Medium             ; Medium             ;
+; Disable Register Merging Across Hierarchies                      ; Auto               ; Auto               ;
+; Resource Aware Inference For Block RAM                           ; On                 ; On                 ;
++------------------------------------------------------------------+--------------------+--------------------+
+
+
++------------------------------------------+
+; Parallel Compilation                     ;
++----------------------------+-------------+
+; Processors                 ; Number      ;
++----------------------------+-------------+
+; Number detected on machine ; 16          ;
+; Maximum allowed            ; 16          ;
+;                            ;             ;
+; Average used               ; 1.00        ;
+; Maximum used               ; 16          ;
+;                            ;             ;
+; Usage by Processor         ; % Time Used ;
+;     Processor 1            ; 100.0%      ;
+;     Processors 2-16        ;   0.0%      ;
++----------------------------+-------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Source Files Read                                                                                                                              ;
++--------------------------------------+-----------------+-----------------+--------------------------------------------------------------------------------+---------+
+; File Name with User-Entered Path     ; Used in Netlist ; File Type       ; File Name with Absolute Path                                                   ; Library ;
++--------------------------------------+-----------------+-----------------+--------------------------------------------------------------------------------+---------+
+; SourceCode/tri_state_model.vhd       ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/tri_state_model.vhd       ;         ;
+; SourceCode/simple_cpu.vhd            ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd            ;         ;
+; SourceCode/opcode_decoder.vhd        ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/opcode_decoder.vhd        ;         ;
+; SourceCode/instruction_sequencer.vhd ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/instruction_sequencer.vhd ;         ;
+; SourceCode/full_adder.vhd            ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/full_adder.vhd            ;         ;
+; SourceCode/dreg_e.vhd                ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/dreg_e.vhd                ;         ;
+; SourceCode/Datapath.vhd              ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/Datapath.vhd              ;         ;
+; SourceCode/d_ff.vhd                  ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/d_ff.vhd                  ;         ;
+; SourceCode/control_signals_logic.vhd ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/control_signals_logic.vhd ;         ;
+; SourceCode/alu.vhd                   ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/alu.vhd                   ;         ;
+; SourceCode/adder_subtractor.vhd      ; yes             ; User VHDL File  ; C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/adder_subtractor.vhd      ;         ;
++--------------------------------------+-----------------+-----------------+--------------------------------------------------------------------------------+---------+
+
+
++-----------------------------------------------------------+
+; Analysis & Synthesis Resource Usage Summary               ;
++---------------------------------------------+-------------+
+; Resource                                    ; Usage       ;
++---------------------------------------------+-------------+
+; Estimated Total logic elements              ; 118         ;
+;                                             ;             ;
+; Total combinational functions               ; 84          ;
+; Logic element usage by number of LUT inputs ;             ;
+;     -- 4 input functions                    ; 60          ;
+;     -- 3 input functions                    ; 12          ;
+;     -- <=2 input functions                  ; 12          ;
+;                                             ;             ;
+; Logic elements by mode                      ;             ;
+;     -- normal mode                          ; 84          ;
+;     -- arithmetic mode                      ; 0           ;
+;                                             ;             ;
+; Total registers                             ; 46          ;
+;     -- Dedicated logic registers            ; 46          ;
+;     -- I/O registers                        ; 0           ;
+;                                             ;             ;
+; I/O pins                                    ; 17          ;
+;                                             ;             ;
+; Embedded Multiplier 9-bit elements          ; 0           ;
+;                                             ;             ;
+; Maximum fan-out node                        ; clock~input ;
+; Maximum fan-out                             ; 46          ;
+; Total fan-out                               ; 529         ;
+; Average fan-out                             ; 3.08        ;
++---------------------------------------------+-------------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Resource Utilization by Entity                                                                                                                                                                                                                                                                                                       ;
++-----------------------------------------------------+---------------------+---------------------------+-------------+------------+--------------+---------+-----------+------+--------------+------------+---------------------------------------------------------------------------------------------------------+-----------------------+--------------+
+; Compilation Hierarchy Node                          ; Combinational ALUTs ; Dedicated Logic Registers ; Memory Bits ; UFM Blocks ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; ADC blocks ; Full Hierarchy Name                                                                                     ; Entity Name           ; Library Name ;
++-----------------------------------------------------+---------------------+---------------------------+-------------+------------+--------------+---------+-----------+------+--------------+------------+---------------------------------------------------------------------------------------------------------+-----------------------+--------------+
+; |simple_cpu                                         ; 84 (0)              ; 46 (0)                    ; 0           ; 0          ; 0            ; 0       ; 0         ; 17   ; 0            ; 0          ; |simple_cpu                                                                                             ; simple_cpu            ; work         ;
+;    |Datapath:b2v_Datapath|                          ; 53 (0)              ; 42 (0)                    ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath                                                                       ; Datapath              ; work         ;
+;       |alu:b2v_alu|                                 ; 27 (12)             ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu                                                           ; alu                   ; work         ;
+;          |adder_subtractor:adder_subtractor0|       ; 15 (0)              ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0                        ; adder_subtractor      ; work         ;
+;             |full_adder:full_adder0|                ; 2 (2)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0|full_adder:full_adder0 ; full_adder            ; work         ;
+;             |full_adder:full_adder1|                ; 2 (2)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0|full_adder:full_adder1 ; full_adder            ; work         ;
+;             |full_adder:full_adder2|                ; 2 (2)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0|full_adder:full_adder2 ; full_adder            ; work         ;
+;             |full_adder:full_adder3|                ; 2 (2)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0|full_adder:full_adder3 ; full_adder            ; work         ;
+;             |full_adder:full_adder4|                ; 2 (2)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0|full_adder:full_adder4 ; full_adder            ; work         ;
+;             |full_adder:full_adder5|                ; 2 (2)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0|full_adder:full_adder5 ; full_adder            ; work         ;
+;             |full_adder:full_adder6|                ; 1 (1)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0|full_adder:full_adder6 ; full_adder            ; work         ;
+;             |full_adder:full_adder7|                ; 2 (2)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0|full_adder:full_adder7 ; full_adder            ; work         ;
+;       |dreg_e:b2v_D0|                               ; 0 (0)               ; 8 (8)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|dreg_e:b2v_D0                                                         ; dreg_e                ; work         ;
+;       |dreg_e:b2v_IR|                               ; 0 (0)               ; 8 (8)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|dreg_e:b2v_IR                                                         ; dreg_e                ; work         ;
+;       |dreg_e:b2v_MAR|                              ; 0 (0)               ; 5 (5)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|dreg_e:b2v_MAR                                                        ; dreg_e                ; work         ;
+;       |dreg_e:b2v_MBR|                              ; 0 (0)               ; 8 (8)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|dreg_e:b2v_MBR                                                        ; dreg_e                ; work         ;
+;       |dreg_e:b2v_PC|                               ; 0 (0)               ; 5 (5)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|dreg_e:b2v_PC                                                         ; dreg_e                ; work         ;
+;       |dreg_e:b2v_alu_register|                     ; 0 (0)               ; 8 (8)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|dreg_e:b2v_alu_register                                               ; dreg_e                ; work         ;
+;       |tri_state_model:b2v_pc_buffer|               ; 26 (26)             ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|Datapath:b2v_Datapath|tri_state_model:b2v_pc_buffer                                         ; tri_state_model       ; work         ;
+;    |control_signals_logic:b2v_ControlSignalsLogic|  ; 24 (21)             ; 1 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|control_signals_logic:b2v_ControlSignalsLogic                                               ; control_signals_logic ; work         ;
+;       |d_ff:Z_ff|                                   ; 3 (3)               ; 1 (1)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|control_signals_logic:b2v_ControlSignalsLogic|d_ff:Z_ff                                     ; d_ff                  ; work         ;
+;    |instruction_sequencer:b2v_InstructionSequencer| ; 7 (7)               ; 3 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|instruction_sequencer:b2v_InstructionSequencer                                              ; instruction_sequencer ; work         ;
+;       |d_ff:q0_ff|                                  ; 0 (0)               ; 1 (1)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|instruction_sequencer:b2v_InstructionSequencer|d_ff:q0_ff                                   ; d_ff                  ; work         ;
+;       |d_ff:q1_ff|                                  ; 0 (0)               ; 1 (1)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|instruction_sequencer:b2v_InstructionSequencer|d_ff:q1_ff                                   ; d_ff                  ; work         ;
+;       |d_ff:q2_ff|                                  ; 0 (0)               ; 1 (1)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |simple_cpu|instruction_sequencer:b2v_InstructionSequencer|d_ff:q2_ff                                   ; d_ff                  ; work         ;
++-----------------------------------------------------+---------------------+---------------------------+-------------+------------+--------------+---------+-----------+------+--------------+------------+---------------------------------------------------------------------------------------------------------+-----------------------+--------------+
+Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
+
+
++---------------------------------------------------------------------------------------------------------------------+
+; Registers Removed During Synthesis                                                                                  ;
++-----------------------------------------------------+---------------------------------------------------------------+
+; Register name                                       ; Reason for Removal                                            ;
++-----------------------------------------------------+---------------------------------------------------------------+
+; Datapath:b2v_Datapath|dreg_e:b2v_PC|q_internal[5,6] ; Merged with Datapath:b2v_Datapath|dreg_e:b2v_PC|q_internal[7] ;
+; Datapath:b2v_Datapath|dreg_e:b2v_PC|q_internal[7]   ; Stuck at GND due to stuck port data_in                        ;
+; Total Number of Removed Registers = 3               ;                                                               ;
++-----------------------------------------------------+---------------------------------------------------------------+
+
+
++------------------------------------------------------+
+; General Register Statistics                          ;
++----------------------------------------------+-------+
+; Statistic                                    ; Value ;
++----------------------------------------------+-------+
+; Total registers                              ; 46    ;
+; Number of registers using Synchronous Clear  ; 1     ;
+; Number of registers using Synchronous Load   ; 0     ;
+; Number of registers using Asynchronous Clear ; 46    ;
+; Number of registers using Asynchronous Load  ; 0     ;
+; Number of registers using Clock Enable       ; 42    ;
+; Number of registers using Preset             ; 0     ;
++----------------------------------------------+-------+
+
+
++-----------------------------------------------------------------+
+; Port Connectivity Checks: "Datapath:b2v_Datapath|dreg_e:b2v_PC" ;
++---------+-------+----------+------------------------------------+
+; Port    ; Type  ; Severity ; Details                            ;
++---------+-------+----------+------------------------------------+
+; d[7..5] ; Input ; Info     ; Stuck at GND                       ;
++---------+-------+----------+------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "Datapath:b2v_Datapath|dreg_e:b2v_MAR"                                                  ;
++---------+--------+----------+-------------------------------------------------------------------------------------+
+; Port    ; Type   ; Severity ; Details                                                                             ;
++---------+--------+----------+-------------------------------------------------------------------------------------+
+; q[7..5] ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
++---------+--------+----------+-------------------------------------------------------------------------------------+
+
+
++----------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0"               ;
++------+--------+----------+-------------------------------------------------------------------------------------+
+; Port ; Type   ; Severity ; Details                                                                             ;
++------+--------+----------+-------------------------------------------------------------------------------------+
+; cout ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
++------+--------+----------+-------------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------+
+; Post-Synthesis Netlist Statistics for Top Partition ;
++-----------------------+-----------------------------+
+; Type                  ; Count                       ;
++-----------------------+-----------------------------+
+; boundary_port         ; 17                          ;
+; cycloneiii_ff         ; 46                          ;
+;     CLR               ; 3                           ;
+;     CLR SCLR          ; 1                           ;
+;     ENA CLR           ; 42                          ;
+; cycloneiii_io_obuf    ; 8                           ;
+; cycloneiii_lcell_comb ; 84                          ;
+;     normal            ; 84                          ;
+;         2 data inputs ; 12                          ;
+;         3 data inputs ; 12                          ;
+;         4 data inputs ; 60                          ;
+;                       ;                             ;
+; Max LUT depth         ; 11.00                       ;
+; Average LUT depth     ; 4.78                        ;
++-----------------------+-----------------------------+
+
+
++-------------------------------+
+; Elapsed Time Per Partition    ;
++----------------+--------------+
+; Partition Name ; Elapsed Time ;
++----------------+--------------+
+; Top            ; 00:00:00     ;
++----------------+--------------+
+
+
++-------------------------------+
+; Analysis & Synthesis Messages ;
++-------------------------------+
+Info: *******************************************************************
+Info: Running Quartus Prime Analysis & Synthesis
+    Info: Version 20.1.1 Build 720 11/11/2020 SJ Lite Edition
+    Info: Processing started: Tue Nov 15 23:47:01 2022
+Info: Command: quartus_map --read_settings_files=on --write_settings_files=off LA7_SimpleCPU -c simple_cpu
+Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
+Info (20030): Parallel compilation is enabled and will use 16 of the 16 processors detected
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/eeprom_memory.vhd
+    Info (12022): Found design unit 1: eeprom_memory-rtl File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/eeprom_memory.vhd Line: 18
+    Info (12023): Found entity 1: eeprom_memory File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/eeprom_memory.vhd Line: 6
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/clock_reset_generation.vhd
+    Info (12022): Found design unit 1: clock_reset_generation-rtl File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/clock_reset_generation.vhd Line: 11
+    Info (12023): Found entity 1: clock_reset_generation File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/clock_reset_generation.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/simplecputestbench.vhd
+    Info (12022): Found design unit 1: SimpleCPUTestbench-bdf_type File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/SimpleCPUTestbench.vhd Line: 7
+    Info (12023): Found entity 1: SimpleCPUTestbench File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/SimpleCPUTestbench.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/tri_state_model.vhd
+    Info (12022): Found design unit 1: tri_state_model-rtl File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/tri_state_model.vhd Line: 12
+    Info (12023): Found entity 1: tri_state_model File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/tri_state_model.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/simple_cpu.vhd
+    Info (12022): Found design unit 1: simple_cpu-bdf_type File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd Line: 16
+    Info (12023): Found entity 1: simple_cpu File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/opcode_decoder.vhd
+    Info (12022): Found design unit 1: opcode_decoder-gate_level File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/opcode_decoder.vhd Line: 20
+    Info (12023): Found entity 1: opcode_decoder File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/opcode_decoder.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/mux_2.vhd
+    Info (12022): Found design unit 1: mux_2-gate_level File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/mux_2.vhd Line: 14
+    Info (12023): Found entity 1: mux_2 File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/mux_2.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/instruction_sequencer.vhd
+    Info (12022): Found design unit 1: instruction_sequencer-bdf_type File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/instruction_sequencer.vhd Line: 23
+    Info (12023): Found entity 1: instruction_sequencer File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/instruction_sequencer.vhd Line: 6
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/full_adder.vhd
+    Info (12022): Found design unit 1: full_adder-rtl File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/full_adder.vhd Line: 14
+    Info (12023): Found entity 1: full_adder File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/full_adder.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/dreg_e.vhd
+    Info (12022): Found design unit 1: dreg_e-rtl File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/dreg_e.vhd Line: 14
+    Info (12023): Found entity 1: dreg_e File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/dreg_e.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/datapath.vhd
+    Info (12022): Found design unit 1: Datapath-bdf_type File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/Datapath.vhd Line: 50
+    Info (12023): Found entity 1: Datapath File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/Datapath.vhd Line: 25
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/d_ff.vhd
+    Info (12022): Found design unit 1: d_ff-rtl File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/d_ff.vhd Line: 13
+    Info (12023): Found entity 1: d_ff File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/d_ff.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/control_signals_logic.vhd
+    Info (12022): Found design unit 1: control_signals_logic-rtl File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/control_signals_logic.vhd Line: 45
+    Info (12023): Found entity 1: control_signals_logic File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/control_signals_logic.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/alu.vhd
+    Info (12022): Found design unit 1: alu-rtl File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/alu.vhd Line: 15
+    Info (12023): Found entity 1: alu File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/alu.vhd Line: 4
+Info (12021): Found 2 design units, including 1 entities, in source file sourcecode/adder_subtractor.vhd
+    Info (12022): Found design unit 1: adder_subtractor-gate_level File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/adder_subtractor.vhd Line: 15
+    Info (12023): Found entity 1: adder_subtractor File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/adder_subtractor.vhd Line: 4
+Info (12127): Elaborating entity "simple_cpu" for the top level hierarchy
+Info (12128): Elaborating entity "control_signals_logic" for hierarchy "control_signals_logic:b2v_ControlSignalsLogic" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd Line: 145
+Info (12128): Elaborating entity "d_ff" for hierarchy "control_signals_logic:b2v_ControlSignalsLogic|d_ff:Z_ff" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/control_signals_logic.vhd Line: 98
+Info (12128): Elaborating entity "Datapath" for hierarchy "Datapath:b2v_Datapath" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd Line: 181
+Info (12128): Elaborating entity "alu" for hierarchy "Datapath:b2v_Datapath|alu:b2v_alu" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/Datapath.vhd Line: 92
+Warning (10540): VHDL Signal Declaration warning at alu.vhd(30): used explicit default value for signal "one_constant" because signal was never assigned a value File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/alu.vhd Line: 30
+Warning (10036): Verilog HDL or VHDL warning at alu.vhd(32): object "cout_internal" assigned a value but never read File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/alu.vhd Line: 32
+Info (12128): Elaborating entity "adder_subtractor" for hierarchy "Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/alu.vhd Line: 60
+Info (12128): Elaborating entity "full_adder" for hierarchy "Datapath:b2v_Datapath|alu:b2v_alu|adder_subtractor:adder_subtractor0|full_adder:full_adder0" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/adder_subtractor.vhd Line: 49
+Info (12128): Elaborating entity "tri_state_model" for hierarchy "Datapath:b2v_Datapath|tri_state_model:b2v_alu_buffer" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/Datapath.vhd Line: 101
+Info (12128): Elaborating entity "dreg_e" for hierarchy "Datapath:b2v_Datapath|dreg_e:b2v_alu_register" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/Datapath.vhd Line: 107
+Info (12128): Elaborating entity "instruction_sequencer" for hierarchy "instruction_sequencer:b2v_InstructionSequencer" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd Line: 202
+Info (12128): Elaborating entity "opcode_decoder" for hierarchy "opcode_decoder:b2v_OpcodeDecoder" File: C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd Line: 216
+Info (286030): Timing-Driven Synthesis is running
+Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
+    Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
+Info (21057): Implemented 144 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 2 input pins
+    Info (21059): Implemented 7 output pins
+    Info (21060): Implemented 8 bidirectional pins
+    Info (21061): Implemented 127 logic cells
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 3 warnings
+    Info: Peak virtual memory: 4856 megabytes
+    Info: Processing ended: Tue Nov 15 23:47:12 2022
+    Info: Elapsed time: 00:00:11
+    Info: Total CPU time (on all processors): 00:00:24
+
+

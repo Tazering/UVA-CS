@@ -1,0 +1,494 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+ENTITY testbench IS 
+END testbench;
+
+ARCHITECTURE gate_level OF testbench IS 
+
+  component instruction_sequencer
+    PORT
+      (
+        opcode : in std_logic_vector(2 downto 0);
+        reset : in std_logic;
+        clock : in std_logic;
+        t0 : out std_logic;
+        t1 : out std_logic;
+        t2 : out std_logic;
+        t3 : out std_logic;
+        t4 : out std_logic;
+        t5 : out std_logic;
+        t6 : out std_logic;
+        t7 : out std_logic;
+        execute : out std_logic
+	);
+  END component;
+
+  signal reset_signal :  STD_LOGIC := '0';
+  signal clock_signal :  STD_LOGIC := '0';
+  signal opcode_signal : std_logic_vector(2 downto 0);
+  signal t0_signal : std_logic;
+  signal t1_signal : std_logic;
+  signal t2_signal : std_logic;
+  signal t3_signal : std_logic;
+  signal t4_signal : std_logic;
+  signal t5_signal : std_logic;
+  signal t6_signal : std_logic;
+  signal t7_signal : std_logic;
+  signal execute_signal : std_logic;
+
+BEGIN 
+
+  instruction_sequencer_0 : instruction_sequencer
+    PORT MAP(
+      opcode => opcode_signal,
+      reset => reset_signal,
+      clock => clock_signal,
+      t0 => t0_signal,
+      t1 => t1_signal,
+      t2 => t2_signal,
+      t3 => t3_signal,
+      t4 => t4_signal,
+      t5 => t5_signal,
+      t6 => t6_signal,
+      t7 => t7_signal,
+      execute => execute_signal
+      );
+
+  clock_process : process
+  begin
+    wait for 50 ns;
+    clock_signal <= not clock_signal;
+  end process;
+
+  testbench_process : process
+    variable opcode_index : integer := 0;
+  begin
+    
+    -- Enable/disable reset, generate opcode signal, then wait for successive clock signals
+    for opcode_index in 0 to 7 loop
+      
+      reset_signal <= '1';
+      wait for 1 ns;
+      reset_signal <= '0';
+      wait for 1 ns;
+      opcode_signal <= std_logic_vector(to_unsigned(opcode_index,3));
+      wait for 1 ns;
+
+      case opcode_signal is
+			when "000" => -- 000
+			
+				-- t0
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T0 incorrect for  opcode = 000" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T0 correct for  opcode = 000" severity note;
+				
+				-- t1
+				wait until rising_edge(clock_signal);
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T1 incorrect for  opcode = 000" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T1 correct for  opcode = 000" severity note;
+				
+				-- t2
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T2 incorrect for  opcode = 000" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T2 correct for  opcode = 000" severity note;
+			
+				-- t3
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T3 incorrect for  opcode = 000" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T3 correct for  opcode = 000" severity note;
+			
+				-- t4
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '1' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T4 incorrect for  opcode = 000" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '1' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T4 correct for  opcode = 000" severity note;
+			
+				-- t5
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '1' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T5 incorrect for  opcode = 000" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '1' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T5 correct for  opcode = 000" severity note;
+			
+				-- t6
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T6 incorrect for  opcode = 000" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T6 correct for  opcode = 000" severity note;
+
+				-- t7
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T7 incorrect for  opcode = 000" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T7 correct for  opcode = 000" severity note;
+
+				-- t8 makes sure it loops back
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T7 incorrect for  opcode = 000" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T7 correct for  opcode = 000" severity note;
+
+			
+			when "001" => -- 001
+				-- t0
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T0 incorrect for  opcode = 001" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T0 correct for  opcode = 001" severity note;
+				
+				-- t1
+				wait until rising_edge(clock_signal);
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T1 incorrect for  opcode = 001" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T1 correct for  opcode = 001" severity note;
+				
+				-- t2
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T2 incorrect for  opcode = 001" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T2 correct for  opcode = 001" severity note;
+			
+				-- t3
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T3 incorrect for  opcode = 001" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T3 correct for  opcode = 001" severity note;
+			
+				-- t4
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '1' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T4 incorrect for  opcode = 001" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '1' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T4 correct for  opcode = 001" severity note;
+			
+				-- t5
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '1' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T5 incorrect for  opcode = 001" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '1' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T5 correct for  opcode = 001" severity note;
+			
+				-- t6
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T6 incorrect for  opcode = 001" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T6 correct for  opcode = 001" severity note;
+
+				-- t7
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T7 incorrect for  opcode = 001" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T7 correct for  opcode = 001" severity note;
+
+				-- t8 makes sure it loops back
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T7 incorrect for  opcode = 001" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T7 correct for  opcode = 001" severity note;
+
+				
+			when "010" =>
+				-- t0
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T0 incorrect for  opcode = 010" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T0 correct for  opcode = 010" severity note;
+				
+				-- t1
+				wait until rising_edge(clock_signal);
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T1 incorrect for  opcode = 010" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T1 correct for  opcode = 010" severity note;
+				
+				-- t2
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T2 incorrect for  opcode = 010" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T2 correct for  opcode = 010" severity note;
+			
+				-- t3
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T3 incorrect for  opcode = 010" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T3 correct for  opcode = 010" severity note;
+			
+				-- t4
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '1' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T4 incorrect for  opcode = 010" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '1' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T4 correct for  opcode = 010" severity note;
+			
+				-- t5
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '1' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T5 incorrect for  opcode = 010" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '1' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T5 correct for  opcode = 010" severity note;
+
+				-- t6
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '1' and t7_signal = '0' and execute_signal = '1') report "T6 incorrect for  opcode = 010" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '1' or t7_signal /= '0' or execute_signal /= '1') report "T6 correct for  opcode = 010" severity note;
+
+				-- t7
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '1' and execute_signal = '1') report "T7 incorrect for  opcode = 010" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '1' or execute_signal /= '1') report "T7 correct for  opcode = 010" severity note;
+
+			when "011" =>
+				-- t0
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T0 incorrect for  opcode = 011" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T0 correct for  opcode = 011" severity note;
+				
+				-- t1
+				wait until rising_edge(clock_signal);
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T1 incorrect for  opcode = 011" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T1 correct for  opcode = 011" severity note;
+				
+				-- t2
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T2 incorrect for  opcode = 011" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T2 correct for  opcode = 011" severity note;
+			
+				-- t3
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T3 incorrect for  opcode = 011" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T3 correct for  opcode = 011" severity note;
+			
+				-- t4
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '1' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T4 incorrect for  opcode = 011" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '1' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T4 correct for  opcode = 011" severity note;
+			
+				-- t5
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '1' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T5 incorrect for  opcode = 011" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '1' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T5 correct for  opcode = 011" severity note;
+
+				-- t6
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '1' and t7_signal = '0' and execute_signal = '1') report "T6 incorrect for  opcode = 011" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '1' or t7_signal /= '0' or execute_signal /= '1') report "T6 correct for  opcode = 011" severity note;
+
+				-- t7
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '1' and execute_signal = '1') report "T7 incorrect for  opcode = 011" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '1' or execute_signal /= '1') report "T7 correct for  opcode = 011" severity note;
+
+			
+			when "100" =>
+				-- t0
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T0 incorrect for  opcode = 100" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T0 correct for  opcode = 100" severity note;
+				
+				-- t1
+				wait until rising_edge(clock_signal);
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T1 incorrect for  opcode = 100" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T1 correct for  opcode = 100" severity note;
+				
+				-- t2
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T2 incorrect for  opcode = 100" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T2 correct for  opcode = 100" severity note;
+			
+				-- t3
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T3 incorrect for  opcode = 100" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T3 correct for  opcode = 100" severity note;
+			
+				-- t4
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '1' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T4 incorrect for  opcode = 100" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '1' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T4 correct for  opcode = 100" severity note;
+			
+				-- t5
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '1' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T5 incorrect for  opcode = 100" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '1' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T5 correct for  opcode = 100" severity note;
+
+				-- t6
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '1' and t7_signal = '0' and execute_signal = '1') report "T5 incorrect for  opcode = 100" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '1' or t7_signal /= '0' or execute_signal /= '1') report "T5 correct for  opcode = 100" severity note;
+
+				-- t7
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '1' and execute_signal = '1') report "T6 incorrect for  opcode = 100" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '1' or execute_signal /= '1') report "T6 correct for  opcode = 100" severity note;
+
+			
+			when "101" =>
+				-- t0
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T0 incorrect for  opcode = 101" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T0 correct for  opcode = 101" severity note;
+				
+				-- t1
+				wait until rising_edge(clock_signal);
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T1 incorrect for  opcode = 101" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T1 correct for  opcode = 101" severity note;
+				
+				-- t2
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T2 incorrect for  opcode = 101" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T2 correct for  opcode = 101" severity note;
+			
+				-- t3
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T3 incorrect for  opcode = 101" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T3 correct for  opcode = 101" severity note;
+			
+				-- t4
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '1' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T4 incorrect for  opcode = 101" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '1' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T4 correct for  opcode = 101" severity note;
+			
+				-- t5
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '1' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T5 incorrect for  opcode = 101" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '1' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T5 correct for  opcode = 101" severity note;
+
+				-- t6
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '1' and t7_signal = '0' and execute_signal = '1') report "T6 incorrect for  opcode = 101" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '1' or t7_signal /= '0' or execute_signal /= '1') report "T6 correct for  opcode = 101" severity note;
+
+				-- t7
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '1' and execute_signal = '1') report "T7 incorrect for  opcode = 101" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '1' or execute_signal /= '1') report "T7 correct for  opcode = 101" severity note;
+
+			
+			when "110" =>
+				-- t0
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T0 incorrect for  opcode = 110" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T0 correct for  opcode = 110" severity note;
+				
+				-- t1
+				wait until rising_edge(clock_signal);
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T1 incorrect for  opcode = 110" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T1 correct for  opcode = 110" severity note;
+				
+				-- t2
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T2 incorrect for  opcode = 110" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T2 correct for  opcode = 110" severity note;
+			
+				-- t3
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T3 incorrect for  opcode = 110" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T3 correct for  opcode = 110" severity note;
+			
+				-- t4
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '1' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T4 incorrect for  opcode = 110" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '1' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T4 correct for  opcode = 110" severity note;
+			
+				-- t5
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T5 incorrect for  opcode = 110" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T5 correct for  opcode = 110" severity note;
+			
+				-- t6
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T6 incorrect for  opcode = 110" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T6 correct for  opcode = 110" severity note;
+
+				-- t7
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T7 incorrect for  opcode = 110" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T7 correct for  opcode = 110" severity note;
+
+				-- t8 makes sure it loops back
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T7 incorrect for  opcode = 110" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T7 correct for  opcode = 110" severity note;
+
+			
+			when "111" =>
+				-- t0
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T0 incorrect for  opcode = 111" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T0 correct for  opcode = 111" severity note;
+				
+				-- t1
+				wait until rising_edge(clock_signal);
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T1 incorrect for  opcode = 111" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T1 correct for  opcode = 111" severity note;
+				
+				-- t2
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T2 incorrect for  opcode = 111" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T2 correct for  opcode = 111" severity note;
+			
+				-- t3
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T3 incorrect for  opcode = 111" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T3 correct for  opcode = 111" severity note;
+			
+				-- t4
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '1' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '1') report "T4 incorrect for  opcode = 111" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '1' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '1') report "T4 correct for  opcode = 111" severity note;
+
+				-- t5
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '1' and t1_signal = '0' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T5 incorrect for  opcode = 111" severity note;
+				assert (t0_signal /= '1' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T5 correct for  opcode = 111" severity note;
+			
+				-- t6
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '1' and t2_signal = '0' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T6 incorrect for  opcode = 111" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '1' or t2_signal /= '0' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T6 correct for  opcode = 111" severity note;
+
+				-- t7
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '1' and t3_signal = '0' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T7 incorrect for  opcode = 111" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '1' or t3_signal /= '0' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T7 correct for  opcode = 111" severity note;
+
+				-- t8 makes sure it loops back
+				 
+				wait until falling_edge(clock_signal);
+				assert (t0_signal = '0' and t1_signal = '0' and t2_signal = '0' and t3_signal = '1' and t4_signal = '0' and t5_signal = '0' and t6_signal = '0' and t7_signal = '0' and execute_signal = '0') report "T7 incorrect for  opcode = 111" severity note;
+				assert (t0_signal /= '0' or t1_signal /= '0' or t2_signal /= '0' or t3_signal /= '1' or t4_signal /= '0' or t5_signal /= '0' or t6_signal /= '0' or t7_signal /= '0' or execute_signal /= '0') report "T7 correct for  opcode = 111" severity note;
+
+			
+			when others =>
+			
+			
+		end case;
+    end loop;
+
+    wait;
+    
+  end process testbench_process;
+
+END gate_level;

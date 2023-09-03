@@ -1,0 +1,10 @@
+|majority_voter0
+A => wire0.IN0
+A => wire2.IN0
+B => wire0.IN1
+B => wire1.IN0
+C => wire1.IN1
+C => wire2.IN1
+Z << Z.DB_MAX_OUTPUT_PORT_TYPE
+
+

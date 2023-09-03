@@ -1,0 +1,175 @@
+m255
+K4
+z2
+!s11e vcom 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/tyler/dev/Quartus2/LA4_ALU/simulation/modelsim
+Eadder_subtractor
+Z1 w1665868803
+Z2 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z3 DPx4 ieee 14 std_logic_1164 0 22 cVAk:aDinOX8^VGI1ekP<3
+!i122 1
+R0
+Z4 8C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/adder_subtractor.vhd
+Z5 FC:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/adder_subtractor.vhd
+l0
+L4 1
+VUGKDfgbm?GlOHgnWWZFZR2
+!s100 k_Kn[IA^82fSgC^em59dc3
+Z6 OV;C;2020.1;71
+31
+Z7 !s110 1665869254
+!i10b 1
+Z8 !s108 1665869254.000000
+Z9 !s90 -reportprogress|300|-93|-work|work|C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/adder_subtractor.vhd|
+Z10 !s107 C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/adder_subtractor.vhd|
+!i113 1
+Z11 o-93 -work work
+Z12 tExplicit 1 CvgOpt 0
+Agate_level
+R2
+R3
+DEx4 work 16 adder_subtractor 0 22 UGKDfgbm?GlOHgnWWZFZR2
+!i122 1
+l37
+L15 108
+VT`dDlgfCi`ZQOQWL[aFh:3
+!s100 QFbcg<_C0KI2H:Y38_MTe3
+R6
+31
+R7
+!i10b 1
+R8
+R9
+R10
+!i113 1
+R11
+R12
+Ealu
+Z13 w1665865980
+R2
+R3
+!i122 2
+R0
+Z14 8C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/alu.vhd
+Z15 FC:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/alu.vhd
+l0
+L4 1
+V2KoHGS9<3Q`P0@9jHY;WN2
+!s100 K3GBSi`70^?SUSTTg^:]K0
+R6
+31
+R7
+!i10b 1
+R8
+Z16 !s90 -reportprogress|300|-93|-work|work|C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/alu.vhd|
+Z17 !s107 C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/alu.vhd|
+!i113 1
+R11
+R12
+Artl
+R2
+R3
+DEx4 work 3 alu 0 22 2KoHGS9<3Q`P0@9jHY;WN2
+!i122 2
+l34
+L15 63
+VFDhkTDEB]QnoJlFQo8ES?3
+!s100 J[oKRAnb4L=NXm9DORCP60
+R6
+31
+R7
+!i10b 1
+R8
+R16
+R17
+!i113 1
+R11
+R12
+Efull_adder
+Z18 w1665867912
+R2
+R3
+!i122 0
+R0
+Z19 8C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/full_adder.vhd
+Z20 FC:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/full_adder.vhd
+l0
+L4 1
+VUSfXI_d:bAMYcGLFnHEMi3
+!s100 7FOBbcczcnbn^FjKBKdlm0
+R6
+31
+R7
+!i10b 1
+R8
+Z21 !s90 -reportprogress|300|-93|-work|work|C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/full_adder.vhd|
+Z22 !s107 C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/full_adder.vhd|
+!i113 1
+R11
+R12
+Artl
+R2
+R3
+DEx4 work 10 full_adder 0 22 USfXI_d:bAMYcGLFnHEMi3
+!i122 0
+l16
+L14 8
+VleiK`ol`c^P>8D`j[`;lS0
+!s100 ie>Z5SQKWKDS@3BhFe@2d1
+R6
+31
+R7
+!i10b 1
+R8
+R21
+R22
+!i113 1
+R11
+R12
+Etestbench
+Z23 w1665869914
+R2
+R3
+!i122 10
+R0
+Z24 8C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/testbench.vhd
+Z25 FC:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/testbench.vhd
+l0
+L4 1
+V<aEF3i81EdX>b4MzgHhjl1
+!s100 ?;Fi2HEi<1II4RT3IjQ^^2
+R6
+31
+Z26 !s110 1665869920
+!i10b 1
+Z27 !s108 1665869920.000000
+Z28 !s90 -reportprogress|300|-93|-work|work|C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/testbench.vhd|
+Z29 !s107 C:/Users/tyler/dev/Quartus2/LA4_ALU/SourceCode/testbench.vhd|
+!i113 1
+R11
+R12
+Agate_level
+R2
+R3
+Z30 DEx4 work 9 testbench 0 22 <aEF3i81EdX>b4MzgHhjl1
+!i122 10
+l31
+L7 111
+V_6LMPkgLPT6nM1MIAQ]Yn1
+!s100 ndR64ESEWcY><9k=1V5=h1
+R6
+31
+R26
+!i10b 1
+R27
+R28
+R29
+!i113 1
+R11
+R12

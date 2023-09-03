@@ -1,0 +1,35 @@
+|opcode_decoder
+execute => load.IN1
+execute => store.IN1
+execute => add.IN1
+execute => sub.IN1
+execute => inc.IN1
+execute => dec.IN1
+execute => bra.IN1
+execute => beq.IN1
+opcode[0] => store.IN1
+opcode[0] => sub.IN1
+opcode[0] => dec.IN1
+opcode[0] => beq.IN1
+opcode[0] => load.IN1
+opcode[0] => add.IN1
+opcode[0] => inc.IN1
+opcode[0] => bra.IN1
+opcode[1] => add.IN0
+opcode[1] => bra.IN0
+opcode[1] => load.IN0
+opcode[1] => inc.IN0
+opcode[2] => inc.IN1
+opcode[2] => bra.IN1
+opcode[2] => load.IN1
+opcode[2] => add.IN1
+load << load.DB_MAX_OUTPUT_PORT_TYPE
+store << store.DB_MAX_OUTPUT_PORT_TYPE
+add << add.DB_MAX_OUTPUT_PORT_TYPE
+sub << sub.DB_MAX_OUTPUT_PORT_TYPE
+inc << inc.DB_MAX_OUTPUT_PORT_TYPE
+dec << dec.DB_MAX_OUTPUT_PORT_TYPE
+bra << bra.DB_MAX_OUTPUT_PORT_TYPE
+beq << beq.DB_MAX_OUTPUT_PORT_TYPE
+
+

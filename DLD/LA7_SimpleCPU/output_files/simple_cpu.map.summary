@@ -1,0 +1,16 @@
+Analysis & Synthesis Status : Successful - Tue Nov 15 23:47:12 2022
+Quartus Prime Version : 20.1.1 Build 720 11/11/2020 SJ Lite Edition
+Revision Name : simple_cpu
+Top-level Entity Name : simple_cpu
+Family : MAX 10
+Total logic elements : 118
+    Total combinational functions : 84
+    Dedicated logic registers : 46
+Total registers : 46
+Total pins : 17
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0
+UFM blocks : 0
+ADC blocks : 0

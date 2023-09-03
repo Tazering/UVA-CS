@@ -1,0 +1,548 @@
+# Reading pref.tcl
+# do simple_cpu_run_msim_rtl_vhdl.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work rtl_work 
+# Copying C:/intelFPGA_lite/20.1/modelsim_ase/win32aloem/../modelsim.ini to modelsim.ini
+# Modifying modelsim.ini
+# 
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/tri_state_model.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:55 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/tri_state_model.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity tri_state_model
+# -- Compiling architecture rtl of tri_state_model
+# End time: 13:49:55 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:56 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity simple_cpu
+# -- Compiling architecture bdf_type of simple_cpu
+# End time: 13:49:56 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/opcode_decoder.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:56 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/opcode_decoder.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity opcode_decoder
+# -- Compiling architecture gate_level of opcode_decoder
+# End time: 13:49:56 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/instruction_sequencer.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:56 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/instruction_sequencer.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity instruction_sequencer
+# -- Compiling architecture bdf_type of instruction_sequencer
+# End time: 13:49:57 on Dec 01,2022, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/full_adder.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:57 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/full_adder.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity full_adder
+# -- Compiling architecture rtl of full_adder
+# End time: 13:49:57 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/dreg_e.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:57 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/dreg_e.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity dreg_e
+# -- Compiling architecture rtl of dreg_e
+# End time: 13:49:57 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/Datapath.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:57 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/Datapath.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity Datapath
+# -- Compiling architecture bdf_type of Datapath
+# End time: 13:49:57 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/d_ff.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:57 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/d_ff.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity d_ff
+# -- Compiling architecture rtl of d_ff
+# End time: 13:49:57 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/control_signals_logic.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:57 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/control_signals_logic.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity control_signals_logic
+# -- Compiling architecture rtl of control_signals_logic
+# End time: 13:49:57 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/alu.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:58 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity alu
+# -- Compiling architecture rtl of alu
+# End time: 13:49:58 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/adder_subtractor.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:49:58 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/adder_subtractor.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity adder_subtractor
+# -- Compiling architecture gate_level of adder_subtractor
+# End time: 13:49:58 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+do testbench.do
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:50:25 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/eeprom_memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity eeprom_memory
+# -- Compiling architecture rtl of eeprom_memory
+# End time: 13:50:25 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:50:25 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/clock_reset_generation.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity clock_reset_generation
+# -- Compiling architecture rtl of clock_reset_generation
+# End time: 13:50:26 on Dec 01,2022, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:50:26 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity simple_cpu
+# -- Compiling architecture bdf_type of simple_cpu
+# End time: 13:50:26 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:50:26 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/SimpleCPUTestbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity SimpleCPUTestbench
+# -- Compiling architecture bdf_type of SimpleCPUTestbench
+# End time: 13:50:26 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim simplecputestbench 
+# Start time: 13:50:26 on Dec 01,2022
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.simplecputestbench(bdf_type)
+# Loading work.simple_cpu(bdf_type)
+# Loading work.control_signals_logic(rtl)
+# Loading work.d_ff(rtl)
+# Loading work.datapath(bdf_type)
+# Loading work.alu(rtl)
+# Loading work.adder_subtractor(gate_level)
+# Loading work.full_adder(rtl)
+# Loading work.tri_state_model(rtl)
+# Loading work.dreg_e(rtl)
+# Loading work.instruction_sequencer(bdf_type)
+# Loading work.opcode_decoder(gate_level)
+# Loading ieee.numeric_std(body)
+# Loading work.eeprom_memory(rtl)
+# Loading work.clock_reset_generation(rtl)
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: tyler  Hostname: DESKTOP-65RA7I3  ProcessID: 23200
+#           Attempting to use alternate WLF file "./wlft42kjgx".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlft42kjgx
+do testbench.do
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:54:18 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/eeprom_memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity eeprom_memory
+# -- Compiling architecture rtl of eeprom_memory
+# End time: 13:54:18 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:54:18 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/clock_reset_generation.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity clock_reset_generation
+# -- Compiling architecture rtl of clock_reset_generation
+# End time: 13:54:18 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:54:18 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity simple_cpu
+# -- Compiling architecture bdf_type of simple_cpu
+# End time: 13:54:18 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:54:18 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/SimpleCPUTestbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity SimpleCPUTestbench
+# -- Compiling architecture bdf_type of SimpleCPUTestbench
+# End time: 13:54:18 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 13:54:21 on Dec 01,2022, Elapsed time: 0:03:55
+# Errors: 0, Warnings: 2
+# vsim simplecputestbench 
+# Start time: 13:54:21 on Dec 01,2022
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.simplecputestbench(bdf_type)
+# Loading work.simple_cpu(bdf_type)
+# Loading work.control_signals_logic(rtl)
+# Loading work.d_ff(rtl)
+# Loading work.datapath(bdf_type)
+# Loading work.alu(rtl)
+# Loading work.adder_subtractor(gate_level)
+# Loading work.full_adder(rtl)
+# Loading work.tri_state_model(rtl)
+# Loading work.dreg_e(rtl)
+# Loading work.instruction_sequencer(bdf_type)
+# Loading work.opcode_decoder(gate_level)
+# Loading ieee.numeric_std(body)
+# Loading work.eeprom_memory(rtl)
+# Loading work.clock_reset_generation(rtl)
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: tyler  Hostname: DESKTOP-65RA7I3  ProcessID: 23200
+#           Attempting to use alternate WLF file "./wlftwb596h".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlftwb596h
+do testbench.do
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:58:05 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/eeprom_memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity eeprom_memory
+# -- Compiling architecture rtl of eeprom_memory
+# End time: 13:58:05 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:58:05 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/clock_reset_generation.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity clock_reset_generation
+# -- Compiling architecture rtl of clock_reset_generation
+# End time: 13:58:05 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:58:05 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity simple_cpu
+# -- Compiling architecture bdf_type of simple_cpu
+# End time: 13:58:06 on Dec 01,2022, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 13:58:06 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/SimpleCPUTestbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity SimpleCPUTestbench
+# -- Compiling architecture bdf_type of SimpleCPUTestbench
+# End time: 13:58:06 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 13:58:07 on Dec 01,2022, Elapsed time: 0:03:46
+# Errors: 0, Warnings: 2
+# vsim simplecputestbench 
+# Start time: 13:58:07 on Dec 01,2022
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.simplecputestbench(bdf_type)
+# Loading work.simple_cpu(bdf_type)
+# Loading work.control_signals_logic(rtl)
+# Loading work.d_ff(rtl)
+# Loading work.datapath(bdf_type)
+# Loading work.alu(rtl)
+# Loading work.adder_subtractor(gate_level)
+# Loading work.full_adder(rtl)
+# Loading work.tri_state_model(rtl)
+# Loading work.dreg_e(rtl)
+# Loading work.instruction_sequencer(bdf_type)
+# Loading work.opcode_decoder(gate_level)
+# Loading ieee.numeric_std(body)
+# Loading work.eeprom_memory(rtl)
+# Loading work.clock_reset_generation(rtl)
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: tyler  Hostname: DESKTOP-65RA7I3  ProcessID: 23200
+#           Attempting to use alternate WLF file "./wlftzf0y6b".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlftzf0y6b
+do testbench.do
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:05:27 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/eeprom_memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity eeprom_memory
+# -- Compiling architecture rtl of eeprom_memory
+# End time: 14:05:27 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:05:27 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/clock_reset_generation.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity clock_reset_generation
+# -- Compiling architecture rtl of clock_reset_generation
+# End time: 14:05:27 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:05:28 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity simple_cpu
+# -- Compiling architecture bdf_type of simple_cpu
+# End time: 14:05:28 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:05:28 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/SimpleCPUTestbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity SimpleCPUTestbench
+# -- Compiling architecture bdf_type of SimpleCPUTestbench
+# End time: 14:05:28 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 14:05:29 on Dec 01,2022, Elapsed time: 0:07:22
+# Errors: 0, Warnings: 2
+# vsim simplecputestbench 
+# Start time: 14:05:29 on Dec 01,2022
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.simplecputestbench(bdf_type)
+# Loading work.simple_cpu(bdf_type)
+# Loading work.control_signals_logic(rtl)
+# Loading work.d_ff(rtl)
+# Loading work.datapath(bdf_type)
+# Loading work.alu(rtl)
+# Loading work.adder_subtractor(gate_level)
+# Loading work.full_adder(rtl)
+# Loading work.tri_state_model(rtl)
+# Loading work.dreg_e(rtl)
+# Loading work.instruction_sequencer(bdf_type)
+# Loading work.opcode_decoder(gate_level)
+# Loading ieee.numeric_std(body)
+# Loading work.eeprom_memory(rtl)
+# Loading work.clock_reset_generation(rtl)
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: tyler  Hostname: DESKTOP-65RA7I3  ProcessID: 23200
+#           Attempting to use alternate WLF file "./wlftf6t06t".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlftf6t06t
+do testbench.do
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:09:16 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/eeprom_memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity eeprom_memory
+# -- Compiling architecture rtl of eeprom_memory
+# End time: 14:09:16 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:09:16 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/clock_reset_generation.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity clock_reset_generation
+# -- Compiling architecture rtl of clock_reset_generation
+# End time: 14:09:16 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:09:16 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity simple_cpu
+# -- Compiling architecture bdf_type of simple_cpu
+# End time: 14:09:17 on Dec 01,2022, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:09:17 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/SimpleCPUTestbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity SimpleCPUTestbench
+# -- Compiling architecture bdf_type of SimpleCPUTestbench
+# End time: 14:09:17 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 14:09:18 on Dec 01,2022, Elapsed time: 0:03:49
+# Errors: 0, Warnings: 2
+# vsim simplecputestbench 
+# Start time: 14:09:18 on Dec 01,2022
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.simplecputestbench(bdf_type)
+# Loading work.simple_cpu(bdf_type)
+# Loading work.control_signals_logic(rtl)
+# Loading work.d_ff(rtl)
+# Loading work.datapath(bdf_type)
+# Loading work.alu(rtl)
+# Loading work.adder_subtractor(gate_level)
+# Loading work.full_adder(rtl)
+# Loading work.tri_state_model(rtl)
+# Loading work.dreg_e(rtl)
+# Loading work.instruction_sequencer(bdf_type)
+# Loading work.opcode_decoder(gate_level)
+# Loading ieee.numeric_std(body)
+# Loading work.eeprom_memory(rtl)
+# Loading work.clock_reset_generation(rtl)
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: tyler  Hostname: DESKTOP-65RA7I3  ProcessID: 23200
+#           Attempting to use alternate WLF file "./wlftxec4t8".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlftxec4t8
+do testbench.do
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:45:53 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/eeprom_memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity eeprom_memory
+# -- Compiling architecture rtl of eeprom_memory
+# End time: 14:45:53 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:45:53 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/clock_reset_generation.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity clock_reset_generation
+# -- Compiling architecture rtl of clock_reset_generation
+# End time: 14:45:53 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:45:53 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/simple_cpu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity simple_cpu
+# -- Compiling architecture bdf_type of simple_cpu
+# End time: 14:45:53 on Dec 01,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 14:45:53 on Dec 01,2022
+# vcom -reportprogress 300 -93 -work work C:/Users/tyler/dev/Quartus2/LA7_SimpleCPU/SourceCode/SimpleCPUTestbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity SimpleCPUTestbench
+# -- Compiling architecture bdf_type of SimpleCPUTestbench
+# End time: 14:45:54 on Dec 01,2022, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# End time: 14:45:55 on Dec 01,2022, Elapsed time: 0:36:37
+# Errors: 0, Warnings: 2
+# vsim simplecputestbench 
+# Start time: 14:45:55 on Dec 01,2022
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.simplecputestbench(bdf_type)
+# Loading work.simple_cpu(bdf_type)
+# Loading work.control_signals_logic(rtl)
+# Loading work.d_ff(rtl)
+# Loading work.datapath(bdf_type)
+# Loading work.alu(rtl)
+# Loading work.adder_subtractor(gate_level)
+# Loading work.full_adder(rtl)
+# Loading work.tri_state_model(rtl)
+# Loading work.dreg_e(rtl)
+# Loading work.instruction_sequencer(bdf_type)
+# Loading work.opcode_decoder(gate_level)
+# Loading ieee.numeric_std(body)
+# Loading work.eeprom_memory(rtl)
+# Loading work.clock_reset_generation(rtl)
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: tyler  Hostname: DESKTOP-65RA7I3  ProcessID: 23200
+#           Attempting to use alternate WLF file "./wlfthqfjgk".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlfthqfjgk
+# End time: 15:37:15 on Dec 01,2022, Elapsed time: 0:51:20
+# Errors: 0, Warnings: 2

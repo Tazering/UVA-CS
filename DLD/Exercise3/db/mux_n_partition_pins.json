@@ -1,0 +1,37 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "Z",
+					"strict" : false
+				},
+				{
+					"name" : "in_n[0]",
+					"strict" : false
+				},
+				{
+					"name" : "sel[0]",
+					"strict" : false
+				},
+				{
+					"name" : "in_n[3]",
+					"strict" : false
+				},
+				{
+					"name" : "sel[1]",
+					"strict" : false
+				},
+				{
+					"name" : "in_n[1]",
+					"strict" : false
+				},
+				{
+					"name" : "in_n[2]",
+					"strict" : false
+				}
+			]
+		}
+	]
+}
