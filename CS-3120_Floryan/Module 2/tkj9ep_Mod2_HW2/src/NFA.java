@@ -291,7 +291,6 @@ public class NFA{
 			this.finalStates.add(i);
 		}
 
-
 		/* --------------------------------- */
 
 	}

@@ -71,7 +71,7 @@ public class Main{
 			return the unioned NFA
 		*/
 
-
+		
 
 		/* Case 3 - First character of exp is 'a' or 'd' */
 
