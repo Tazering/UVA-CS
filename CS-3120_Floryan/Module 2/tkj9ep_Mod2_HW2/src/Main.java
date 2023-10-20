@@ -70,8 +70,18 @@ public class Main{
 			
 			return the unioned NFA
 		*/
+		// Case 2
+		if(exp.contains("U")) {
+			String[] strSplit = exp.split("U");
 
-		
+			NFA nfa = buildNFA(strSplit[0]);
+
+			for(int i = 1; i < strSplit.length; i++) {
+				nfa.union(buildNFA(strSplit[i]));
+			}
+
+			return nfa;
+		}
 
 		/* Case 3 - First character of exp is 'a' or 'd' */
 

@@ -228,15 +228,11 @@ public class NFA{
 		int dummy_state = addState(); // creates dummy node
 
 		// add the nodes from the other NFA to this NFA
-		this.states.addAll(other.states);
+
+		transferStatesAndTransitions(other);
+
 		Integer other_start_state = other.getStartState();
 
-		// add transitions
-		for(QSig node : other.transitions.keySet()) {
-			for(Integer end : other.getTransitions(node.q, node.sig)) {
-				this.addTransition(node.q, node.sig, end);
-			}
-		}
 
 		this.addTransition(dummy_state, 'e', this.getStartState()); // epsilon transition for this dfa
 		this.addTransition(dummy_state, 'e', other_start_state); // epsilon transition for this dfa
@@ -270,15 +266,7 @@ public class NFA{
 
 		Integer other_start_state = other.getStartState(); // grabs the start state of the other nfa
 
-		// add all states and transitions from other to s
-		this.states.addAll(other.states);
-
-		// add transitions
-		for(QSig node : other.transitions.keySet()) {
-			for(Integer end : other.getTransitions(node.q, node.sig)) {
-				this.addTransition(node.q, node.sig, end);
-			}
-		}
+		transferStatesAndTransitions(other);
 
 		//add epsilon transitions from all final states of s nfa to "other_start_node"
 		for(Integer node : this.finalStates) {
@@ -321,5 +309,18 @@ public class NFA{
 		return out;
 	}
 
+	// helper function
+	public void transferStatesAndTransitions(NFA other) { // gives current NFA all states and transitions of other NFA
+
+		// add all states and transitions from other to s
+		this.states.addAll(other.states);
+
+		// add transitions
+		for(QSig node : other.transitions.keySet()) {
+			for(Integer end : other.getTransitions(node.q, node.sig)) {
+				this.addTransition(node.q, node.sig, end);
+			}
+		}
+	}
 
 }
