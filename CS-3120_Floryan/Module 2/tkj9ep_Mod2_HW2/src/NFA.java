@@ -186,8 +186,25 @@ public class NFA{
 		/* TODO: IMPLEMENT THIS METHOD */
 		/* --------------------------------- */
 
+		/*
+			1. create dummy start node
+			2. add transition from dummy start node to this start node
+			3. add transitions from all final states to this start state
+			4. set start state to dummy start node
+			5. make dummy start node as final node as well
+		 */
 
+		int dummy_state = addState(); // creates dummy start node
 
+		this.addTransition(dummy_state, 'e', this.startState); // creates the transition
+
+		for(Integer end_state : this.finalStates) { // final nodes to old start node
+			this.addTransition(end_state, 'e', this.startState);
+		}
+
+		this.setStartState(dummy_state); // resets start state
+
+		this.finalStates.add(dummy_state); // set dummy start node as final node
 
 		/* --------------------------------- */
 
@@ -208,15 +225,23 @@ public class NFA{
 			2. epsilon transition to start state of current nfa and other
 			3. set dummy state to start state
 		 */
-		int dummy_state = addState(-1); // creates dummy node
+		int dummy_state = addState(); // creates dummy node
 
-		addTransition(dummy_state, 'e', this.getStartState()); // epsilon transition for this dfa
-		addTransition(dummy_state, 'e', other.getStartState()); // epsilon transition for this dfa
+		// add the nodes from the other NFA to this NFA
+		this.states.addAll(other.states);
+		Integer other_start_state = other.getStartState();
+
+		// add transitions
+		for(QSig node : other.transitions.keySet()) {
+			for(Integer end : other.getTransitions(node.q, node.sig)) {
+				this.addTransition(node.q, node.sig, end);
+			}
+		}
+
+		this.addTransition(dummy_state, 'e', this.getStartState()); // epsilon transition for this dfa
+		this.addTransition(dummy_state, 'e', other_start_state); // epsilon transition for this dfa
 
 		this.setStartState(dummy_state); // sets the current dfa start state to the dummy state
-		other.setStartState(dummy_state); // sets the other dfa start state to the dummy state so that things don't happen at the same time
-
-
 
 		/* --------------------------------- */
 
@@ -231,7 +256,40 @@ public class NFA{
 		/* TODO: IMPLEMENT THIS METHOD */
 		/* --------------------------------- */
 
+		/*
+			1. get other start node
+			2. add all nodes from other to this
+			3. do transitions
+			4. set start node
+			5. clear this final states
+			6. set final state of other to this
+		 */
+		// transition all final nodes of s to start node of other
+		//get start
+		// add the states from the other NFA to this NFA
 
+		Integer other_start_state = other.getStartState(); // grabs the start state of the other nfa
+
+		// add all states and transitions from other to s
+		this.states.addAll(other.states);
+
+		// add transitions
+		for(QSig node : other.transitions.keySet()) {
+			for(Integer end : other.getTransitions(node.q, node.sig)) {
+				this.addTransition(node.q, node.sig, end);
+			}
+		}
+
+		//add epsilon transitions from all final states of s nfa to "other_start_node"
+		for(Integer node : this.finalStates) {
+			this.addTransition(node, 'e', other_start_state);
+		}
+
+		this.clearFinalStates(); // clear final states
+
+		for(Integer i : other.finalStates) { //set other final states as this final state
+			this.finalStates.add(i);
+		}
 
 
 		/* --------------------------------- */
