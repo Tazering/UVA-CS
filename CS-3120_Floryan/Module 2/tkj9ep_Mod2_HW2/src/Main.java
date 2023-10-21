@@ -17,7 +17,7 @@ public class Main{
 		Scanner in = new Scanner(System.in);
 		String regEx = in.next();
 
-//		p("The expression you entered is: " + regEx);
+		p("The expression you entered is: " + regEx);
 
 		/* Build the NFA from the regular expression */
 		NFA nfa = buildNFA(regEx);
@@ -29,7 +29,7 @@ public class Main{
 
 		/* You can uncomment this line if you want to see the */
 		/* machine your buildNFA method produced */
-//		p("Machine: " + nfa);
+		p("Machine: " + nfa);
 
 		/* Read in the number of strings */
 		int n = in.nextInt();
@@ -73,6 +73,7 @@ public class Main{
 		char firstChar = 'x';
 
 		if(exp.contains("U")) {
+
 			String[] strSplit = exp.split("U");
 
 			NFA nfa = buildNFA(strSplit[0]);
@@ -117,8 +118,9 @@ public class Main{
 				if(secondChar == '*') {
 					nfa.star();
 					nfa.concatenate(buildNFA(exp.substring(2)));
+
 				} else if(secondChar != '*') {
-					nfa.concatenate(buildNFA(exp.substring(2)));
+					nfa.concatenate(buildNFA(exp.substring(1)));
 				}
 
 			}
@@ -142,8 +144,6 @@ public class Main{
 		*/
 
 		if(firstChar == '(') {
-			Stack<Character> stack = new Stack<Character>(); // create stack for parenthesis
-			stack.push('(');
 
 			String expInParenthesis = "";
 			int idx = 1;
@@ -151,22 +151,12 @@ public class Main{
 			while(true) {
 
 				char charVal = exp.charAt(idx);
-				if(charVal == '(') { // add to stack to keep track of parenthesis
-					stack.push(exp.charAt(idx));
-					expInParenthesis += charVal;
 
-				} else if(charVal == ')') { // pop stack if closing parenthesis is found
-					stack.pop();
-
-					if(stack.isEmpty()) {
-						break;
-					} else {
-						expInParenthesis += charVal;
-					}
-
-				} else {
-					expInParenthesis += exp.charAt(idx);
+				if(charVal == ')') { // pop stack if closing parenthesis is found
+					break;
 				}
+
+				expInParenthesis += charVal;
 
 				idx++;
 
@@ -177,8 +167,6 @@ public class Main{
 			nfa.concatenate(buildNFA(exp.substring(idx)));
 
 			return nfa;
-
-
 		}
 
 

@@ -195,7 +195,7 @@ public class NFA{
 			5. make dummy start node as final node as well
 		 */
 
-		int dummy_state = addState(); // creates dummy start node
+		int dummy_state = this.addState(); // creates dummy start node
 
 		this.addTransition(dummy_state, 'e', this.startState); // creates the transition
 
@@ -266,15 +266,22 @@ public class NFA{
 		// add the states from the other NFA to this NFA
 
 		Integer other_start_state = other.getStartState(); // grabs the start state of the other nfa
+		HashSet<Integer> sFinalStates = new HashSet<Integer>();
 
-		transferStatesAndTransitions(other);
-
-		//add epsilon transitions from all final states of s nfa to "other_start_node"
-		for(Integer node : this.finalStates) {
-			this.addTransition(node, 'e', other_start_state);
+		for(Integer finalNode : this.finalStates) {
+			sFinalStates.add(finalNode);
 		}
 
 		this.clearFinalStates(); // clear final states
+		transferStatesAndTransitions(other);
+
+		//add epsilon transitions from all final states of s nfa to "other_start_node"
+		for(Integer node : sFinalStates) {
+			this.addTransition(node, 'e', other_start_state);
+		}
+
+
+
 
 		for(Integer i : other.finalStates) { //set other final states as this final state
 			this.finalStates.add(i);
