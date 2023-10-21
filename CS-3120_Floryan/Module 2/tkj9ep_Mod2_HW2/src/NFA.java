@@ -161,6 +161,7 @@ public class NFA{
 		// loop through all the characters in the input to get the new set of states
 		char[] chars = input.toCharArray();
 		for(char c : chars) {
+			c = this.translateInput(c);
 			currentStates = epsilonTransition(currentStates); // keep checking for epsilon transitions
 			currentStates = transition(currentStates, c); // get new current states after a transition of a character 'c'
 		}
@@ -321,6 +322,9 @@ public class NFA{
 				this.addTransition(node.q, node.sig, end);
 			}
 		}
+
+		// add final states
+		this.finalStates.addAll(other.finalStates);
 	}
 
 }

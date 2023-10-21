@@ -17,14 +17,15 @@ public class Main{
 		Scanner in = new Scanner(System.in);
 		String regEx = in.next();
 
-		p("The expression you entered is: " + regEx);
+//		p("The expression you entered is: " + regEx);
 
 		/* Build the NFA from the regular expression */
-//		NFA nfa = buildNFA(regEx);
+		NFA nfa = buildNFA(regEx);
 
 		// testing purposes
-		NFA nfa = new NFA();
-		nfa.acceptsString(regEx);
+//		NFA nfa = new NFA();
+
+//		nfa.acceptsString(regEx);
 
 		/* You can uncomment this line if you want to see the */
 		/* machine your buildNFA method produced */
@@ -51,15 +52,13 @@ public class Main{
 	public static NFA buildNFA(String exp){
 
 		/* TODO: IMPLEMENT THIS METHOD */
-		/* --------------------------------------------- */
-
-
+		/* --------------------------------------------- *
 
 		/* Case 1 - Base Case: exp is empty string, nothing to do */
 
 
 		/* Case 2 - Look for U operator (will never be inside parens so don't need to worry about that) */
-		
+
 		/*
 		If exp contains "U" operators
 			Split exp into all the segments between the Us (e.g., aaUddUda => [aa,dd,da])
@@ -71,6 +70,8 @@ public class Main{
 			return the unioned NFA
 		*/
 		// Case 2
+		char firstChar = 'x';
+
 		if(exp.contains("U")) {
 			String[] strSplit = exp.split("U");
 
@@ -99,6 +100,32 @@ public class Main{
 			Return the NFA that was built
 		*/
 
+		// Case 3
+		if(exp.length() > 0) {
+			firstChar = exp.charAt(0);
+		}
+
+		if(firstChar == 'a' || firstChar == 'd') {
+			NFA nfa = new NFA(); // creates an NFA
+			int endState = nfa.addState(); // add end state
+			nfa.addFinalState(endState);
+			nfa.addTransition(nfa.getStartState(), firstChar, endState);
+
+			if(exp.length() > 1) { // check if there is at least one character after the first character
+				char secondChar = exp.charAt(1);
+
+				if(secondChar == '*') {
+					nfa.star();
+					nfa.concatenate(buildNFA(exp.substring(2)));
+				} else if(secondChar != '*') {
+					nfa.concatenate(buildNFA(exp.substring(2)));
+				}
+
+			}
+
+			return nfa;
+
+		}
 		
 
 		/* Case 4 - First character is an open paren */
@@ -113,6 +140,48 @@ public class Main{
 
 			Concatenate with the NFA for the rest of the expression after the *
 		*/
+
+		if(firstChar == '(') {
+			Stack<Character> stack = new Stack<Character>(); // create stack for parenthesis
+			stack.push('(');
+
+			String expInParenthesis = "";
+			int idx = 1;
+
+			while(true) {
+
+				char charVal = exp.charAt(idx);
+				if(charVal == '(') { // add to stack to keep track of parenthesis
+					stack.push(exp.charAt(idx));
+					expInParenthesis += charVal;
+
+				} else if(charVal == ')') { // pop stack if closing parenthesis is found
+					stack.pop();
+
+					if(stack.isEmpty()) {
+						break;
+					} else {
+						expInParenthesis += charVal;
+					}
+
+				} else {
+					expInParenthesis += exp.charAt(idx);
+				}
+
+				idx++;
+
+			}
+
+			NFA nfa = buildNFA(expInParenthesis);
+			nfa.star();
+			nfa.concatenate(buildNFA(exp.substring(idx)));
+
+			return nfa;
+
+
+		}
+
+
 
 		/* --------------------------------------------- */
 
