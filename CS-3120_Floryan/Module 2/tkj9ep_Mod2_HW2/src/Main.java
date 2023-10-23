@@ -29,7 +29,7 @@ public class Main{
 
 		/* You can uncomment this line if you want to see the */
 		/* machine your buildNFA method produced */
-		p("Machine: " + nfa);
+//		p("Machine: " + nfa);
 
 		/* Read in the number of strings */
 		int n = in.nextInt();
@@ -151,20 +151,19 @@ public class Main{
 			while(true) {
 
 				char charVal = exp.charAt(idx);
-
 				if(charVal == ')') { // pop stack if closing parenthesis is found
+					idx += 2;
 					break;
 				}
-
 				expInParenthesis += charVal;
-
 				idx++;
 
 			}
 
 			NFA nfa = buildNFA(expInParenthesis);
 			nfa.star();
-			nfa.concatenate(buildNFA(exp.substring(idx)));
+			String substr = exp.substring(idx);
+			nfa.concatenate(buildNFA(substr));
 
 			return nfa;
 		}

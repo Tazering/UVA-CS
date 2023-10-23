@@ -160,10 +160,19 @@ public class NFA{
 
 		// loop through all the characters in the input to get the new set of states
 		char[] chars = input.toCharArray();
+		HashSet<Integer> prevCurrentState = new HashSet<>();
+
 		for(char c : chars) {
 			c = this.translateInput(c);
 			currentStates = epsilonTransition(currentStates); // keep checking for epsilon transitions
 			currentStates = transition(currentStates, c); // get new current states after a transition of a character 'c'
+
+			while(!currentStates.equals(prevCurrentState)) {
+				prevCurrentState = currentStates;
+				currentStates = epsilonTransition(currentStates);
+			}
+
+
 		}
 
 		// check if any of the states in the current states is a final state
@@ -173,6 +182,8 @@ public class NFA{
 				return true;
 			}
 		}
+
+//		System.out.println("Current States: " + currentStates);
 
 		/* --------------------------------- */
 
