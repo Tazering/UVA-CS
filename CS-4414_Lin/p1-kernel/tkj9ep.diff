@@ -39,17 +39,35 @@ index a346589..40c1e70 100644
  
  #endif  /*_TIMER_H */
 diff --git a/src/exp4a/src/kernel.c b/src/exp4a/src/kernel.c
-index 76a8598..91c516a 100644
+index 76a8598..03ed0ee 100644
 --- a/src/exp4a/src/kernel.c
 +++ b/src/exp4a/src/kernel.c
-@@ -16,8 +16,40 @@
+@@ -16,8 +16,9 @@
  #define CHAR_DELAY (1000000)
  #endif
  
 -void process(char *array)
 -{
++int flag = 1;
 +
 +void process(char *array) { // processes for printing arrays
+ #ifdef USE_LFB // (optional) determine the init locations on the graphical console
+ 	int scr_x, scr_y; 
+ 	char c; 
+@@ -40,6 +41,39 @@ void process(char *array)
+ #endif
+ 			delay(CHAR_DELAY);
+ 		} 
++		sleep(2);
++		schedule(); // yield
++	}
++
++	// For now, all the tasks run in an infinite loop and never returns. 
++	// We will handle task termination in future experiments
++}
++
++
++void process1(char *array) { // processes for printing arrays TESTING PROCESS
 +#ifdef USE_LFB // (optional) determine the init locations on the graphical console
 +	int scr_x, scr_y; 
 +	char c; 
@@ -59,7 +77,7 @@ index 76a8598..91c516a 100644
 +		scr_x = 0; scr_y = 480; 
 +	}
 +#endif 
-+
++	
 +	while (1){
 +		for (int i = 0; i < 5; i++){
 +			uart_send(array[i]);
@@ -72,37 +90,14 @@ index 76a8598..91c516a 100644
 +#endif
 +			delay(CHAR_DELAY);
 +		} 
-+	
-+		schedule(); // yield
-+	}
-+
-+	// For now, all the tasks run in an infinite loop and never returns. 
-+	// We will handle task termination in future experiments
-+}
-+
-+
-+void process1(char *array) { // processes for printing arrays TESTING PROCESS
- #ifdef USE_LFB // (optional) determine the init locations on the graphical console
- 	int scr_x, scr_y; 
- 	char c; 
-@@ -40,6 +72,7 @@ void process(char *array)
- #endif
- 			delay(CHAR_DELAY);
- 		} 
-+	
++		sleep(5);
  		schedule(); // yield
  	}
  
-@@ -47,11 +80,17 @@ void process(char *array)
+@@ -47,11 +81,11 @@ void process(char *array)
  	// We will handle task termination in future experiments
  }
  
-+
-+// wfi process
-+void wfi_process() {
-+	printf("In WFI Process...");
-+	asm("wfi");
-+}
 +
  void kernel_main(void)
  {
@@ -112,7 +107,7 @@ index 76a8598..91c516a 100644
  	printf("kernel boots\r\n");	
  
  	// Below, irq is off by default, b/c it is not needed for cooperative scheduling as
-@@ -60,7 +99,8 @@ void kernel_main(void)
+@@ -60,7 +94,8 @@ void kernel_main(void)
  	irq_vector_init();
  	generic_timer_init();
  	enable_interrupt_controller();
@@ -122,34 +117,33 @@ index 76a8598..91c516a 100644
  
  #ifdef USE_LFB // (optional) init output to the graphical console
  	lfb_init(); 
-@@ -68,7 +108,13 @@ void kernel_main(void)
+@@ -68,12 +103,12 @@ void kernel_main(void)
  	lfb_print(0, 240, "kernel boots");
  #endif		
  
 -	int res = copy_process((unsigned long)&process, (unsigned long)"12345");
-+	int res = copy_process((unsigned long) &wfi_process, (unsigned long)""); // create a copy for the wfi task
-+	if(res != 0) {
-+		printf("error while starting process 3");
-+		return;
-+	}
-+
-+	res = copy_process((unsigned long)&process1, (unsigned long)"12345");
++	int res = copy_process((unsigned long)&process1, (unsigned long)"12345");
  	if (res != 0) {
  		printf("error while starting process 1");
  		return;
-@@ -80,7 +126,9 @@ void kernel_main(void)
- 		return;
  	}
- 
+-	
 +
+ 	res = copy_process((unsigned long)&process, (unsigned long)"abcde");
+ 	if (res != 0) {
+ 		printf("error while starting process 2");
+@@ -82,5 +117,8 @@ void kernel_main(void)
+ 
  	while (1) {
  		schedule();
++		printf("Will execute wfi...");
++		asm("wfi");
  	}	
  }
 + 
 \ No newline at end of file
 diff --git a/src/exp4a/src/sched.c b/src/exp4a/src/sched.c
-index 6d38e06..ae0c30e 100644
+index 6d38e06..0412524 100644
 --- a/src/exp4a/src/sched.c
 +++ b/src/exp4a/src/sched.c
 @@ -1,14 +1,16 @@
@@ -178,16 +172,15 @@ index 6d38e06..ae0c30e 100644
  		}
  		if (c) {	/* found a RUNNING/READY task w/ the most positive counter.  NB: c won't be -1 as counter always nonnegative */
  			break;
-@@ -37,6 +40,8 @@ void _schedule(void)
+@@ -37,6 +40,7 @@ void _schedule(void)
  		Hence, we recharge counters. Bump counters for all tasks once. */
  		for (int i = 0; i < NR_TASKS; i++) {
  			p = task[i];
-+			
 +
  			if (p) {
  				p->counter = (p->counter >> 1) + p->priority; // The increment depends on a task's priority.
  			}
-@@ -67,3 +72,9 @@ void schedule_tail(void) {
+@@ -67,3 +71,9 @@ void schedule_tail(void) {
  	/* nothing */
  }
  
@@ -199,11 +192,17 @@ index 6d38e06..ae0c30e 100644
 +}
 \ No newline at end of file
 diff --git a/src/exp4a/src/timer.c b/src/exp4a/src/timer.c
-index d487c5f..0e85c5a 100644
+index d487c5f..e8fdd6f 100644
 --- a/src/exp4a/src/timer.c
 +++ b/src/exp4a/src/timer.c
-@@ -23,6 +23,54 @@ void handle_generic_timer_irq( void )
- {
+@@ -19,10 +19,54 @@ void generic_timer_init ( void )
+ 	gen_timer_init();
+ }
+ 
+-void handle_generic_timer_irq( void ) 
+-{
++void handle_generic_timer_irq( void ) {
++
  	// TODO: In order to implement sleep(t), you should calculate @interval based on t, 
  	// instead of having a fixed @interval which triggers periodic interrupts
 -	gen_timer_reset(interval);	
@@ -217,7 +216,6 @@ index d487c5f..0e85c5a 100644
 +		if(p -> state == TASK_WAIT) { //sets the lowest_t variable if task that is in state TASK_WAIT is detected
 +			lowest_t = __INT_MAX__;
 +			break;
-+			
 +		}
 +	}
 +
@@ -229,15 +227,13 @@ index d487c5f..0e85c5a 100644
 +
 +			if(p -> wait == 0) { // change to TASK_RUNNING if wait time is depleted
 +				p -> state = TASK_RUNNING;
-+				_schedule();
++	
 +			}
 +
 +			if(p -> state == TASK_WAIT && p -> wait < lowest_t) {
 +				lowest_t = p -> wait;
 +			}
-+
 +		}
-+
 +	}
 +
 +	//update all wait statements in the tasks
@@ -253,8 +249,7 @@ index d487c5f..0e85c5a 100644
 +	
 +	printf("\nCurrent State is %d. Current wait value is %d. Lowest time is %d\n", p -> state, p -> wait, lowest_t);
 +
-+	gen_timer_reset(interval * lowest_t);	
-+
++	gen_timer_reset(interval * lowest_t);
 +
  	printf("Timer interrupt received. next in %u ticks\n\r", interval);
  }
