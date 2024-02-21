@@ -9,5 +9,6 @@ void handle_generic_timer_irq ( void );
 
 extern void gen_timer_init();
 extern void gen_timer_reset(int interval);
+extern unsigned long get_time_ms(void);
 
 #endif  /*_TIMER_H */

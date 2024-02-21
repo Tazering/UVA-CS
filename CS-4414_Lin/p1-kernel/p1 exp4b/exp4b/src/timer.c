@@ -23,10 +23,20 @@ void generic_timer_init ( void )
 
 void handle_generic_timer_irq( void ) 
 {
-	interval = 1 * 1000 * 100;
+	interval = 1 * 1000 * 100; // interval is now 100ms
 	gen_timer_reset(interval);
     timer_tick();
 }
+
+unsigned long get_time_ms(void) { //returns the elapsed time 
+	unsigned long low_tick = get32(TIMER_CLO);
+	unsigned long high_tick = get32(TIMER_CHI);
+
+	unsigned long current_tick = (high_tick << 32) + (low_tick);
+
+	return current_tick / 1000;
+}
+
 
 /* 
 	These are for "System Timer". They are NOT in use by this project. 
@@ -53,3 +63,4 @@ void handle_timer_irq( void )
 	put32(TIMER_CS, TIMER_CS_M1);
 	timer_tick();
 }
+

@@ -37,6 +37,10 @@
 
 	stp	x30, x22, [sp, #16 * 15] 
 	str	x23, [sp, #16 * 16]
+
+	// mrs x0, sp // moves the sp to argument 1
+	// mov x1, x22 // moves the pc to argument 2
+	// grab previous tasks
 	.endm
 
 	.macro	kernel_exit
@@ -45,6 +49,13 @@
 
 	msr	elr_el1, x22			
 	msr	spsr_el1, x23
+
+
+	// fetch sp and pc of incoming task
+
+	// mrs x0, elr_el1
+	// mrs x1, sp
+	// bl record_switch	
 
 	ldp	x0, x1, [sp, #16 * 0]
 	ldp	x2, x3, [sp, #16 * 1]
@@ -61,7 +72,7 @@
 	ldp	x24, x25, [sp, #16 * 12]
 	ldp	x26, x27, [sp, #16 * 13]
 	ldp	x28, x29, [sp, #16 * 14]
-	add	sp, sp, #S_FRAME_SIZE		
+	add	sp, sp, #S_FRAME_SIZE	
 	eret
 	.endm
 
@@ -141,6 +152,7 @@ el1_irq:
 	kernel_entry 
 	bl	handle_irq
 	kernel_exit 
+
 
 .globl ret_from_fork
 ret_from_fork:

@@ -18,6 +18,8 @@ extern struct task_struct *current;
 extern struct task_struct * task[NR_TASKS];
 extern int nr_tasks;
 
+extern struct message_struct * tmp_msg_struct;
+
 struct cpu_context {
 	unsigned long x19;
 	unsigned long x20;
@@ -42,6 +44,18 @@ struct task_struct {
 	long preempt_count;
 };
 
+struct message_struct {
+	unsigned long timestamp;
+	int pid_in;
+	int pid_out;
+
+	long pc_in;
+	long pc_out;
+
+	long sp_in;
+	long sp_out;
+};
+
 extern void sched_init(void);
 extern void schedule(void);
 extern void timer_tick(void);
@@ -50,6 +64,11 @@ extern void preempt_enable(void);
 extern void switch_to(struct task_struct* next);
 extern void cpu_switch_to(struct task_struct* prev, struct task_struct* next);
 extern int getpid(void);
+extern void print_msg(struct message_struct * tmp_msg_struct);
+
+#define INIT_MSG {\
+	0, 0, 0, 0, 0, 0, 0\
+}
 
 #define INIT_TASK \
 /*cpu_context*/	{ {0,0,0,0,0,0,0,0,0,0,0,0,0}, \

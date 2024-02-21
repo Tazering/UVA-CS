@@ -1,12 +1,19 @@
 #include "sched.h"
 #include "irq.h"
 #include "printf.h"
+#include "timer.h"
 
 static struct task_struct init_task = INIT_TASK;
 struct task_struct *current = &(init_task);
 struct task_struct * task[NR_TASKS] = {&(init_task), };
 int nr_tasks = 1;
+
+int next_pid = 1;
 int current_pid = 0;
+int switch_count = 0; // keep track of the number of switches
+struct message_struct * messages[50] = {};
+static struct message_struct init_msg = INIT_MSG;
+struct message_struct * tmp_msg_struct =&(init_msg);
 
 void preempt_disable(void)
 {
@@ -59,8 +66,16 @@ void _schedule(void)
 			}
 		}
 	}
+	
 	current_pid = next;
 	switch_to(task[next]);
+	switch_count++;
+
+	// TODO: get task printing working
+	if(switch_count <= 50) {
+		
+	}
+
 	preempt_enable();
 }
 
@@ -116,4 +131,18 @@ void timer_tick()
 // get pid of current task
 int getpid(void) {
 	return current_pid;
+}
+
+
+// STORE INTO THE MSG STRUCT
+void print_msg( struct message_struct * tmp_msg_struct ) {
+
+	//sample message: 1234 from task1 (PC 0x81000 SP 0x83F00) to task2 (PC 0x82000 SP 0x85F00)
+	printf("%d from task%d (PC %d SP %d) to task%d (PC %d SP %d)\n", tmp_msg_struct -> timestamp, tmp_msg_struct -> pid_in, tmp_msg_struct -> pc_in,
+	tmp_msg_struct -> sp_in, tmp_msg_struct -> pid_out, tmp_msg_struct -> pc_out, tmp_msg_struct -> sp_out);
+}
+
+	// store the timestamp
+void record_timestamp(void) {
+	tmp_msg_struct -> timestamp = get_time_ms(); 
 }
