@@ -67,21 +67,18 @@ void _schedule(void)
 		}
 	}
 	
+	store_current_pid();
 	current_pid = next;
 	switch_to(task[next]);
-	switch_count++;
-
-	// TODO: get task printing working
-	if(switch_count <= 50) {
-		
-	}
-
 	preempt_enable();
+	store_message();
+
 }
 
 void schedule(void)
 {
 	current->counter = 0;
+
 	_schedule();
 }
 
@@ -105,11 +102,19 @@ void switch_to(struct task_struct * next)
 			80d58:       9400083b        bl      82e44 <cpu_switch_to>
 		==> 80d5c:       14000002        b       80d64 <switch_to+0x58>
 	*/
+	record_timestamp();
+	increment_switch_count();
 	cpu_switch_to(prev, next);  /* will branch to @next->cpu_context.pc ...*/
+	store_next_pid();
+
+	// if(switch_count == 10) {
+	// 	printf("Switch Count is now 10\n");
+	// }
 }
 
 void schedule_tail(void) {
 	preempt_enable();
+
 }
 
 
@@ -126,6 +131,7 @@ void timer_tick()
 	_schedule();
 	/* disable irq until kernel_exit, in which eret will resort the interrupt flag from spsr, which sets it on. */
 	disable_irq(); 
+
 }
 
 // get pid of current task
@@ -135,14 +141,46 @@ int getpid(void) {
 
 
 // STORE INTO THE MSG STRUCT
-void print_msg( struct message_struct * tmp_msg_struct ) {
-
-	//sample message: 1234 from task1 (PC 0x81000 SP 0x83F00) to task2 (PC 0x82000 SP 0x85F00)
-	printf("%d from task%d (PC %d SP %d) to task%d (PC %d SP %d)\n", tmp_msg_struct -> timestamp, tmp_msg_struct -> pid_in, tmp_msg_struct -> pc_in,
-	tmp_msg_struct -> sp_in, tmp_msg_struct -> pid_out, tmp_msg_struct -> pc_out, tmp_msg_struct -> sp_out);
+void increment_switch_count(void) {
+	switch_count++;
 }
 
-	// store the timestamp
+
+void print_msg( struct message_struct * msg_struct ) {
+
+	//sample message: 1234 from task1 (PC 0x81000 SP 0x83F00) to task2 (PC 0x82000 SP 0x85F00)
+	printf("%d from task%d (PC %x SP %x) to task%d (PC %x SP %x)\n", msg_struct -> timestamp, msg_struct -> pid_in, msg_struct -> pc_in,
+	msg_struct -> sp_in, msg_struct -> pid_out, msg_struct -> pc_out, msg_struct -> sp_out);
+}
+
+	//TODO: store the timestamp
 void record_timestamp(void) {
 	tmp_msg_struct -> timestamp = get_time_ms(); 
+}
+
+void store_message(void) {
+	struct message_struct m = * tmp_msg_struct; 
+	messages[switch_count - 1] = &m;
+}
+
+void store_current_sp_pc(long sp, long pc) {
+	tmp_msg_struct -> sp_in = sp;
+	tmp_msg_struct -> pc_in = pc;
+}
+
+void store_incoming_sp_pc(long pc, long sp) {
+	tmp_msg_struct -> sp_out = sp;
+	tmp_msg_struct -> pc_out = pc;
+}
+
+void store_current_pid(void) {
+	tmp_msg_struct -> pid_in = getpid();
+}
+
+void store_next_pid(void) {
+	tmp_msg_struct -> pid_out = getpid();
+}
+
+void print_msgs(void ) {
+	printf("message.....");
 }

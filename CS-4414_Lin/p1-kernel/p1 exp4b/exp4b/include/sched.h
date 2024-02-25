@@ -19,6 +19,8 @@ extern struct task_struct * task[NR_TASKS];
 extern int nr_tasks;
 
 extern struct message_struct * tmp_msg_struct;
+extern int switch_count;
+extern struct message_struct * messages[50];
 
 struct cpu_context {
 	unsigned long x19;
@@ -63,8 +65,18 @@ extern void preempt_disable(void);
 extern void preempt_enable(void);
 extern void switch_to(struct task_struct* next);
 extern void cpu_switch_to(struct task_struct* prev, struct task_struct* next);
+
 extern int getpid(void);
 extern void print_msg(struct message_struct * tmp_msg_struct);
+extern void increment_switch_count(void);
+extern int get_switch_count(void);
+extern void record_timestamp(void);
+extern void store_message(void);
+extern void store_current_sp_pc(long sp, long pc);
+extern void store_incoming_sp_pc(long sp, long pc);
+extern void store_current_pid(void);
+extern void store_next_pid(void);
+extern void print_msgs(void );
 
 #define INIT_MSG {\
 	0, 0, 0, 0, 0, 0, 0\

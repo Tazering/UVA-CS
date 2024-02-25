@@ -6,13 +6,15 @@
 #include "sched.h"
 #include "mini_uart.h"
 
+long initial_interval = 5000000;
+
 //processes
 void process(char *array)
 {
 	while (1) {
 		for (int i = 0; i < 5; i++){
 			uart_send(array[i]);
-			delay(5000000);
+			delay(initial_interval);
 		}
 	}
 }
@@ -22,7 +24,7 @@ void process2(char *array)
 	while (1) {
 		for (int i = 0; i < 5; i++){
 			uart_send(array[i]);
-			delay(5000000);
+			delay(initial_interval);
 		}
 	}
 }
@@ -32,7 +34,7 @@ void process3(char *array)
 	while (1) {
 		for (int i = 0; i < 5; i++){
 			uart_send(array[i]);
-			delay(5000000);
+			delay(initial_interval);
 		}
 	}
 }
@@ -42,7 +44,7 @@ void process4(char *array)
 	while (1) {
 		for (int i = 0; i < 5; i++){
 			uart_send(array[i]);
-			delay(5000000);
+			delay(initial_interval);
 		}
 	}
 }
@@ -85,5 +87,15 @@ void kernel_main(void)
 
 	while (1){
 		schedule();
+		if(switch_count == 50) { // printing
+			for(int i = 0; i < 50; i++) {
+				print_msg(messages[i]);
+			}
+			delay(5000000);
+		}
 	}	
+
+
 }
+
+

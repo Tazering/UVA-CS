@@ -38,9 +38,10 @@
 	stp	x30, x22, [sp, #16 * 15] 
 	str	x23, [sp, #16 * 16]
 
-	// mrs x0, sp // moves the sp to argument 1
-	// mov x1, x22 // moves the pc to argument 2
-	// grab previous tasks
+	mov x0, sp 
+	mrs x1, elr_el1
+	bl store_current_sp_pc // gets the sp and the pc
+
 	.endm
 
 	.macro	kernel_exit
@@ -49,13 +50,13 @@
 
 	msr	elr_el1, x22			
 	msr	spsr_el1, x23
-
-
+	
 	// fetch sp and pc of incoming task
-
-	// mrs x0, elr_el1
-	// mrs x1, sp
-	// bl record_switch	
+	mrs x0, elr_el1
+	mov x1, sp
+	bl store_incoming_sp_pc	
+	bl print_msg
+	// bl increment_switch_count
 
 	ldp	x0, x1, [sp, #16 * 0]
 	ldp	x2, x3, [sp, #16 * 1]
