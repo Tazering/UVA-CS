@@ -1,0 +1,49 @@
+diff --git a/exp1/counter.c b/exp1/counter.c
+index 6b2ad85..a7e71c6 100755
+--- a/exp1/counter.c
++++ b/exp1/counter.c
+@@ -18,9 +18,13 @@ int numThreads = 1;
+ int mutexFlag = 0;
+ int spinLockFlag = 0;
+ int c_and_sFlag = 0;
++int UNLOCK = 0;
++int LOCK = 1;
+ 
+ pthread_mutex_t mutex;
+ // todo: define a spinlock variable 
++_Atomic int spinlock_var = 0; 
++
+ 
+ char const * getTestName() {
+     if(mutexFlag)
+@@ -57,16 +61,28 @@ void add_iterate(int val, int iterations) {
+         }
+         else if(spinLockFlag) {
+             // todo: lock the spinlock
++        
++            while(__atomic_test_and_set(&spinlock_var, __ATOMIC_SEQ_CST));
++
+             add(&the_counter, val);
+             // todo: unlock the spinlock
++
++            __atomic_store_n(&spinlock_var, UNLOCK, __ATOMIC_SEQ_CST);
+         }
+         else if(c_and_sFlag) {
+             long long oldVal, newVal;
+ 			
+ 	    /* todo: change the following, so that it updates @the_counter atomically using CAS */
++
+ 	    oldVal = the_counter;
+-	    newVal = oldVal + val;
+-	    the_counter = newVal; 
++        newVal = oldVal + val;
++
++        while(!__atomic_compare_exchange_n(&the_counter, &oldVal, newVal, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)){
++            newVal = oldVal + val;
++
++        }
++
++	    // the_counter = newVal; 
+ 	    /* --- */
+         }
+         else
