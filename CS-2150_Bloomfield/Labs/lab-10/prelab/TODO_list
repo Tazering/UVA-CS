@@ -1,9 +1,0 @@
-1.	Read the Source File and determine frequencies of characters in the file COMPLETE
-
-2.	Store the character frequencies in a heap COMPLETE
-	-	make heap node .h/.cpp 	COMPLETE
-	-	make heap tree .h/.cpp		COMPLETE
-3.	Build tree of prefix codes 
-	-	put characters in frequencies inside different nodes
-	-	build a tree using those nodes
-4.	Re-read source file for each character, write its prefix code to the output

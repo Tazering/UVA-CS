@@ -1,1 +1,0 @@
-cmd_/home/tkj9ep/dev/UVA-CS/CS-3710_Bloomfield/rootkit/Module.symvers := sed 's/\.ko$$/\.o/' /home/tkj9ep/dev/UVA-CS/CS-3710_Bloomfield/rootkit/modules.order | scripts/mod/modpost -m -a  -o /home/tkj9ep/dev/UVA-CS/CS-3710_Bloomfield/rootkit/Module.symvers -e -i Module.symvers   -T -

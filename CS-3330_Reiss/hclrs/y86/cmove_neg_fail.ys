@@ -1,5 +1,0 @@
-irmovq $0x4321, %rcx
-irmovq $0x1234, %r10
-subq %rcx, %r10
-cmove %r10, %rcx
-halt

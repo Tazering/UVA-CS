@@ -1,3 +1,0 @@
-AVL path: littered orange misty of
-AVL path: 
-AVL numNodes: 11
