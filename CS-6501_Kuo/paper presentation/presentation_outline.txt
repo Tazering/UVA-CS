@@ -1,0 +1,17 @@
+Background Knowledge
+- Machine Learning
+	- finetuning: process of finding the right non-trained parameters
+- Robotics
+	- Policies: what the robot does to achieve this goal
+- LLM
+	- LLM means large language model
+	- 
+
+Basic Information
+	- propose LRLL: Lifelong Robot Library Learning agent
+
+Related Works
+
+Strengths
+Weaknesses
+Potential Extensions
