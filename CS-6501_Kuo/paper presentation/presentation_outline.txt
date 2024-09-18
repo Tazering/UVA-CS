@@ -1,17 +1,45 @@
-Background Knowledge
+Background Knowledge (3)
 - Machine Learning
 	- finetuning: process of finding the right non-trained parameters
 - Robotics
 	- Policies: what the robot does to achieve this goal
 - LLM
 	- LLM means large language model
-	- 
+	- Large language models (LLMs) are a category of foundation models trained on immense amounts of data making them capable of understanding and 
+	  generating natural language and other types of content to perform a wide range of tasks.
+		- https://www.ibm.com/topics/large-language-models
+- Abstract Syntax Tree
+- Clusters
+- chain-of-thoughts
 
-Basic Information
+Basic Information (6)
 	- propose LRLL: Lifelong Robot Library Learning agent
+	- Wake-Sleep
+		- wake: agent interacts with environment + users in order to grow in experience
+		- Sleep: reflects on experiences in order to expand capabilities
 
 Related Works
+	- Language to Action: ene-to-end policies for LLM require a LOT of data
+		- can lead to forgetting
+	- LLMs for Robot Control: chain LLMs with external models => more complex and preise policies
+		- require manual prompt engineering
+		- CAP: still requires human guidance
+	- Memory and Context Retrieval
+		- retrieve simplar task-code pairs from memory using similarity
+		- not generalizable
+	- Language-guided Skill Acquisition
+		- [57] used multi-step human feedback to generate reward function for training
+		- [58] LLM generate synthetic experience with reward conditions + distills successful trials into language conditioned policy with behavioral cloning
+		- both struggle to get new skills
+			- 
 
-Strengths
-Weaknesses
-Potential Extensions
+Strengths (3)
+	- generalizability in learning new skills
+	- memory efficient
+Weaknesses (3)
+	- limited by vision API
+	- human demonstration input is language => limiting scalability to skills
+	- initial prompts to exploration/abstraction modules need to be refined when changing domains or LLM engines
+	- latency and price constraints
+
+Potential Extensions (5)
