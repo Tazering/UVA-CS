@@ -1,0 +1,9 @@
+CREATE DATABASE POTD4
+GO
+USE POTD4
+GO
+
+CREATE TABLE Student(
+student_id INT NOT NULL,
+
+)
