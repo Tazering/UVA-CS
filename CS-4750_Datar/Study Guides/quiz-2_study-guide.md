@@ -70,6 +70,27 @@ WHERE E1.job = E2.job
 GROUP BY E2.job)
 ```
 
+#### **Existential Quantifier**
+**existential quantifiers**: exists at least one element
+- `EXISTS`: true if there exists at least one element that satisfies the condition
+  - Syntax: `SELECT ____ WHERE EXISTS (subquery)`
+- `IN`: check whether something is in list
+  - Syntax: `SELECT ____ WHERE attribute IN (subquery)`
+- `ANY`: if there any value that satisfies the condition
+  - Syntax: `SELECT ____ WHERE constant >/</= ANY (subquery)`
+  - similar to exists except with operators
+
+#### **Universal Quantifiers**
+**universal quantifiers**: for all elements
+- every element satisfies a given property
+
+- `NOT IN`: elements that are NOT in the list
+  - Syntax: `SELECT ____ WHERE attribute NOT IN (subquery)`
+- `NOT EXISTS`: true if there does NOT exist an element that satisfies the condition
+  - Syntax: `SELECT ____ WHERE NOT EXISTS (subquery)`
+- `ALL`: true if ALL the values satisfy the condition
+  - Syntax: `SELECT ____ WHERE constant >/</= ALL (subquery)`
+
 #### *WITH* clause 
 
 The `WITH` clause return a temporary relation that can be used by an associated query
@@ -85,4 +106,9 @@ FROM practice_emp AS E1, temp as T
 WHERE E1.sal = T.maxSAL AND E1.job = T.job
 ```
 
-#### **Existential Quantifier**
+## **Resources**
+
+`ANY` vs `EXISTS`: https://www.reddit.com/r/SQL/comments/js0dic/whats_the_difference_between_any_and_exists_in_sql/
+
+`ALL`: https://www.sqltutorial.org/sql-all/
+
