@@ -5,6 +5,73 @@
 
 ## **SQL Basics**
 
+Queries divided into three types
+- **Data Driven Language (DDL)**: effects schema
+  - commands that define a database
+  - examples: `CREATE DATABASE/TABLE`, `ALTER TABLE`, `DROP TABLE`, `TRUNCATE`, etc
+- **Data Manipulation Language (DML)**: effects instance
+  - commands that query a database
+  - examples: `SELECT`, `INSERT`, `UPDATE`, `DELETE`
+- **Data Control Language (DCL)**: control database
+  - administering privileges
+  - committing data
+
+### **Datatypes**
+- int, float, decimal(p, s)
+- Strings
+  - CHAR(n): fixed length n
+  - VARCHAR(n): variable length, max length n 
+  - TEXT: large values, NOT NULL
+- Boolean
+- Date, Time, Timestamp
+  - Date: year, month, and day values
+  - Time: hour, minute, and second
+  - Timestamp: year, month, day, hour, minute, and second
+- Blob: varying-length binary string for file, image, video, large object
+
+### **Data Integrity Controls**
+- **Referential Integrity**: constraint that ensures that foreign key values of a table must match primary key of related table
+- Options
+  - *Restricting*: cannot delete record where parent table has primary key that child table uses as the foreign key
+  - *Cascading*: remove data from oparent and child table (foreign key) automatically
+  - *Set to null/default*: when record from parent table is removed, foreign key with child table with be `NULL`
+
+### **Commands**
+- `TRUNCATE`: remove all records
+- `ORDER BY`: sorts results in ascending or descending order
+- `GROUP BY`: combine and categorize data results from aggregate functions
+- `BULK Insert`: import data
+- `UPDATE`: modifies data in existing rows
+```sql
+UPDATE table_name
+SET column1 = value1, column2 = value2, ...
+WHERE condition
+```
+- `DELETE`: for removing rows from table
+```sql
+DELETE FROM table_name
+WHERE condition
+```
+- `SELECT` statement
+  - Clauses
+    - `SELECT`: list columns that should be viewed
+    - `FROM`: indicate table/view from which data will be obtained
+    - `WHERE`: conditions where row we be added
+    - `GROUP BY`: categorization of results
+    - `HAVING`: conditions where category (group) will be included
+    - `ORDER BY`: sorts results according to criteria
+
+- Aggregate functions
+  - `COUNT()`, `SUM()`, `AVG()`, `MAX()`, `MIN()`
+  - use `HAVING` clause to filter out output from `GROUP BY` clause
+- Joins
+  - combine related tables or sets of data on key values
+  - `INNER JOIN`: returns matching records between two tables
+  - `LEFT JOIN/LEFT OUTER JOIN`: returns all recorods from left table and the matching records from the right table
+  - `RIGHT JOIN/RIGHT OUTER JOIN`: returns all records from right table and matching records from the left table
+  - `FULL JOIN/FULL OUTER JOIN`: returns all recrods when there is a match in either left or right table
+  - `SELF JOIN`: table is joined with itself
+
 ## **SQL Subqueries**
 
 Core Idea:
