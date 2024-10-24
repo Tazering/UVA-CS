@@ -72,6 +72,263 @@ SELECT E1.ename
 FROM practice_emp AS E1, temp as T
 WHERE E1.sal = T.maxSAL AND E1.job = T.job
 
-SELECT * FROM practice_emp
+DROP TABLE practice_emp
+
+-----------------------------------------------------------------------
+
+-- New Set up of tables
+CREATE TABLE Employees(
+employee_id INT NOT NULL UNIQUE,
+CONSTRAINT employee_PK PRIMARY KEY (employee_id),
+employee_name VARCHAR(100)
+)
+
+CREATE TABLE Projects(
+project_id INT NOT NULL UNIQUE,
+CONSTRAINT project_PK PRIMARY KEY (project_id),
+project_name VARCHAR(100),
+employee_id INT,
+CONSTRAINT employee_FK FOREIGN KEY (employee_id) REFERENCES Employees(employee_id)
+)
+
+-- insert into employees
+INSERT INTO Employees (employee_id, employee_name) VALUES
+(1, 'John Doe'),
+(2, 'Jane Smith'),
+(3, 'Alice Brown'),
+(4, 'Michael Johnson'),
+(5, 'Emma Davis'),
+(6, 'Robert Wilson'),
+(7, 'Sophia Miller'),
+(8, 'James Taylor'),
+(9, 'Olivia Moore'),
+(10, 'Liam Harris'),
+(11, 'Isabella Clark'),
+(12, 'Benjamin Lewis'),
+(13, 'Mia Young'),
+(14, 'Lucas Walker'),
+(15, 'Amelia Hall'),
+(16, 'Mason Lee'),
+(17, 'Charlotte Allen'),
+(18, 'Elijah King'),
+(19, 'Harper Wright'),
+(20, 'William Scott');
+-- insert into projects
+INSERT INTO Projects (project_id, project_name, employee_id) VALUES
+(1, 'Project Alpha', 1),
+(2, 'Project Beta', 1),
+(3, 'Project Gamma', 2),
+(4, 'Project Alpha', 3),
+(5, 'Project Beta', 4),
+(6, 'Project Gamma', 4),
+(7, 'Project Delta', 5),
+(8, 'Project Alpha', 6),
+(9, 'Project Epsilon', 7),
+(10, 'Project Delta', 7),
+(11, 'Project Beta', 8),
+(12, 'Project Gamma', 9),
+(13, 'Project Alpha', 9),
+(14, 'Project Delta', 10),
+(15, 'Project Alpha', 11),
+(16, 'Project Beta', 12),
+(17, 'Project Gamma', 12),
+(18, 'Project Delta', 13),
+(19, 'Project Epsilon', 14),
+(20, 'Project Gamma', 15);
 
 
+-- Practice questions
+
+-- 1) employees work on at least one project named 'Project Alpha'
+SELECT E.employee_name
+FROM Employees E
+WHERE E.employee_id IN
+(SELECT E1.employee_id
+FROM Employees E1
+INNER JOIN Projects P
+ON E1.employee_id = P.employee_id
+WHERE P.project_name = 'Project Alpha')
+
+-- BETTER SOLUTION
+SELECT E.employee_name
+FROM Employees E
+WHERE EXISTS 
+(SELECT 1
+FROM Projects P
+WHERE E.employee_id = P.employee_id AND P.project_name = 'Project Alpha')
+
+-- 2) employees that work on either Project Alpha or Project Beta
+SELECT E.employee_name
+FROM Employees E
+WHERE E.employee_id IN
+(SELECT P.employee_id
+FROM Projects P
+WHERE P.project_name = 'Project Alpha' OR P.project_name = 'Project Beta')
+
+-- BETTER SOLUTION
+/* IN checks whether a value matches any value in a list or a subquery result */
+SELECT employee_name
+FROM Employees
+WHERE employee_id IN (
+SELECT employee_id
+FROM Projects
+WHERE project_name IN ('Project Alpha', 'Project Beta')
+);
+
+
+-- 3) Which employees are working on any project with an project_id greater than 5
+SELECT E.employee_name
+FROM Employees E
+WHERE E.employee_id = ANY
+(SELECT P.employee_id
+FROM Projects P
+WHERE P.project_id > 5)
+
+-- BETTER SOLUTION
+/* ANY compares a value to any value in a list or subquery
+and returns true if the comparison is true for at least one value */
+SELECT employee_name
+FROM Employees
+WHERE employee_id = ANY (
+SELECT employee_id
+FROM Projects
+WHERE project_id > 5
+);
+
+-- 4) employees not working on any project name "Project Alpha"
+SELECT E.employee_name
+FROM Employees E
+WHERE NOT EXISTS
+(SELECT 1 
+FROM Projects P
+WHERE E.employee_id = P.employee_id AND P.project_name = 'Project Alpha')
+
+-- BETTER SOLUTION
+/* NOT EXISTS checks if a subquery returns no rows.
+It returns true if the subquery doesn't find any results. */
+SELECT employee_name
+FROM Employees e
+WHERE NOT EXISTS (
+SELECT 1
+FROM Projects p
+WHERE p.project_name = 'Project Alpha'
+AND p.employee_id = e.employee_id
+);
+
+
+-- 5) Which employees are not working on either "Project Alpha" or "Project Gamma"?
+SELECT E.employee_name
+FROM Employees E
+WHERE E.employee_id NOT IN
+(SELECT P.employee_id
+FROM Projects P
+WHERE P.project_name IN ('Project Alpha', 'Project Gamma'))
+
+
+-- BETTER SOLUTION
+/* NOT IN is used to filter out rows where a
+value does not match any value in a list or subquery result. */
+SELECT employee_name
+FROM Employees
+WHERE employee_id NOT IN (
+SELECT employee_id
+FROM Projects
+WHERE project_name IN ('Project Alpha', 'Project Gamma')
+);
+
+
+-- 6) Which employees are working on all projects with a project_id greater than 5?
+SELECT E.employee_name
+FROM Employees E
+WHERE E.employee_id = ALL
+(SELECT P.employee_id, P.project_id
+FROM Projects P
+WHERE P.project_id > 5)
+
+/* ALL compares a value to every value in a list or subquery.
+It returns true if the comparison is true for all values */
+SELECT employee_name
+FROM Employees e
+WHERE employee_id = ALL (
+SELECT p.employee_id
+FROM Projects p
+WHERE p.project_id > 5
+);
+
+
+DROP TABLE Employees
+DROP TABLE projects
+
+--------------------------------------------------------------------------------
+
+CREATE TABLE employees(
+    employee_id INT PRIMARY KEY,
+    emp_name VARCHAR(50)
+)
+
+CREATE TABLE projects(
+    project_id INT PRIMARY KEY,
+    project_name VARCHAR(50),
+    status VARCHAR(50)
+)
+
+CREATE TABLE project_assignments(
+    assignment_id INT PRIMARY KEY,
+    employee_id INT,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id),
+    project_id INT,
+    FOREIGN KEY (project_id) REFERENCES projects(project_id)
+)
+
+INSERT INTO employees(employee_id, emp_name) VALUES
+(7, 'Tyler'),
+(0, 'Alex'),
+(1, 'Gauss');
+
+INSERT INTO projects(project_id, project_name, status) VALUES 
+(0, 'Diffusion Models', 'active'),
+(1, 'Safer Asymmetric Crypography', 'inactive'),
+(2, 'Faster GPUs', 'active');
+
+
+INSERT INTO project_assignments(assignment_id, employee_id, project_id) VALUES
+(0, 7, 0),
+(1, 7, 1),
+(2, 7, 2),
+(3, 0, 0),
+(4, 0, 2),
+(5, 1, 1),
+(6, 1, 0);
+
+-- Write a subquery to find employees who are assigned to every active project.
+SELECT E.emp_name
+FROM Employees E
+WHERE E.employee_id = ALL
+(
+	SELECT A.employee_id
+	FROM project_assignments A
+	WHERE A.project_id = ALL
+		(
+		SELECT P1.project_id
+		FROM projects P1
+		WHERE P1.status = 'active' AND P1.project_id = A.project_id
+		)
+)
+
+SELECT e.employee_id, e.emp_name
+FROM employees e
+WHERE NOT EXISTS (
+  SELECT p.project_id
+  FROM projects p
+  WHERE p.status = 'active'
+  AND NOT EXISTS (
+    SELECT pa.assignment_id
+    FROM project_assignments pa
+    WHERE pa.project_id = p.project_id
+    AND pa.employee_id = e.employee_id
+)
+);
+
+DROP TABLE employees
+DROP TABLE projects
+DROP TABLE project_assignments
