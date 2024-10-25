@@ -3,6 +3,36 @@
 
 ## **RA**
 
+### **Operations**
+
+- two types of query languages: procedural vs declarative
+- Unary Operations
+  - Selection $\sigma$
+    - conditions such as $=, <, <=, >, >=, <>$ and AND, OR, NOT
+    - Notation: $\sigma P(r)$
+    - Example: $\sigma$TA = 'Minnie' AND Course = 'Database Systems' (Student_lecture)
+  - Project $\pi$
+    - returns specified attributes of a relation
+    - removes duplicates
+    - $\pi$A1, A2, ..., Ak (r)
+  - Rename $\rho$
+    - changes schema
+    - Example: $\rho$ friend_contact(ID, primary_email, alternative_email)(contact)
+  - Assignment $(<-)$
+- Binary Operations
+  - Cartesian Product $(\times)$
+  - Union $(\cup)$
+  - Intersection $(\cap)$
+  - Difference $(-)$
+  - Conditional/Natural Join $\bowtie$
+    - merge under condition
+  - Division $(\div)$
+    - used to find "for all" queries
+- Other Operations
+  - Group By (G) and Aggregate $(\gamma)$
+    - group by for summarization
+    - aggregate for five standard operators
+
 ## **SQL Basics**
 
 Queries divided into three types

@@ -332,3 +332,184 @@ WHERE NOT EXISTS (
 DROP TABLE employees
 DROP TABLE projects
 DROP TABLE project_assignments
+
+--------------------------------------------------------------
+-- HW 4
+CREATE TABLE Housing (
+houseid INT IDENTITY(1,1) PRIMARY KEY,
+price BIGINT,
+area INT,
+bedrooms INT,
+bathrooms INT,
+stories INT,
+mainroad VARCHAR(3),
+guestroom VARCHAR(3),
+basement VARCHAR(3),
+hotwaterheating VARCHAR(3),
+airconditioning VARCHAR(3),
+parking INT,
+prefarea VARCHAR(3),
+furnishingstatus VARCHAR(15)
+);
+
+
+INSERT INTO Housing (price, area, bedrooms, bathrooms, stories, mainroad,
+guestroom, basement, hotwaterheating, airconditioning, parking, prefarea,
+furnishingstatus) VALUES
+(13300000, 7420, 4, 2, 3, 'yes', 'no', 'no', 'no', 'yes', 2, 'yes', 'furnished'),
+(12250000, 8960, 4, 4, 4, 'yes', 'no', 'no', 'no', 'yes', 3, 'no', 'furnished'),
+(12250000, 9960, 3, 2, 2, 'yes', 'no', 'yes', 'no', 'no', 2, 'yes', 'semi-furnished'),
+(12215000, 7500, 4, 2, 2, 'yes', 'no', 'yes', 'no', 'yes', 3, 'yes', 'furnished'),
+(11410000, 7420, 4, 1, 2, 'yes', 'yes', 'yes', 'no', 'yes', 2, 'no', 'furnished'),
+(10850000, 7500, 3, 3, 1, 'yes', 'no', 'yes', 'no', 'yes', 2, 'yes', 'semi-furnished'),
+(10150000, 8580, 4, 3, 4, 'yes', 'no', 'no', 'no', 'yes', 2, 'yes', 'semi-furnished'),
+(10150000, 16200, 5, 3, 2, 'yes', 'no', 'no', 'no', 'no', 0, 'no', 'unfurnished'),
+(9870000, 8100, 4, 1, 2, 'yes', 'yes', 'yes', 'no', 'yes', 2, 'yes', 'furnished'),
+(9800000, 5750, 3, 2, 4, 'yes', 'yes', 'no', 'no', 'yes', 1, 'yes', 'unfurnished'),
+(9800000, 13200, 3, 1, 2, 'yes', 'no', 'yes', 'no', 'yes', 2, 'yes', 'furnished'),
+(9681000, 6000, 4, 3, 2, 'yes', 'yes', 'yes', 'yes', 'no', 2, 'no', 'semi-furnished'),
+(9310000, 6550, 4, 2, 2, 'yes', 'no', 'no', 'no', 'yes', 1, 'yes', 'semi-furnished'),
+(9240000, 3500, 4, 2, 2, 'yes', 'no', 'no', 'yes', 'no', 2, 'no', 'furnished'),
+(9240000, 7800, 3, 2, 2, 'yes', 'no', 'no', 'no', 'no', 0, 'yes', 'semi-furnished'),
+(9100000, 6000, 4, 1, 2, 'yes', 'no', 'yes', 'no', 'no', 2, 'no', 'semi-furnished'),
+(9100000, 6600, 4, 2, 2, 'yes', 'yes', 'yes', 'no', 'yes', 1, 'yes','unfurnished'),
+(8960000, 8500, 3, 2, 4, 'yes', 'no', 'no', 'no', 'yes', 2, 'no', 'furnished'),
+(8890000, 4600, 3, 2, 2, 'yes', 'yes', 'no', 'no', 'yes', 2, 'no', 'furnished'),
+(8855000, 6420, 3, 2, 2, 'yes', 'no', 'no', 'no', 'yes', 1, 'yes', 'semi-furnished'),
+(8750000, 4320, 3, 1, 2, 'yes', 'no', 'yes', 'yes', 'no', 2, 'no', 'semi-furnished'),
+(8680000, 7155, 3, 2, 1, 'yes', 'yes', 'yes', 'no', 'yes', 2, 'no', 'unfurnished'),
+(8645000, 8050, 3, 1, 1, 'yes', 'yes', 'yes', 'no', 'yes', 1, 'no', 'furnished'),
+(8645000, 4560, 3, 2, 2, 'yes', 'yes', 'yes', 'no', 'yes', 1, 'no', 'furnished'),
+(8575000, 8800, 3, 2, 2, 'yes', 'no', 'no', 'no', 'yes', 2, 'no', 'furnished'),
+(8540000, 6540, 4, 2, 2, 'yes', 'yes', 'yes', 'no', 'yes', 2, 'yes', 'furnished'),
+(8463000, 6000, 3, 2, 4, 'yes', 'yes', 'yes', 'no', 'yes', 0, 'yes', 'semi-furnished'),
+(8400000, 8875, 3, 1, 1, 'yes', 'no', 'no', 'no', 'no', 1, 'no', 'semi-furnished'),
+(8400000, 7950, 5, 2, 2, 'yes', 'no', 'yes', 'yes', 'no', 2, 'no', 'unfurnished'),
+(8400000, 5500, 4, 2, 2, 'yes', 'no', 'yes', 'no', 'yes', 1, 'yes', 'semi-furnished');
+
+
+-- Q1
+SELECT AVG(H.price)
+FROM Housing H
+WHERE H.airconditioning = 'yes'
+
+-- Q2
+SELECT COUNT(*)
+FROM Housing H
+WHERE H.basement = 'yes'
+
+-- Q3
+SELECT COUNT(*)
+FROM Housing H
+WHERE H.bedrooms > 3
+
+-- Q4
+SELECT MIN(H.price), MAX(H.price)
+FROM Housing H
+WHERE H.guestroom = 'yes'
+
+-- Q5
+SELECT *
+FROM Housing H
+WHERE H.parking > 2 AND H.mainroad = 'yes'
+
+-- Q6
+SELECT TOP 1 H.bathrooms, COUNT(H.bathrooms) AS bathroom_count
+FROM Housing H
+GROUP BY H.bathrooms
+ORDER BY bathroom_count DESC
+
+-- Q7
+SELECT COUNT(*)
+FROM Housing H
+WHERE H.furnishingstatus = 'furnished' AND H.stories > 3
+
+-- Q8
+SELECT AVG(H.area)
+FROM Housing H
+WHERE H.furnishingstatus = 'semi-furnished'
+
+-- Q9
+SELECT * 
+FROM Housing H
+WHERE H.hotwaterheating = 'yes' AND H.prefarea = 'yes'
+
+-- Q10
+SELECT *
+FROM Housing H
+WHERE H.price > 10000000 AND H.stories > 2
+
+-------------------------------------------------------------------------
+CREATE TABLE Sales (
+sale_id INT,
+product_id INT,
+year INT,
+quantity INT,
+price INT
+CONSTRAINT sale_PK PRIMARY KEY (sale_id, year),
+CONSTRAINT product_FK FOREIGN KEY (product_id) 
+REFERENCES Product(product_id)
+)
+
+CREATE TABLE Product(
+product_id INT,
+product_name VARCHAR(100)
+CONSTRAINT product_PK PRIMARY KEY (product_id)
+)
+
+INSERT INTO Sales(sale_id, product_id, year, quantity, price) VALUES 
+(1, 100, 2008, 10, 5000),
+(2, 100, 2009, 12, 5000),
+(7, 200, 2011, 15, 9000);
+
+INSERT INTO Product(product_id, product_name) VALUES
+(100, 'Nokia'),
+(200, 'Apple'),
+(300, 'Samsung');
+
+-- Q.4 
+SELECT S.sale_id, P.product_name, S.year, S.price
+FROM Product P
+INNER JOIN Sales S
+ON S.product_id = P.product_id
+
+-- Q.5
+SELECT S.product_id, COUNT(S.quantity)
+FROM Sales S
+GROUP BY S.product_id
+
+DROP TABLE Sales
+DROP TABLE Product
+--------------------------------------------------------------------------
+CREATE TABLE Course 
+(
+CourseID INT,
+courseName nvarchar(100),
+department nvarchar(50),
+Credits INT,
+Instructor nvarchar(50),
+semester nvarchar(20)
+CONSTRAINT course_PK PRIMARY KEY (CourseID),
+CHECK (Credits >= 1 AND Credits < 5)
+)
+
+-- Q2
+
+ALTER TABLE Course
+ADD CourseDescription NVARCHAR(30);
+
+-- Q3
+ALTER TABLE Course
+ALTER COLUMN CourseDescription NVARCHAR(50);
+
+-- Q4
+ALTER TABLE Course
+ADD Capacity INT DEFAULT 0,
+CHECK (Capacity >= 0)
+
+-- Q5
+ALTER TABLE Course
+ADD Enrolled INT DEFAULT 0,
+CHECK (Enrolled >= 0)
+
+DROP TABLE Course
