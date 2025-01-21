@@ -1,3 +1,0 @@
-BST path: Zany cobwebs littered the orange misty of
-BST path: 
-BST numNodes: 11

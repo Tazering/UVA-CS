@@ -1,7 +1,0 @@
-3 3
-b1 breaker
-o1 outlet
-s1 switch
-b1 s1 3
-b1 o1 10
-o1 s1 1
