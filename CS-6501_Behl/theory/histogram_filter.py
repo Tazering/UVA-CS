@@ -31,13 +31,9 @@ class HistogramFilter(object):
         ### Your Algorithm goes Below.
         # self.print_list_of_values(observation, "observation")
 
-        # calculate forward algorithm
+        return None
 
-        # normalize it
-
-
-        return None # some N x M matrix
-
+    
 
 
 
