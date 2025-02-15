@@ -18,6 +18,11 @@ class HistogramFilter(object):
     - start with uniform prior on all states
     """
 
+   
+    k_alpha = {}  # primarily for memoization when doing summations
+    state_to_coordinates = {} # keep track of which states refer to which coordinates (y, x) for sake of consistency
+
+
     def histogram_filter(self, cmap, belief, action, observation):
         '''
         Takes in a prior belief distribution, a colormap, action, and observation, and returns the posterior
@@ -29,20 +34,92 @@ class HistogramFilter(object):
         :return: The posterior distribution. (stores coordinates)
         '''
 
+
         ### Your Algorithm goes Below.
         print(f"cmap Shape: {cmap.shape}")
         print(f"action Shape: {action.shape}")
         print(f"observation shape: {observation.shape}")
 
-        print(cmap)
-
         # initialize alpha_1, T, and M
-        alpha_1, T, M = self.initialize_matrices(grid = cmap)
+        alpha_1, M = self.initialize_matrices(grid = cmap)
 
-        
+        # run forward algorithm
+        beliefs, alpha_next = self.forward_algorithm(cmap, alpha_1, M, action, observations=observation)
+
+        print(beliefs)
+        helper_utils.display_heatmap(alpha_next)
+        print(alpha_next)
 
 
         return None
+
+
+    # run the forward algorithm
+    def forward_algorithm(self, grid, alpha_init, M, action_sequence, observations):
+
+        # do for 0th iteration
+        alpha_next = np.zeros(shape = grid.shape)
+        beliefs = np.zeros(shape = action_sequence.shape)
+        
+        for i in range(len(action_sequence)): # loop through each action
+
+            max_index = [-1, -1]
+            max_val = -1
+            
+
+            for state in self.state_to_coordinates.keys():
+                M_x_y = M[state][observations[i]]
+                y_index, x_index = self.state_to_coordinates[state]
+
+                updated_belief = M_x_y * self.calculate_alpha_T_summation(state, grid, alpha_init, action_sequence[i])
+                alpha_next[y_index][x_index] = updated_belief
+
+                if updated_belief > max_val:
+                    max_val = updated_belief
+                    max_index = [y_index, x_index]
+
+                alpha_init = alpha_next
+            
+            beliefs[i] = np.array(max_index)
+
+            print(max_val)
+
+        return beliefs, alpha_next    
+    
+    # calculates the summation for all observations given one state of interest
+    def calculate_alpha_T_summation(self, state_of_interest, grid, alpha, action):
+
+        y_index, x_index = self.state_to_coordinates[state_of_interest]
+        alpha_k_state = alpha[y_index][x_index]         
+
+        does_pass_boundry = self.passes_boundry(grid, y_index, x_index, action) # check if boundry is crossed
+
+        if does_pass_boundry: # if boundry is passed    
+            return alpha_k_state
+                
+        else: # if boundry is not passed
+            result = (alpha[y_index][x_index] * .1) + (alpha[y_index - action[1]][x_index + action[0]] * .9)
+            return result
+
+        # helper function
+    def passes_boundry(self, grid, y_index, x_index, action):
+        
+        delta_x, delta_y = action
+        n, m = grid.shape
+
+        if delta_y == 1:
+            return y_index <= 0
+            
+        elif delta_y == -1:
+            return y_index >= (n - 1)
+        
+        elif delta_x == 1:
+            return x_index >= (m - 1)
+        
+        elif delta_x == -1:
+            return x_index <= 0
+        
+        return False
 
 
     # initialized the pi, T, and M matrices
@@ -58,7 +135,7 @@ class HistogramFilter(object):
         # create the matrices
         pi = np.full(shape = (n, m), fill_value = 1 / (num_states), dtype = 'float', order = 'C')
 
-        # create T
+        # create M
         M = np.zeros(shape = (num_states, unique_obs_count))
         state_num = 0
         for y_index in range(n-1, -1, -1):
@@ -71,13 +148,7 @@ class HistogramFilter(object):
                     M[state_num][0] = .1
                     M[state_num][1] = .9
                 
+                self.state_to_coordinates[state_num] = (y_index, x_index)
                 state_num += 1
 
-        # create M
-        T = np.zeros(shape = (num_states, num_states))
-
-        return pi, T, M
-    
-
-
-    
+        return pi, M
