@@ -17,10 +17,10 @@ class HistogramFilter(object):
     - when on edge, robot does not move
     - start with uniform prior on all states
     """
-
-   
-    k_alpha = {}  # primarily for memoization when doing summations
     state_to_coordinates = {} # keep track of which states refer to which coordinates (y, x) for sake of consistency
+    coordinates_to_states = {}
+    k_
+
 
 
     def histogram_filter(self, cmap, belief, action, observation):
@@ -33,122 +33,113 @@ class HistogramFilter(object):
         :param observation: The observation from the color sensor. [0 or 1].
         :return: The posterior distribution. (stores coordinates)
         '''
-
-
         ### Your Algorithm goes Below.
-        print(f"cmap Shape: {cmap.shape}")
-        print(f"action Shape: {action.shape}")
-        print(f"observation shape: {observation.shape}")
+        beliefs = np.zeros(shape = action.shape)
 
-        # initialize alpha_1, T, and M
-        alpha_1, M = self.initialize_matrices(grid = cmap)
+        # 1. initialize alpha_1, T, and M
+        T, M = self.initialize_matrices(grid = cmap)
 
-        # run forward algorithm
-        beliefs, alpha_next = self.forward_algorithm(cmap, alpha_1, M, action, observations=observation)
+        # 2. compute probabilities and normalize
+       
 
-        print(beliefs)
-        helper_utils.display_heatmap(alpha_next)
-        print(alpha_next)
+        # # 3. create beliefs
+        # k = 0
+        # for pi_k in self.k_pi.keys():
+        #     most_likely_location = self.get_most_likely_state(self.k_pi[pi_k])
+        #     beliefs[k] = np.array(most_likely_location)
+        #     k += 1
 
-
-        return None
-
-
-    # run the forward algorithm
-    def forward_algorithm(self, grid, alpha_init, M, action_sequence, observations):
-
-        # do for 0th iteration
-        alpha_next = np.zeros(shape = grid.shape)
-        beliefs = np.zeros(shape = action_sequence.shape)
+        # # print(beliefs)
+        # print(f"action shape: {action.shape}")
+        # print(f"observation shape: {observation.shape}")
         
-        for i in range(len(action_sequence)): # loop through each action
+        # # heat map 
+        # # helper_utils.display_heatmap(self.k_pi[0])
+        # print(beliefs)
 
-            max_index = [-1, -1]
-            max_val = -1
-            
+        return beliefs
 
-            for state in self.state_to_coordinates.keys():
-                M_x_y = M[state][observations[i]]
-                y_index, x_index = self.state_to_coordinates[state]
+    def calculate_probability(action, current_observation, T, M, beliefs):
 
-                updated_belief = M_x_y * self.calculate_alpha_T_summation(state, grid, alpha_init, action_sequence[i])
-                alpha_next[y_index][x_index] = updated_belief
 
-                if updated_belief > max_val:
-                    max_val = updated_belief
-                    max_index = [y_index, x_index]
-
-                alpha_init = alpha_next
-            
-            beliefs[i] = np.array(max_index)
-
-            print(max_val)
-
-        return beliefs, alpha_next    
     
-    # calculates the summation for all observations given one state of interest
-    def calculate_alpha_T_summation(self, state_of_interest, grid, alpha, action):
-
-        y_index, x_index = self.state_to_coordinates[state_of_interest]
-        alpha_k_state = alpha[y_index][x_index]         
-
-        does_pass_boundry = self.passes_boundry(grid, y_index, x_index, action) # check if boundry is crossed
-
-        if does_pass_boundry: # if boundry is passed    
-            return alpha_k_state
-                
-        else: # if boundry is not passed
-            result = (alpha[y_index][x_index] * .1) + (alpha[y_index - action[1]][x_index + action[0]] * .9)
-            return result
-
-        # helper function
-    def passes_boundry(self, grid, y_index, x_index, action):
-        
-        delta_x, delta_y = action
-        n, m = grid.shape
-
-        if delta_y == 1:
-            return y_index <= 0
-            
-        elif delta_y == -1:
-            return y_index >= (n - 1)
-        
-        elif delta_x == 1:
-            return x_index >= (m - 1)
-        
-        elif delta_x == -1:
-            return x_index <= 0
-        
-        return False
-
-
     # initialized the pi, T, and M matrices
     def initialize_matrices(self, grid):
 
-        # get the shape
+        T = {}
+        M = {}
         n, m = grid.shape
-        num_states = n * m
 
-        # number of unique observations
-        unique_obs_count = 2
+        total_states = n * m
+
+        # give each location a state
+        state_id = 0
+        for y in range(0, n):
+            for x in range(0, m):
+                self.state_to_coordinates[state_id] = (x, y)
+                self.coordinates_to_states[(x, y)] = state_id
+                state_id += 1
+
+
+        # T matrix
+        T_right = np.zeros(shape = (total_states, total_states))
+        T_left = np.zeros(shape = (total_states, total_states))
+        T_up = np.zeros(shape = (total_states, total_states))
+        T_down = np.zeros(shape = (total_states, total_states))
+
+        for state in self.state_to_coordinates.keys(): # loop through states
+            
+            x, y = self.state_to_coordinates[state]
+
+            # boundries first
+            if x >= (m - 1):
+                T_right[state][state] = 1
+            if x <= 0:
+                T_left[state][state] = 1
+            if y >= (n - 1):
+                T_up[state][state] = 1
+            if y <= 0:
+                T_down[state][state] = 1
+
+            # fill everything in
+            if T_right[state][state] != 1:
+                T_right[state][self.coordinates_to_states[((x + 1), y)]] = .9
+                T_right[state][state] = .1
+
+            if T_left[state][state] != 1:
+                T_left[state][self.coordinates_to_states[((x - 1), y)]] = .9
+                T_left[state][state] = .1
+
+            if T_up[state][state] != 1:
+                T_up[state][self.coordinates_to_states[(x, y + 1)]] = .9
+                T_up[state][state] = .1
+            
+            if T_down[state][state] != 1:
+                T_down[state][self.coordinates_to_states[(x, y - 1)]] = .9
+                T_down[state][state] = .1
         
-        # create the matrices
-        pi = np.full(shape = (n, m), fill_value = 1 / (num_states), dtype = 'float', order = 'C')
+        T["right"] = T_right
+        T["left"] = T_left
+        T["up"] = T_up
+        T["down"] = T_down
 
-        # create M
-        M = np.zeros(shape = (num_states, unique_obs_count))
-        state_num = 0
-        for y_index in range(n-1, -1, -1):
-            for x_index in range(0, m):
+        # M matrix
+        M_1 = np.zeros(shape = (total_states, total_states))
+        M_0 = np.zeros(shape = (total_states, total_states))
 
-                if grid[y_index][x_index] == 0:
-                    M[state_num][0] = .9
-                    M[state_num][1] = .1
+        # M matrix
+        for y in range(n - 1, -1, -1):
+            for x in range(0, m):
+                state_id = self.coordinates_to_states[(x, n - 1 - y)]
+
+                if grid[y][x] == 1:
+                    M_0[state_id][state_id] = .1
+                    M_1[state_id][state_id] = .9
                 else:
-                    M[state_num][0] = .1
-                    M[state_num][1] = .9
-                
-                self.state_to_coordinates[state_num] = (y_index, x_index)
-                state_num += 1
+                    M_0[state_id][state_id] = .9
+                    M_1[state_id][state_id] = .1
+        
+        M[0] = M_0
+        M[1] = M_1
 
-        return pi, M
+        return T, M
