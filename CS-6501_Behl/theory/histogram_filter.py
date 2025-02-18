@@ -19,8 +19,7 @@ class HistogramFilter(object):
     """
     state_to_coordinates = {} # keep track of which states refer to which coordinates (y, x) for sake of consistency
     coordinates_to_states = {}
-    k_
-
+    state_probabilities = {}
 
 
     def histogram_filter(self, cmap, belief, action, observation):
@@ -60,7 +59,7 @@ class HistogramFilter(object):
         return beliefs
 
     def calculate_probability(action, current_observation, T, M, beliefs):
-
+        return None
 
     
     # initialized the pi, T, and M matrices
@@ -141,5 +140,9 @@ class HistogramFilter(object):
         
         M[0] = M_0
         M[1] = M_1
+
+        # set the state probabilities dictionary
+        for state_id in range(total_states):
+            self.state_probabilities[state_id] = 1/total_states
 
         return T, M
