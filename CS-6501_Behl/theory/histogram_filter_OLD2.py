@@ -8,8 +8,8 @@ class HistogramFilter(object):
     """
     state_to_coordinates = {} # keep track of which states refer to which coordinates (y, x) for sake of consistency
     coordinates_to_states = {}
-    k_posterior = {}
-
+    state_probabilities = {}
+    
     def histogram_filter(self, cmap, belief, action, observation):
         '''
         Takes in a prior belief distribution, a colormap, action, and observation, and returns the posterior
@@ -28,123 +28,52 @@ class HistogramFilter(object):
         T, M = self.initialize_matrices(grid = cmap)
 
         # 2. recursively solve Bayes Filter
-        posterior = self.calculate_beliefs(actions = action, observations = observation, M = M, T = T)
+        best_locations = self.calculate_beliefs(actions = action, observations = observation, M = M, T = T)
 
-        beliefs = self.convert_MT_to_grid(grid = cmap, MT = posterior)
-
-        # beliefs = translate_dict_to_map(self.state_probabilities, self.state_to_coordinates, shape = cmap.shape)
+        beliefs = translate_dict_to_map(self.state_probabilities, self.state_to_coordinates, shape = cmap.shape)
 
         # for i in range(belief.shape[0]):
         #     if ((belief[i][0] - best_locations[i][0]) == 0) and ((belief[i][1] - best_locations[i][1]) == 0):
         #         print(i)
         
-        # print(beliefs.shape)
+        print(best_locations)
 
         return beliefs
 
 
     def calculate_beliefs(self, actions, observations, M, T):
 
-        if (len(actions.shape) == 1):
+        # if there is only one action
+        if len(actions.shape) == 1:
             current_action = self.string_action(actions)
-            current_observation = observations
+            prior = np.matmul(M[observations], T[current_action].T)
+            max_idx = self.update_state_probabilities(likelihood = prior) 
 
-            return np.matmul(T[current_action], M[current_observation])
-        
-        current_action = self.string_action(actions[0])
-        current_observation = observations[0]
+            return np.array(max_idx)
 
-        posterior = np.matmul(T[current_action], M[current_observation])
-        prior = np.sum(posterior, axis = 0)
-        prior_matrix = self.create_prior_matrix(prior)
-        
-        for i in range(1, actions.shape[0]):
-            current_action = self.string_action(actions[i])
+
+        best_locations = np.zeros(shape = actions.shape)
+        num_actions = len(actions)
+
+        # loop through each action if there are multiple
+        for i in range(num_actions): 
             current_observation = observations[i]
+            current_action = self.string_action(actions[i])
 
-            posterior = np.matmul(T[current_action], M[current_observation])
-            posterior = np.matmul(prior_matrix, posterior)
+            prior = np.matmul(M[current_observation], T[current_action].T)
+            max_idx = self.update_state_probabilities(likelihood = prior)
 
-            prior = np.sum(posterior, axis = 0)
-            prior_matrix = self.create_prior_matrix(prior)
+            best_locations[i] = max_idx
 
-            max_state = self.pick_largest(prior)
-
-            # print(self.state_to_coordinates[max_state])
-
-
-        return posterior
-
-    def create_prior_matrix(self, prior):
-        prior_matrix = np.zeros(shape = (len(prior), len(prior)))
-
-        for state in range(len(prior)):
-            prior_matrix[state][state] = prior[state]
-        
-
-        return prior_matrix
-
-
-    # get largest state
-    def pick_largest(self, state_probabilities):
-
-        max_val = -1
-        max_state = -1
-
-        for i in range(len(state_probabilities)):
-
-            if state_probabilities[i] >= max_val:
-                max_val = state_probabilities[i]
-                max_state = i
-        
-        return max_state
-
-    # def calculate_beliefs(self, actions, observations, M, T):
-
-    #     # base case
-    #     if (len(actions.shape) == 1) or (actions.shape[0] == 1):
-
-    #         if (len(actions.shape) == 1): # case where one action is given
-    #             current_action = self.string_action(actions)
-    #             current_observation = observations
-    #         else:
-    #             current_action = self.string_action(actions[0])
-    #             current_observation = observations[0]
-            
-    #         posterior = np.matmul(T[current_action], M[current_observation])
-
-    #         return posterior
-
-    #     # recursive case
-    #     return np.matmul(self.calculate_beliefs(actions = actions[:-1], observations = observations[:-1], M = M, T = T), self.calculate_beliefs(actions = actions[-1], observations = observations[-1], M = M, T = T))
-
+        return best_locations
     
-    ######################
-    # Initialization
-    ######################
+    
     
     # initialized the pi, T, and M matrices
     def initialize_matrices(self, grid):
-        n, m = grid.shape
-        total_states = n * m
 
-        # give each location a state
-        state_id = 0
-        for y in range(0, n):
-            for x in range(0, m):
-                self.state_to_coordinates[state_id] = (x, y)
-                self.coordinates_to_states[(x, y)] = state_id
-
-                state_id += 1
-
-        T = self.init_T(grid = grid)
-        M = self.init_M(grid = grid)
-
-        return T, M
-
-    # helper for initialization
-    def init_T(self, grid):
         T = {}
+        M = {}
         n, m = grid.shape
         total_states = n * m
 
@@ -153,6 +82,15 @@ class HistogramFilter(object):
         T_left = np.zeros(shape = (total_states, total_states))
         T_up = np.zeros(shape = (total_states, total_states))
         T_down = np.zeros(shape = (total_states, total_states))
+
+        # give each location a state
+        state_id = 0
+        for y in range(0, n):
+            for x in range(0, m):
+                self.state_to_coordinates[state_id] = (x, y)
+                self.coordinates_to_states[(x, y)] = state_id
+                state_id += 1
+
 
         for state in self.state_to_coordinates.keys(): # loop through states
             
@@ -190,15 +128,6 @@ class HistogramFilter(object):
         T["up"] = T_up
         T["down"] = T_down
 
-        return T
-
-
-    def init_M(self, grid):
-
-        M = {}
-        n, m = grid.shape
-        total_states = n * m
-
         # M matrix
         M_1 = np.zeros(shape = (total_states, total_states))
         M_0 = np.zeros(shape = (total_states, total_states))
@@ -218,7 +147,14 @@ class HistogramFilter(object):
         M[0] = M_0
         M[1] = M_1
 
-        return  M
+        # set the state probabilities dictionary
+        for state_id in range(total_states):
+            self.state_probabilities[state_id] = 1/total_states
+
+        return T, M
+
+    # helper for initialization
+
 
     # converts action to words
     def string_action(self, action):
@@ -263,20 +199,7 @@ class HistogramFilter(object):
         return max_idx
 
 
-    # converts M to grid
-    def convert_MT_to_grid(self, grid, MT):
-        n, m = grid.shape
-        posterior = np.zeros(shape = grid.shape)
 
-        state_probabilities = np.sum(MT, axis = 0)
-        state_probabilities /= np.sum(state_probabilities)
-
-        for state in self.state_to_coordinates.keys():
-            x, y = self.state_to_coordinates[state]
-
-            posterior[n - 1 - y][x] = state_probabilities[state]
-        
-        return posterior
 
 # translate dict to map
 def translate_dict_to_map(state_to_probabilities, state_to_coordinates, shape = (1, 1)):
