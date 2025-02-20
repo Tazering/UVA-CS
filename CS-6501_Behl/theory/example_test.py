@@ -19,6 +19,8 @@ if __name__ == "__main__":
     # print(belief_states.shape)
 
     # print(type(belief_states[0]))
+    # print(actions)
+    # print(observations)
 
 
     #### Test your code here

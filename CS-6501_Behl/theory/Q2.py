@@ -6,7 +6,7 @@ best_location = {}
 smoothing = {}
 
 def main():
-
+    
     pi = np.array([.5, .5])
     T = np.array([[.5, .5],[.5, .5]])
     M = np.array([[.4, .1, .5],[.1, .5, .4]])
@@ -36,10 +36,25 @@ def main():
         else:
             best_location[i] = "NY"
         
-    update_transition_matrix(k_beta, T, M, Y)
+    new_T = update_transition_matrix(k_beta, T, M, Y)
+    new_M = update_M_matrix(Y)
     
+    compare_trajectories(Y, pi, new_M, new_T)
     # print(smoothing)
     # convert_dict_to_latex(dictionary = smoothing)
+
+def compare_trajectories(Y, pi, M_prime, T_prime):
+
+    old_trajectory = (k_alpha[19][0] + k_alpha[19][1])
+    print(f"alpha_k(0): {k_alpha[19][0]},\talpha_k(1): {k_alpha[19][1]}")
+
+    forward_algorithm(pi, T_prime, M_prime, Y)
+
+    new_trajectory = (k_alpha[19][0] + k_alpha[19][1])
+    print(f"alpha'_k(0): {k_alpha[19][0]},\talpha'_k(1): {k_alpha[19][1]}")
+
+
+    print(f"Old Trajectory: {old_trajectory}\tNew Trajectory: {new_trajectory}")
 
 
 # forward algorithm
@@ -104,7 +119,7 @@ def convert_dict_to_latex(dictionary):
     for key in dictionary.keys():
         val = dictionary[key]
 
-        latex_command = latex_command + f"{key + 1} & {round(val[0], 4)} & {round(val[1], 4)}\\\\\n\\hline\n"
+        latex_command = latex_command + f"{key + 1} & {val[0]} & {val[1]}\\\\\n\\hline\n"
 
     latex_command = latex_command + "\\end{tabular}\n\\end{center}"
 
@@ -152,6 +167,47 @@ def update_transition_matrix(k_beta, T, M, Y):
     new_T[1][1] = totalNN / denN
 
     print(new_T)
+    return new_T
+
+def update_M_matrix(Y):
+
+    new_M = np.zeros(shape = (2, 3))
+
+    den0 = 0
+    den1 = 0
+
+    num00 = 0
+    num01 = 0
+    num02 = 0
+    num10 = 0
+    num11 = 0
+    num12 = 0
+
+    # numerator
+    for i in range(20):
+        num00 += smoothing[i][0] if (Y[i] == 0) else 0
+        num01 += smoothing[i][0] if (Y[i] == 1) else 0
+        num02 += smoothing[i][0] if (Y[i] == 2) else 0
+        num10 += smoothing[i][1] if (Y[i] == 0) else 0
+        num11 += smoothing[i][1] if (Y[i] == 1) else 0
+        num12 += smoothing[i][1] if (Y[i] == 2) else 0
+
+    # denominator
+    for i in range(20):
+        den0 += smoothing[i][0]
+        den1 += smoothing[i][1]
+
+    new_M[0][0] = num00 / den0
+    new_M[0][1] = num01 / den0
+    new_M[0][2] = num02 / den0
+    new_M[1][0] = num10 / den1
+    new_M[1][1] = num11 / den1
+    new_M[1][2] = num12 / den1
+    
+    print(new_M)
+
+    return new_M
+
     
     
 
