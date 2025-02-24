@@ -85,10 +85,15 @@ class BanditModel(nn.Module):
         
 
     def act(self, x, time):
+        # x is the context
         predicted_reward_all = self(x)
         max_predicted_reward = torch.max(predicted_reward_all, dim=1, keepdim=True)[0]
         gap = predicted_reward_all - max_predicted_reward    # this is actually negative gap
         batchsize = gap.shape[0] 
+
+        epsilon_val = .1
+        N = 64
+
 
         if self.algorithm == "Rand":
             return 1 / self.n_actions * torch.ones_like(gap)  
@@ -101,7 +106,10 @@ class BanditModel(nn.Module):
 
         elif self.algorithm == "EG":  
             # TODO: Epsilon greedy
-
+            
+            for n in range(N):
+                
+            
             pass
 
         elif self.algorithm == "IGW":  
