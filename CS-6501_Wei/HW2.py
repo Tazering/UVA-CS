@@ -43,17 +43,17 @@ n_actions = len(torch.unique(y_tensor))
 
 
 class BanditModel(nn.Module):
-    def __init__(self, dim, n_actions, args):
+    def __init__(self, dim, n_actions, args, constant):
         super().__init__()
         self.dim = dim
         self.n_actions = n_actions
         self.algorithm = args.algorithm
         if args.algorithm == "EG": 
-            self.eps = args.eps
+            self.eps = constant
         elif args.algorithm == "BE" or args.algorithm == "IGW":
-            self.ld = args.ld
+            self.ld = constant
         elif args.algorithm == "PPO": 
-            self.b = args.b
+            self.b = constant
 
         self.fc1 = nn.Linear(dim, 32)
         self.fc2 = nn.Linear(32, n_actions)
@@ -91,9 +91,7 @@ class BanditModel(nn.Module):
         gap = predicted_reward_all - max_predicted_reward    # this is actually negative gap
         batchsize = gap.shape[0] 
 
-        epsilon_val = .1
-        N = 64
-
+        # print(predicted_reward_all[0])
 
         if self.algorithm == "Rand":
             return 1 / self.n_actions * torch.ones_like(gap)  
@@ -105,24 +103,52 @@ class BanditModel(nn.Module):
             return prob
 
         elif self.algorithm == "EG":  
-            # TODO: Epsilon greedy
+
+            max_index = gap.argmax(dim = 1)
+            prob = torch.zeros_like(gap)
+
+            prob[torch.arange(batchsize), max_index] = (self.eps/self.n_actions) + (1 - self.eps)
             
-            for n in range(N):
-                
-            
-            pass
+            return prob
 
         elif self.algorithm == "IGW":  
             # TODO: Inverse Gap Weighting
-            pass
+
+            for n in range(batchsize):
+                max_index = gap.argmax(dim = 1)
+                prob = torch.zeros_like(gap)
+
+                for a in range(self.n_actions):
+                    
+                    if a == max_index:
+                        prob[n, a] = 1 - torch.sum(predicted_reward_all[:max_index] + predicted_reward_all[max_index + 1:])
+                    
+                    else:
+                        prob[n, a] = 1 / (self.n_actions + self.ld * torch.max(gap))
+
+            return prob
 
         elif self.algorithm == "BE":  
             # TODO: Boltzmann Exploration
-            pass
+
+            prob = torch.zeros_like(gap)
+            max_index = gap.argmax(dim = 1)
+
+            denom = torch.sum(torch.exp(self.ld * gap))
+            # print(denom)
+               
+            for a in range(self.n_actions):
+                prob[torch.arange(batchsize), a] = torch.exp(self.ld * gap[:, a]) / denom
+
+            return prob
         
         elif self.algorithm == "PPO":  
             # TODO: PPO
-            pass
+            # take context and return output of neural network
+            output = self.forward(x)
+
+            return output
+    
 
     def update_batch(self, batch_x, batch_action, batch_reward, batch_action_prob):
         """
@@ -134,7 +160,19 @@ class BanditModel(nn.Module):
         """
         if self.algorithm == "PPO":
             # TODO: PPO policy update 
-            pass
+            
+            all_predicted_action = self.forward(batch_x)            
+            print(f"shape: {all_predicted_action.shape}")
+
+
+            loss = self.ppo_loss(batch_action, batch_action_prob, batch_reward, self.b)
+
+            # print(f"loss: {loss}")
+
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
         else:
             # regression oracle for value based approaches (BE, EG, IGW)
             for _ in range(self.M):
@@ -144,10 +182,18 @@ class BanditModel(nn.Module):
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+    
+    def ppo_loss(self, batch_action_prob, all_predicted_actions, rewards, b):
+        ratio = batch_action_prob / all_predicted_actions
+
+        cost = (ratio * (rewards - b)) - (.1 * (ratio - 1 - torch.log2(ratio)))
+        
+        # print(torch.sum(cost))
+
+        return torch.mean(cost)
 
 
-
-def train(args, n_seeds=5):
+def train(args, n_seeds=2):
     """
     Main training loop. Handles both value-based and policy-based approaches.
     """
@@ -155,68 +201,83 @@ def train(args, n_seeds=5):
     accuracy_values_avg = np.zeros((T,))
     accuracy_values_recent_avg = np.zeros((T,))
 
-    for sd in range(n_seeds): 
-        torch.manual_seed(sd)
-        random.seed(sd)
-        np.random.seed(sd)
+    constants = [2, 1.5, 1, 0.5, 0, -.05]
 
-        print("running for seed = ", sd)
+    for idx in range(len(constants)):
 
-        train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
-        model = BanditModel(context_dim, n_actions, args)
 
-        accuracy_values = np.zeros((T,))
-        accuracy_values_recent = np.zeros((T,))
-        t = 0
-        batch_context = []
-        batch_action = []
-        batch_reward = []
-        batch_action_prob = []
-        
-        
-        for context, label in train_loader:
-            switch_point = y.shape[0] // 2
-            if t < switch_point: 
-                reward_vector = 0.5 * F.one_hot(label, n_actions).float() 
-            else:  
-                reward_vector = 0.5 * F.one_hot(label, n_actions).float() + F.one_hot( (label+1)%n_actions, n_actions).float() 
-                
-            action_prob_all = model.act(context, t)
+        for sd in range(n_seeds): 
+            torch.manual_seed(sd)
+            random.seed(sd)
+            np.random.seed(sd)
+
+            print("running for seed = ", sd)
+
+            train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
+            model = BanditModel(context_dim, n_actions, args, constant = constants[idx])
+
+            accuracy_values = np.zeros((T,))
+            accuracy_values_recent = np.zeros((T,))
+            t = 0
+            batch_context = []
+            batch_action = []
+            batch_reward = []
+            batch_action_prob = []
             
-            action = torch.multinomial(action_prob_all, num_samples=1)
-            reward = torch.gather(reward_vector, 1, action)
-            action_prob = torch.gather(action_prob_all, 1, action)
-
-            batch_context.append(context)
-            batch_action.append(action)
-            batch_reward.append(reward)
-            batch_action_prob.append(action_prob)
+            
+            for context, label in train_loader:
+                switch_point = y.shape[0] // 2
+                if t < switch_point: 
+                    reward_vector = 0.5 * F.one_hot(label, n_actions).float() 
+                else:  
+                    reward_vector = 0.5 * F.one_hot(label, n_actions).float() + F.one_hot( (label+1)%n_actions, n_actions).float() 
                     
-            if (t + 1) % model.N == 0:
-                batch_context = torch.cat(batch_context, dim=0)
-                batch_action = torch.cat(batch_action, dim=0)
-                batch_reward = torch.cat(batch_reward, dim=0)
-                batch_action_prob = torch.cat(batch_action_prob, dim=0)
-                model.update_batch(
-                    batch_context, batch_action, batch_reward, batch_action_prob
-                )
-                batch_context = []
-                batch_action = []
-                batch_reward = []
-                batch_action_prob = []
+                action_prob_all = model.act(context, t)
+                # print(action_prob_all)
+                
+                action = torch.multinomial(action_prob_all, num_samples=1)
+                reward = torch.gather(reward_vector, 1, action)
+                action_prob = torch.gather(action_prob_all, 1, action)
+
+                batch_context.append(context)
+                batch_action.append(action)
+                batch_reward.append(reward)
+                batch_action_prob.append(action_prob)
                         
+                if (t + 1) % model.N == 0:
+                    batch_context = torch.cat(batch_context, dim=0)
+                    batch_action = torch.cat(batch_action, dim=0)
+                    batch_reward = torch.cat(batch_reward, dim=0)
+                    batch_action_prob = torch.cat(batch_action_prob, dim=0)
+                    model.update_batch(
+                        batch_context, batch_action, batch_reward, batch_action_prob
+                    )
+                    batch_context = []
+                    batch_action = []
+                    batch_reward = []
+                    batch_action_prob = []
+                            
 
-            # Common accuracy tracking
-            accuracy_values[t] = reward
-            recent = accuracy_values[max(0,t-500): t]
-            accuracy_values_recent[t] = np.mean(recent)
-            t += 1
+                # Common accuracy tracking
+                accuracy_values[t] = reward
+                recent = accuracy_values[max(0,t-500): t]
+                accuracy_values_recent[t] = np.mean(recent)
+                t += 1
 
-        accuracy_values_avg += accuracy_values
-        accuracy_values_recent_avg += accuracy_values_recent
+            accuracy_values_avg += accuracy_values
+            accuracy_values_recent_avg += accuracy_values_recent
     
-    accuracy_values_avg /= n_seeds
-    accuracy_values_recent_avg /= n_seeds
+        accuracy_values_avg /= n_seeds
+        accuracy_values_recent_avg /= n_seeds
+
+        plt.plot(np.arange(T), accuracy_values_recent_avg, label = f"Lambda = {constants[idx]}")
+
+
+        # list of plots
+        print("\naverage_reward_1st_phase =", np.mean(accuracy_values_avg[:switch_point]))
+        print("average_reward_2nd_phase =", np.mean(accuracy_values_avg[switch_point:]))
+        print("average_reward =", np.mean(accuracy_values_avg))
+        print("\n")
 
     print(f"Algorithm: {args.algorithm}")
     if args.algorithm == "EG":
@@ -228,16 +289,107 @@ def train(args, n_seeds=5):
     elif args.algorithm == "PPO": 
         print("b =", args.b)
 
-    print("average_reward_1st_phase =", np.mean(accuracy_values_avg[:switch_point]))
-    print("average_reward_2nd_phase =", np.mean(accuracy_values_avg[switch_point:]))
-    print("average_reward =", np.mean(accuracy_values_avg))
-
-    plt.figure()
-    plt.plot(np.arange(T), accuracy_values_recent_avg)
+    # plt.figure()
+    plt.legend()
     plt.title(f"Average Reward over Time ({args.algorithm})")
     plt.xlabel("Time Step")
     plt.ylabel("Average Reward")
     plt.show()
+
+# def train(args, n_seeds=5):
+#     """
+#     Main training loop. Handles both value-based and policy-based approaches.
+#     """
+#     T = y.shape[0]
+#     accuracy_values_avg = np.zeros((T,))
+#     accuracy_values_recent_avg = np.zeros((T,))
+
+#     epsilons = [.1, .03, .01, .003, .001, 0]
+
+#     for sd in range(n_seeds): 
+#         torch.manual_seed(sd)
+#         random.seed(sd)
+#         np.random.seed(sd)
+
+#         print("running for seed = ", sd)
+
+#         train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
+#         model = BanditModel(context_dim, n_actions, args)
+
+#         accuracy_values = np.zeros((T,))
+#         accuracy_values_recent = np.zeros((T,))
+#         t = 0
+#         batch_context = []
+#         batch_action = []
+#         batch_reward = []
+#         batch_action_prob = []
+        
+        
+#         for context, label in train_loader:
+#             switch_point = y.shape[0] // 2
+#             if t < switch_point: 
+#                 reward_vector = 0.5 * F.one_hot(label, n_actions).float() 
+#             else:  
+#                 reward_vector = 0.5 * F.one_hot(label, n_actions).float() + F.one_hot( (label+1)%n_actions, n_actions).float() 
+                
+#             action_prob_all = model.act(context, t)
+#             # print(action_prob_all)
+            
+#             action = torch.multinomial(action_prob_all, num_samples=1)
+#             reward = torch.gather(reward_vector, 1, action)
+#             action_prob = torch.gather(action_prob_all, 1, action)
+
+#             batch_context.append(context)
+#             batch_action.append(action)
+#             batch_reward.append(reward)
+#             batch_action_prob.append(action_prob)
+                    
+#             if (t + 1) % model.N == 0:
+#                 batch_context = torch.cat(batch_context, dim=0)
+#                 batch_action = torch.cat(batch_action, dim=0)
+#                 batch_reward = torch.cat(batch_reward, dim=0)
+#                 batch_action_prob = torch.cat(batch_action_prob, dim=0)
+#                 model.update_batch(
+#                     batch_context, batch_action, batch_reward, batch_action_prob
+#                 )
+#                 batch_context = []
+#                 batch_action = []
+#                 batch_reward = []
+#                 batch_action_prob = []
+                        
+
+#             # Common accuracy tracking
+#             accuracy_values[t] = reward
+#             recent = accuracy_values[max(0,t-500): t]
+#             accuracy_values_recent[t] = np.mean(recent)
+#             t += 1
+
+#         accuracy_values_avg += accuracy_values
+#         accuracy_values_recent_avg += accuracy_values_recent
+    
+#     accuracy_values_avg /= n_seeds
+#     accuracy_values_recent_avg /= n_seeds
+
+#     print(f"Algorithm: {args.algorithm}")
+#     if args.algorithm == "EG":
+#         print("eps =", args.eps)
+#     elif args.algorithm == "IGW":
+#         print("lambda =", args.ld)
+#     elif args.algorithm == "BE":
+#         print("lambda =", args.ld)
+#     elif args.algorithm == "PPO": 
+#         print("b =", args.b)
+
+#     print("average_reward_1st_phase =", np.mean(accuracy_values_avg[:switch_point]))
+#     print("average_reward_2nd_phase =", np.mean(accuracy_values_avg[switch_point:]))
+#     print("average_reward =", np.mean(accuracy_values_avg))
+
+#     plt.figure()
+#     plt.plot(np.arange(T), accuracy_values_recent_avg)
+#     plt.title(f"Average Reward over Time ({args.algorithm})")
+#     plt.xlabel("Time Step")
+#     plt.ylabel("Average Reward")
+#     plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run bandit algorithms")
