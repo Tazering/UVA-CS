@@ -162,12 +162,11 @@ class BanditModel(nn.Module):
             # TODO: PPO policy update 
             
             all_predicted_action = self.forward(batch_x)            
-            print(f"shape: {all_predicted_action.shape}")
+            # print(f"shape: {all_predicted_action.shape}")
+            selected_values = all_predicted_action[batch_action]
 
 
-            loss = self.ppo_loss(batch_action, batch_action_prob, batch_reward, self.b)
-
-            # print(f"loss: {loss}")
+            loss = self.ppo_loss(batch_action_prob.detach(), selected_values, batch_reward, self.b)
 
             self.optimizer.zero_grad()
             loss.backward()
@@ -183,8 +182,8 @@ class BanditModel(nn.Module):
                 loss.backward()
                 self.optimizer.step()
     
-    def ppo_loss(self, batch_action_prob, all_predicted_actions, rewards, b):
-        ratio = batch_action_prob / all_predicted_actions
+    def ppo_loss(self, batch_action_prob, selected_action_values, rewards, b):
+        ratio = selected_action_values / batch_action_prob
 
         cost = (ratio * (rewards - b)) - (.1 * (ratio - 1 - torch.log2(ratio)))
         
@@ -193,7 +192,7 @@ class BanditModel(nn.Module):
         return torch.mean(cost)
 
 
-def train(args, n_seeds=2):
+def train(args, n_seeds=5):
     """
     Main training loop. Handles both value-based and policy-based approaches.
     """
