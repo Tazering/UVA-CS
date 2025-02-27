@@ -154,14 +154,18 @@ class BanditModel(nn.Module):
             batch_action_prob: the batch of probabilities for only those chosen actions
         """
 
+        is_adaptive = False
         
         if self.algorithm == "PPO":
             # TODO: PPO policy update 
             for _ in range(self.M):
                 all_predicted_rewards = self.forward(batch_x)
                 updated_actions = torch.gather(input = all_predicted_rewards, dim = 1, index = batch_action)
-                loss = self.ppo_loss(updated_actions, batch_action_prob, batch_reward)
+                if is_adaptive:
+                    loss = self.adaptive_ppo_loss()
+                else:
 
+                    loss = self.ppo_loss(updated_actions, batch_action_prob, batch_reward)
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
@@ -176,6 +180,13 @@ class BanditModel(nn.Module):
                 loss.backward()
                 self.optimizer.step()
     
+    def adaptive_ppo_loss(self, batch_context):
+        self.b += self.forward_baseline(batch_context) # new constant
+
+        
+
+        return None
+
     # function for calculating loss
     def ppo_loss(self, updated_actions, batch_action_prob, batch_reward):
 
