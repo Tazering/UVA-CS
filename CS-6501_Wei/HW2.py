@@ -112,21 +112,38 @@ class BanditModel(nn.Module):
         elif self.algorithm == "IGW":  
             # TODO: Inverse Gap Weighting
 
-            max_index = gap.argmax(dim = 1)
             prob = torch.zeros_like(gap)
 
-            prob = torch.add(prob, 1 / (self.n_actions + self.ld * torch.max(gap)))
-            prob[torch.arange(batchsize), max_index] = 1 - ((self.n_actions - 1) * (1 / (self.n_actions + torch.max(gap))))
+
+            for n in range(batchsize): # loop through batches
+                max_index = gap[n].argmax(dim = 0)
+
+                for a in range(self.n_actions): # loop through actions
+                    if a != max_index:
+                        action_constant = torch.zeros_like(gap)
+                        action_constant = torch.add(action_constant, predicted_reward_all[n, a])
+
+                        prob[n, a] = 1 / (self.n_actions + self.ld * torch.max(predicted_reward_all - action_constant))
+                    
+                prob[n, max_index] = 1 - (torch.sum(prob[n, :max_index]) + torch.sum(prob[n, max_index + 1:]))
 
             return prob
 
         elif self.algorithm == "BE":  
             # TODO: Boltzmann Exploration
-            pass
+            prob = torch.zeros_like(gap)
+            summation = torch.sum(torch.exp(gap * self.ld), dim = 1)
+            prob = torch.div(torch.exp(self.ld * gap), summation)
+
+            # print(f"prob: {torch.sum(prob)}\n")
+
+            return prob
         
         elif self.algorithm == "PPO":  
             # TODO: PPO
-            pass
+
+            prob = self.forward(x)
+            return prob
 
     def update_batch(self, batch_x, batch_action, batch_reward, batch_action_prob):
         """
@@ -140,7 +157,15 @@ class BanditModel(nn.Module):
         
         if self.algorithm == "PPO":
             # TODO: PPO policy update 
-            pass
+            for _ in range(self.M):
+                all_predicted_rewards = self.forward(batch_x)
+                updated_actions = torch.gather(input = all_predicted_rewards, dim = 1, index = batch_action)
+                loss = self.ppo_loss(updated_actions, batch_action_prob, batch_reward)
+
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+                
         else:
             # regression oracle for value based approaches (BE, EG, IGW)
             for _ in range(self.M):
@@ -150,13 +175,22 @@ class BanditModel(nn.Module):
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+    
+    # function for calculating loss
+    def ppo_loss(self, updated_actions, batch_action_prob, batch_reward):
+
+        new_to_old_ratio = updated_actions / batch_action_prob.detach()
+
+        loss = torch.mean(new_to_old_ratio * (batch_reward - self.b) - .1 * (new_to_old_ratio - 1 - torch.log(new_to_old_ratio)))
+
+        return -loss
 
 def train(args, n_seeds=5):
     """
     Main training loop. Handles both value-based and policy-based approaches.
     """
     T = y.shape[0]
-    constants = [10, 30, 100, 300, 1000]
+    constants = [2, 1.5, 1, 0.5, 0, -0.5]
 
     for idx in range(len(constants)):
 
@@ -180,7 +214,6 @@ def train(args, n_seeds=5):
             batch_action = []
             batch_reward = []
             batch_action_prob = []
-            
             
             for context, label in train_loader:
                 switch_point = y.shape[0] // 2
