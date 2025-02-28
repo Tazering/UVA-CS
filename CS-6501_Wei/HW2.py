@@ -52,7 +52,7 @@ class BanditModel(nn.Module):
             self.eps = constant
         elif args.algorithm == "BE" or args.algorithm == "IGW":
             self.ld = constant
-        elif args.algorithm == "PPO": 
+        elif args.algorithm == "PPO" or args.algorithm == "AdaPPO": 
             self.b = constant
 
         self.fc1 = nn.Linear(dim, 32)
@@ -68,12 +68,15 @@ class BanditModel(nn.Module):
         # The number of gradient steps within a single t in 1,2,...,T
         self.M = 30
 
+        self.adaptive_model = BaselineModel(context_dim)
+
+
 
     def forward(self, x):
         x = self.fc1(x)
         x = nn.ReLU()(x)
         x = self.fc2(x)
-        if self.algorithm == "PPO": 
+        if self.algorithm == "PPO" or self.algorithm == "AdaPPO": 
             x = nn.Softmax(dim=1)(x)
         return x
 
@@ -139,7 +142,7 @@ class BanditModel(nn.Module):
 
             return prob
         
-        elif self.algorithm == "PPO":  
+        elif self.algorithm == "PPO" or self.algorithm == "AdaPPO":  
             # TODO: PPO
 
             prob = self.forward(x)
@@ -153,23 +156,44 @@ class BanditModel(nn.Module):
             batch_reward: the batch of rewards observed
             batch_action_prob: the batch of probabilities for only those chosen actions
         """
-
-        is_adaptive = False
         
         if self.algorithm == "PPO":
             # TODO: PPO policy update 
             for _ in range(self.M):
-                all_predicted_rewards = self.forward(batch_x)
+                all_predicted_rewards = self(batch_x)
                 updated_actions = torch.gather(input = all_predicted_rewards, dim = 1, index = batch_action)
-                if is_adaptive:
-                    loss = self.adaptive_ppo_loss()
-                else:
-
-                    loss = self.ppo_loss(updated_actions, batch_action_prob, batch_reward)
+                loss = self.ppo_loss(updated_actions, batch_action_prob, batch_reward, self.b)
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+        
+        elif self.algorithm == "AdaPPO":
+
+            for _ in range(self.M):
                 
+                adaptive_output = self.adaptive_model.forward(batch_x)
+                all_predicted_rewards = self.forward(batch_x)
+                updated_actions = torch.gather(input = all_predicted_rewards, dim = 1, index = batch_action)
+
+                loss = self.ppo_loss(updated_actions, batch_action_prob, batch_reward, self.b + adaptive_output)
+                adaptive_loss = F.mse_loss(adaptive_output, batch_reward)
+
+                # gradient of ppo model
+                self.optimizer.zero_grad()
+                loss.backward(retain_graph = True)
+                self.optimizer.step()
+                
+                # gradient of the baseline model
+                self.adaptive_model.optimizer.zero_grad()
+                adaptive_loss.backward()
+                self.adaptive_model.optimizer.step()
+
+                # for param in self.parameters():
+                #     print(param)
+                
+                # exit(0)
+
+             
         else:
             # regression oracle for value based approaches (BE, EG, IGW)
             for _ in range(self.M):
@@ -180,28 +204,42 @@ class BanditModel(nn.Module):
                 loss.backward()
                 self.optimizer.step()
     
-    def adaptive_ppo_loss(self, batch_context):
-        self.b += self.forward_baseline(batch_context) # new constant
-
-        
-
-        return None
 
     # function for calculating loss
-    def ppo_loss(self, updated_actions, batch_action_prob, batch_reward):
+    def ppo_loss(self, updated_actions, batch_action_prob, batch_reward, b):
 
         new_to_old_ratio = updated_actions / batch_action_prob.detach()
 
-        loss = torch.mean(new_to_old_ratio * (batch_reward - self.b) - .1 * (new_to_old_ratio - 1 - torch.log(new_to_old_ratio)))
+        loss = torch.mean(new_to_old_ratio * (batch_reward - b) - .1 * (new_to_old_ratio - 1 - torch.log(new_to_old_ratio)))
 
         return -loss
+
+## PPO ADA graph
+class BaselineModel(nn.Module):
+    def __init__(self, dim):
+        super().__init__()
+        self.dim = dim
+
+        # baseline network
+        self.fc3 = nn.Linear(dim, 32)
+        self.fc4 = nn.Linear(32, 1)
+        
+        self.optimizer = optim.Adam(self.parameters(), lr=1e-3)
+
+    def forward(self, x):    # the baseline network for PPO with adaptive baseline
+        x = self.fc3(x)
+        x = nn.ReLU()(x)
+        x = self.fc4(x)
+        return x
+        
+
 
 def train(args, n_seeds=5):
     """
     Main training loop. Handles both value-based and policy-based approaches.
     """
     T = y.shape[0]
-    constants = [2, 1.5, 1, 0.5, 0, -0.5]
+    constants = [.2, .1, 0, -.1, -.2]
 
     for idx in range(len(constants)):
 
@@ -277,14 +315,14 @@ def train(args, n_seeds=5):
             print("lambda =", constants[idx])
         elif args.algorithm == "BE":
             print("lambda =", constants[idx])
-        elif args.algorithm == "PPO": 
+        elif args.algorithm == "PPO" or args.algorithm == "AdaPPO": 
             print("b =", constants[idx])
 
         print("average_reward_1st_phase =", np.mean(accuracy_values_avg[:switch_point]))
         print("average_reward_2nd_phase =", np.mean(accuracy_values_avg[switch_point:]))
         print("average_reward =", np.mean(accuracy_values_avg))
 
-        plt.plot(np.arange(T), accuracy_values_recent_avg, label = f"Epsilon Value: {constants[idx]}")
+        plt.plot(np.arange(T), accuracy_values_recent_avg, label = f"b: {constants[idx]}")
 
 
     # plt.figure()
@@ -294,106 +332,13 @@ def train(args, n_seeds=5):
     plt.ylabel("Average Reward")
     plt.show()
 
-# def train_ORIGINAL(args, n_seeds=5):
-#     """
-#     Main training loop. Handles both value-based and policy-based approaches.
-#     """
-#     T = y.shape[0]
-#     accuracy_values_avg = np.zeros((T,))
-#     accuracy_values_recent_avg = np.zeros((T,))
-
-#     for sd in range(n_seeds): 
-#         torch.manual_seed(sd)
-#         random.seed(sd)
-#         np.random.seed(sd)
-
-#         print("running for seed = ", sd)
-
-#         train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
-#         model = BanditModel(context_dim, n_actions, args)
-
-#         accuracy_values = np.zeros((T,))
-#         accuracy_values_recent = np.zeros((T,))
-#         t = 0
-#         batch_context = []
-#         batch_action = []
-#         batch_reward = []
-#         batch_action_prob = []
-        
-        
-#         for context, label in train_loader:
-#             switch_point = y.shape[0] // 2
-#             if t < switch_point: 
-#                 reward_vector = 0.5 * F.one_hot(label, n_actions).float() 
-#             else:  
-#                 reward_vector = 0.5 * F.one_hot(label, n_actions).float() + F.one_hot( (label+1)%n_actions, n_actions).float() 
-                
-#             action_prob_all = model.act(context, t)
-            
-#             action = torch.multinomial(action_prob_all, num_samples=1)
-#             reward = torch.gather(reward_vector, 1, action)
-#             action_prob = torch.gather(action_prob_all, 1, action)
-
-#             batch_context.append(context)
-#             batch_action.append(action)
-#             batch_reward.append(reward)
-#             batch_action_prob.append(action_prob)
-                    
-#             if (t + 1) % model.N == 0:
-#                 batch_context = torch.cat(batch_context, dim=0)
-#                 batch_action = torch.cat(batch_action, dim=0)
-#                 batch_reward = torch.cat(batch_reward, dim=0)
-#                 batch_action_prob = torch.cat(batch_action_prob, dim=0)
-#                 model.update_batch(
-#                     batch_context, batch_action, batch_reward, batch_action_prob
-#                 )
-#                 batch_context = []
-#                 batch_action = []
-#                 batch_reward = []
-#                 batch_action_prob = []
-                        
-
-#             # Common accuracy tracking
-#             accuracy_values[t] = reward
-#             recent = accuracy_values[max(0,t-500): t]
-#             accuracy_values_recent[t] = np.mean(recent)
-#             t += 1
-
-#         accuracy_values_avg += accuracy_values
-#         accuracy_values_recent_avg += accuracy_values_recent
-    
-#     accuracy_values_avg /= n_seeds
-#     accuracy_values_recent_avg /= n_seeds
-
-#     print(f"Algorithm: {args.algorithm}")
-#     if args.algorithm == "EG":
-#         print("eps =", args.eps)
-#     elif args.algorithm == "IGW":
-#         print("lambda =", args.ld)
-#     elif args.algorithm == "BE":
-#         print("lambda =", args.ld)
-#     elif args.algorithm == "PPO": 
-#         print("b =", args.b)
-
-#     print("average_reward_1st_phase =", np.mean(accuracy_values_avg[:switch_point]))
-#     print("average_reward_2nd_phase =", np.mean(accuracy_values_avg[switch_point:]))
-#     print("average_reward =", np.mean(accuracy_values_avg))
-
-#     plt.figure()
-#     plt.plot(np.arange(T), accuracy_values_recent_avg)
-#     plt.title(f"Average Reward over Time ({args.algorithm})")
-#     plt.xlabel("Time Step")
-#     plt.ylabel("Average Reward")
-#     plt.show()
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run bandit algorithms")
     parser.add_argument(
         "--algorithm",
         type=str,
         default="Rand",
-        choices=["Rand", "EG", "IGW", "BE", "PPO", "Greedy"],
+        choices=["Rand", "EG", "IGW", "BE", "PPO", "Greedy", "AdaPPO"],
         help="Algorithm to run",
     )
     parser.add_argument(
