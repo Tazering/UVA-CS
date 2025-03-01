@@ -237,7 +237,7 @@ def train(args, n_seeds=5):
     Main training loop. Handles both value-based and policy-based approaches.
     """
     T = y.shape[0]
-    constants = [10, 30, 100, 300, 1000]
+    constants = [0.2, 0.1, 0, -0.1, -0.2]
 
     for idx in range(len(constants)):
 
@@ -320,7 +320,7 @@ def train(args, n_seeds=5):
         print("average_reward_2nd_phase =", np.mean(accuracy_values_avg[switch_point:]))
         print("average_reward =", np.mean(accuracy_values_avg))
 
-        plt.plot(np.arange(T), accuracy_values_recent_avg, label = f"Lambda: {constants[idx]}")
+        plt.plot(np.arange(T), accuracy_values_recent_avg, label = f"b': {constants[idx]}")
 
 
     # plt.figure()
