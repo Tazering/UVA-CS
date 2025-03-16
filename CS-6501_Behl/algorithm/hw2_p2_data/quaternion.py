@@ -8,10 +8,12 @@ class Quaternion:
 
     def normalize(self):
         self.q = self.q/np.linalg.norm(self.q)
-
+    
+    # grabs the magnitude
     def scalar(self):
         return self.q[0]
 
+    # grabs the orientation
     def vec(self):
         return self.q[1:4]
 
@@ -23,13 +25,14 @@ class Quaternion:
         vec = vec/np.linalg.norm(vec)
         return vec*theta
 
+    # quaternion -> euler angle
     def euler_angles(self):
         phi = math.atan2(2*(self.q[0]*self.q[1]+self.q[2]*self.q[3]), \
                 1 - 2*(self.q[1]**2 + self.q[2]**2))
         theta = math.asin(2*(self.q[0]*self.q[2] - self.q[3]*self.q[1]))
         psi = math.atan2(2*(self.q[0]*self.q[3]+self.q[1]*self.q[2]), \
                 1 - 2*(self.q[2]**2 + self.q[3]**2))
-        return np.array([phi, theta, psi])
+        return np.array([phi, theta, psi]) # roll (x), pitch (y), yaw (z)
 
     def from_axis_angle(self, a):
         angle = np.linalg.norm(a)
@@ -41,6 +44,7 @@ class Quaternion:
         self.q[1:4] = axis*math.sin(angle/2)
         #self.normalize()
 
+    # 3 x 3 rotation matrix -> quaternion
     def from_rotm(self, R):
         theta = math.acos((np.trace(R)-1)/2)
         omega_hat = (R - np.transpose(R))/(2*math.sin(theta))
