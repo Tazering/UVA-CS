@@ -19,9 +19,10 @@ def plot_vicon_data(rotation_matrices, T):
 
     for rotm in range(num_timesteps): # loop through timesteps
 
-        rotation_matrix = helpful_utils.get_rotation_matrix(rotation_matrices = rotation_matrices, idx = rotm) # get the rotation matrix
-        quaternion.from_rotm(rotation_matrix) # convert to quaternion
-        euler_angle = quaternion.euler_angles() # convert to euler_angles
+        rotation_matrix = rotation_matrices[:, :, rotm]
+        euler_angle = helpful_utils.convert_rotation_matrix_to_euler(rotation_matrix)
+        # quaternion.from_rotm(rotation_matrix) # convert to quaternion
+        # euler_angle = quaternion.euler_angles() # convert to euler_angles
 
         roll.append(euler_angle[0])
         pitch.append(euler_angle[1])
@@ -42,32 +43,29 @@ def plot_vicon_data(rotation_matrices, T):
     return vicon_plot, roll, pitch, yaw
 
 # plot the accelerometer yaw, pitch, and rotate
-def plot_accelerometer(Ax, Ay, Az, T, plot_type = "linear_acceleration", conversion_param = [1, 2, 3, 4, 5, 6]):
+def plot_accelerometer(Ax, Ay, Az, T, conversion_param = [1, 2, 3, 4, 5, 6], transformed = False):
 
     # initialization
-    phi = []
-    theta = []
-    bias = conversion_param[0]
-    sensitivity = conversion_param[1]
+    timesteps = T
 
-    timesteps = T[0]
+    alpha_x, alpha_y, alpha_z, beta_x, beta_y, beta_z = conversion_param
+    
+    convert_ax = []
+    convert_ay = []
+    convert_az = []
 
-    alpha_x, beta_x, alpha_y, beta_y, alpha_z, beta_z = conversion_param
-
-    for timestep in range(T.shape[1]): # get all the linear accelerations
-
+    for timestep in range(len(T)): # get all the linear accelerations
 
         ax = helpful_utils.convert_raw_to_value(Ax[timestep], alpha = alpha_x, beta = beta_x)
         ay = helpful_utils.convert_raw_to_value(Ay[timestep], alpha = alpha_y, beta = beta_y)
         az = helpful_utils.convert_raw_to_value(Az[timestep], alpha = alpha_z, beta = beta_z)
 
-        # to match with vicon
-        phi_val, theta_val = helpful_utils.get_roll_and_pitch_from_acceleration(-ax, -ay, az)
-        phi.append(phi_val)
-        theta.append(theta_val)
+        convert_ax.append(ax)
+        convert_ay.append(ay)
+        convert_az.append(az)
+    
 
-
-    if plot_type == "linear_acceleration":
+    if not transformed:
         accel_plot = (
             so.Plot()
             .add(so.Line(color = "red"), x = timesteps, y = Ax, label = "Ax")
@@ -82,16 +80,48 @@ def plot_accelerometer(Ax, Ay, Az, T, plot_type = "linear_acceleration", convers
     else:
         accel_plot = (
             so.Plot()
-            .add(so.Line(color = "red"), x = timesteps, y = phi, label = "Roll")
-            .add(so.Line(color = "blue"), x = timesteps, y = theta, label = "Pitch")
+            .add(so.Line(color = "red"), x = timesteps, y = convert_ax, label = "Ax")
+            .add(so.Line(color = "blue"), x = timesteps, y = convert_ay, label = "Ay")
+            .add(so.Line(color = "green"), x = timesteps, y = convert_az, label = "Az")
             .label(
                 x = "Timestep",
-                y = "Rotation",
-                title = "Accelerometer Plot (Roll and Pitch)"
+                y = "Values",
+                title = "Accelerometer Plot (Linear Acceleration)"
             )
         )
 
     return accel_plot
+
+
+def plot_orientations(Ax, Ay, Az, T, best_params):
+
+    alpha_x, alpha_y, alpha_z, beta_x, beta_y, beta_z = best_params
+    phi = []
+    theta = []
+
+    # conversion
+    for timestep in range(len(T)):
+        ax = -helpful_utils.convert_raw_to_value(Ax[timestep], alpha = alpha_x, beta = beta_x)
+        ay = -helpful_utils.convert_raw_to_value( Ay[timestep], alpha = alpha_y, beta = beta_y)
+        az = helpful_utils.convert_raw_to_value(Az[timestep], alpha = alpha_z, beta = beta_z)
+
+        phi_val, theta_val = helpful_utils.get_roll_and_pitch_from_acceleration(ax, ay, az)
+
+        phi.append(phi_val)
+        theta.append(theta_val)
+    
+    orientation_plot = (
+        so.Plot()
+        .add(so.Line(color = "red"), x = T, y = phi, label = "roll")
+        .add(so.Line(color = "blue"), x = T, y = theta, label = "pitch")
+        .label(
+            x = "Timestep",
+            y = "Values",
+            title = "Orientations Post Calibration"
+        )
+    )
+
+    return orientation_plot
 
 def plot_gyroscope(gyro, T):
     
