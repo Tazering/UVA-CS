@@ -49,7 +49,8 @@ def calibrate_sensors(accel, gyro, imu_T, rotation_matrices, vicon_T):
     imu_timesteps = imu_T[0]
     # plot the data
     # vicon_plot, roll, pitch, yaw = plotting_utils.plot_vicon_data(rotation_matrices = rotation_matrices, T = vicon_T)
-    # gyro_plot, Wx, Wy, Wz = plotting_utils.plot_gyroscope(gyro, imu_T)
+    gyro_plot, Wx, Wy, Wz = plotting_utils.plot_gyroscope(gyro, imu_T)
+    gyro_plot.show()
 
     Ax, Ay, Az, Wx, Wy, Wz = helpful_utils.parse_data(accel, gyro)
     
@@ -82,7 +83,7 @@ def calibrate_accelerometer(Ax, Ay, Az, rotation_matrices, vicon_timesteps, imu_
     true_Az = []
 
     for timestep in range(len(imu_timesteps)):
-        ground_truth = np.matmul(vicon_interpolated[:, :, timestep].T, g_vector)
+        ground_truth = np.matmul(vicon_interpolated[:, :, timestep], g_vector.T)
 
         true_Ax.append(ground_truth[0])
         true_Ay.append(ground_truth[1])
@@ -96,7 +97,7 @@ def calibrate_accelerometer(Ax, Ay, Az, rotation_matrices, vicon_timesteps, imu_
     beta_y = np.mean(Ay[:700])
     beta_z = np.mean(Az[:700])
     
-    best_param = least_squares(net_force_error, [1, 1, 1, beta_x, beta_y, beta_z], args = (Ax, Ay, Az, true_Ax, true_Ay, true_Az))
+    best_param = least_squares(net_force_error, [1, 1, 1], args = (Ax[700:], Ay[700:], Az[700:], true_Ax[700:], true_Ay[700:], true_Az[700:], beta_x, beta_y, beta_z))
 
     # # get the average of the stationary period of each linear acceleration
     # beta_x = np.average(Ax[:stationary_period])
@@ -109,21 +110,25 @@ def calibrate_accelerometer(Ax, Ay, Az, rotation_matrices, vicon_timesteps, imu_
     # best_params = results["x"]
     # best_params = np.concatenate((best_params, np.array([beta_x, beta_y, beta_z])))
 
-    return best_param["x"]
+    return np.concatenate((best_param["x"], [beta_x], [beta_y], [beta_z]))
 
 def calibrate_gyroscope():
+    
     return None
 
 # helper functions
-def net_force_error(parameters, Ax, Ay, Az, true_Ax, true_Ay, true_Az): # these are the raw ax, ay, and az
+def net_force_error(parameters, Ax, Ay, Az, true_Ax, true_Ay, true_Az, beta_x, beta_y, beta_z): # these are the raw ax, ay, and az
     
-    alpha_x, alpha_y, alpha_z, beta_x, beta_y, beta_z = parameters
+    alpha_x, alpha_y, alpha_z = parameters
 
     convert_Ax = -helpful_utils.convert_raw_to_value(Ax, alpha_x, beta_x)
     convert_Ay = -helpful_utils.convert_raw_to_value(Ay, alpha_y, beta_y)
     convert_Az = helpful_utils.convert_raw_to_value(Az, alpha_z, beta_z)
 
-    error = np.concatenate([true_Ax - convert_Ax, true_Ay - convert_Ay, true_Az - convert_Az])
+    # error = np.concatenate([true_Ax - convert_Ax, true_Ay - convert_Ay, true_Az - convert_Az])
+    mag = np.sqrt(convert_Ax**2 + convert_Ay**2 + convert_Az**2)
+    avg_mag = np.mean(mag)
+    error = np.sqrt((avg_mag - 9.81)**2)
     
     return error
 

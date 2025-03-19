@@ -56,8 +56,8 @@ def plot_accelerometer(Ax, Ay, Az, T, conversion_param = [1, 2, 3, 4, 5, 6], tra
 
     for timestep in range(len(T)): # get all the linear accelerations
 
-        ax = helpful_utils.convert_raw_to_value(Ax[timestep], alpha = alpha_x, beta = beta_x)
-        ay = helpful_utils.convert_raw_to_value(Ay[timestep], alpha = alpha_y, beta = beta_y)
+        ax = -helpful_utils.convert_raw_to_value(Ax[timestep], alpha = alpha_x, beta = beta_x)
+        ay = -helpful_utils.convert_raw_to_value(Ay[timestep], alpha = alpha_y, beta = beta_y)
         az = helpful_utils.convert_raw_to_value(Az[timestep], alpha = alpha_z, beta = beta_z)
 
         convert_ax.append(ax)

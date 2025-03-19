@@ -40,10 +40,10 @@ def interpolate_rotations(rotation_matrices, vicon_T, imu_T):
 def get_roll_and_pitch_from_acceleration(ax, ay, az):
     g = 9.81
 
-    # phi = math.asin(np.clip(ay/g, -1, 1))
-    # theta = math.atan(ax/az)
-    phi = np.arctan2(ay, az)  # Roll
-    theta = np.arctan2(-ax, np.sqrt(ay**2 + az**2))
+    phi = math.asin(np.clip(ay/g, -1, 1))
+    theta = math.atan(ax/az)
+    # phi = np.arcsin(ay, az)  # Roll
+    # theta = np.arctan2(-ax, np.sqrt(ay**2 + az**2))
 
     return phi, theta
 

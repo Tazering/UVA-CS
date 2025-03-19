@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math 
 import statistics
 
-def main(seed = 17):
+def main(seed = 42):
     np.random.seed(seed)
 
     distribution_param = {} # stores the distribution parameters
