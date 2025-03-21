@@ -12,6 +12,7 @@ import helpful_utils
 def plot_vicon_data(rotation_matrices, T):
     quaternion = Quaternion()
     num_timesteps = T.shape[1]
+    timesteps = np.arange(num_timesteps)
 
     roll = []
     pitch = []
@@ -30,9 +31,9 @@ def plot_vicon_data(rotation_matrices, T):
 
     vicon_plot = (
         so.Plot()
-        .add(so.Line(color = "red"), x = T[0], y = roll, label = "Roll")
-        .add(so.Line(color = "blue"), x = T[0], y = pitch, label = "Pitch")
-        .add(so.Line(color = "green"), x = T[0], y = yaw, label = "Yaw")
+        .add(so.Line(color = "red"), x = timesteps, y = roll, label = "Roll")
+        .add(so.Line(color = "blue"), x = timesteps, y = pitch, label = "Pitch")
+        .add(so.Line(color = "green"), x = timesteps, y = yaw, label = "Yaw")
         .label(
             x = "Timestep",
             y = "Values",
@@ -95,14 +96,14 @@ def plot_accelerometer(Ax, Ay, Az, T, conversion_param = [1, 2, 3, 4, 5, 6], tra
 
 def plot_orientations(Ax, Ay, Az, T, best_params):
 
-    alpha_x, alpha_y, alpha_z, beta_x, beta_y, beta_z = best_params
+    alpha_x, beta_x, alpha_y, beta_y, alpha_z, beta_z = best_params
     phi = []
     theta = []
 
     # conversion
     for timestep in range(len(T)):
-        ax = -helpful_utils.convert_raw_to_value(Ax[timestep], alpha = alpha_x, beta = beta_x)
-        ay = -helpful_utils.convert_raw_to_value( Ay[timestep], alpha = alpha_y, beta = beta_y)
+        ax = helpful_utils.convert_raw_to_value(Ax[timestep], alpha = alpha_x, beta = beta_x)
+        ay = -helpful_utils.convert_raw_to_value(Ay[timestep], alpha = alpha_y, beta = beta_y)
         az = helpful_utils.convert_raw_to_value(Az[timestep], alpha = alpha_z, beta = beta_z)
 
         phi_val, theta_val = helpful_utils.get_roll_and_pitch_from_acceleration(ax, ay, az)
@@ -151,3 +152,19 @@ def plot_gyroscope(gyro, T):
     )
 
     return gyro_plot, Wx, Wy, Wz
+
+def compare_graphs(pred, true, title_name):
+    timesteps = np.arange(len(pred))
+
+    comparison_plot = (
+        so.Plot()
+        .add(so.Line(color = "red"), x = timesteps, y = true, label = "True")
+        .add(so.Line(color = "blue"), x = timesteps, y = pred, label = "Calibrated")
+        .label(
+            x = "Timesteps",
+            y = "Values",
+            title = title_name
+        )
+    )
+
+    return comparison_plot

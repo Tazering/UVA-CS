@@ -31,26 +31,24 @@ def parse_data(accel, gyro):
 
     return np.array(Ax), np.array(Ay), np.array(Az), np.array(Wx), np.array(Wy), np.array(Wz)
 
-# interpolate values
-def interpolate_rotations(rotation_matrices, vicon_T, imu_T):
-    interpolate_func = interpolate.interp1d(vicon_T, rotation_matrices, axis = 2, fill_value='extrapolate', kind = "nearest")
-    return interpolate_func(imu_T)
-
 # get roll and pitch
 def get_roll_and_pitch_from_acceleration(ax, ay, az):
-    g = 9.81
 
-    phi = math.asin(np.clip(ay/g, -1, 1))
-    theta = math.atan(ax/az)
-    # phi = np.arcsin(ay, az)  # Roll
-    # theta = np.arctan2(-ax, np.sqrt(ay**2 + az**2))
+    phi = np.arctan2(-ay, -az)
+    theta = math.asin(ax, 9.81)
+    # phi = np.arcsin(ay, 9.81)  # Roll
+    # theta = np.arctan2(ay/ az)
 
     return phi, theta
 
 # converts a single value to 
-def convert_raw_to_value(raw, alpha, beta):
-    K = (3300 * 9.81) / (1023)
-    value = (raw - beta) * K / alpha
+def convert_raw_to_value(raw, alpha, beta, is_gyro = False):
+    K = (3300) / (1023)
+
+    if is_gyro:
+        K = (3300 * math.pi) / (1023 * 180)
+
+    value = (raw - beta) * (K / alpha)    
 
     return value
 
@@ -61,13 +59,9 @@ def convert_rotation_matrix_to_euler(rotation_matrix):
 
     return gamma, beta, alpha
 
-# get rotation matrix
-# def get_rotation_matrix(rotation_matrices, idx):
+def get_average_sensitivity_from_datapoints(dynamic_period = [2000, 4100], num_of_samples = 3, beta = 512, roll = [], pitch = [], yaw = []):
+    sum = 0
 
-#     rotation_matrix = np.zeros(shape = (3, 3))
-
-#     for i in range(3):
-#         for j in range(3):
-#             rotation_matrix[i][j] = rotation_matrices[i][j][idx]
-
-#     return rotation_matrix
+    for i in range(num_of_samples):
+        random_idx = np.random.choice(np.arange(dynamic_period[0], dynamic_period[1]))
+        a += -9.81 * np.sin()

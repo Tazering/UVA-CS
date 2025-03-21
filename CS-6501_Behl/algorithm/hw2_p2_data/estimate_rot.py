@@ -30,14 +30,13 @@ def estimate_rot(data_num=1):
 
     rotation_matrices = vicon['rots']
     T_vicon = vicon['ts']
-
     # your code goes here
 
     # b)
         # plot vicon
     vicon_plot, roll, pitch, yaw = plotting_utils.plot_vicon_data(rotation_matrices, T_vicon)
-    # vicon_plot.show()
-    calibrate_sensors(accel, gyro, imu['ts'], rotation_matrices, T_vicon[0])
+    vicon_plot.show()
+    calibrate_sensors(accel, gyro, imu['ts'], T_vicon[0], roll, pitch, yaw)
 
     return None
 
@@ -45,7 +44,7 @@ def estimate_rot(data_num=1):
     # return roll,pitch,yaw
 
 # b)
-def calibrate_sensors(accel, gyro, imu_T, rotation_matrices, vicon_T):
+def calibrate_sensors(accel, gyro, imu_T, vicon_T, roll, pitch, yaw):
     imu_timesteps = imu_T[0]
     # plot the data
     # vicon_plot, roll, pitch, yaw = plotting_utils.plot_vicon_data(rotation_matrices = rotation_matrices, T = vicon_T)
@@ -53,13 +52,14 @@ def calibrate_sensors(accel, gyro, imu_T, rotation_matrices, vicon_T):
     gyro_plot.show()
 
     Ax, Ay, Az, Wx, Wy, Wz = helpful_utils.parse_data(accel, gyro)
-    
-    # calibrate the sensors at during stationary period
-    best_param = calibrate_accelerometer(Ax, Ay, Az, rotation_matrices, vicon_T, imu_timesteps) 
-    print(best_param)
+
+    accel_params = calibrate_accelerometer(Ax, Ay, Az, roll, pitch, yaw)
+    print(accel_params)
+    calibrate_gyroscope(roll, pitch, yaw, Wx, Wy, Wz, vicon_T)
+    set_times = np.arange(len(Ax))
         
     # accel_plot = plotting_utils.plot_accelerometer(Ax, Ay, Az, imu_T[0], conversion_param=best_param, transformed=True)
-    orientation_plot = plotting_utils.plot_orientations(Ax, Ay, Az, imu_T[0], best_param)
+    orientation_plot = plotting_utils.plot_orientations(Ax, Ay, Az, set_times, accel_params)
     # looking at the graph, the drone seems to be in stationary state with linear or angular acceleration
     # Therefore, the bias, would simply be the sequence of numbers in the first part of graph
 
@@ -71,33 +71,43 @@ def calibrate_sensors(accel, gyro, imu_T, rotation_matrices, vicon_T):
     return None
 
 # use least-squares fitting for parameter estimation
-def calibrate_accelerometer(Ax, Ay, Az, rotation_matrices, vicon_timesteps, imu_timesteps):
+def calibrate_accelerometer(Ax, Ay, Az, roll, pitch, yaw):
 
     # initial setup
-    vicon_interpolated = helpful_utils.interpolate_rotations(rotation_matrices = rotation_matrices, vicon_T = vicon_timesteps, imu_T = imu_timesteps)
 
-    g_vector = np.array([0, 0, -9.81]) # gravity vector
-
-    true_Ax = []
-    true_Ay = []
-    true_Az = []
-
-    for timestep in range(len(imu_timesteps)):
-        ground_truth = np.matmul(vicon_interpolated[:, :, timestep], g_vector.T)
-
-        true_Ax.append(ground_truth[0])
-        true_Ay.append(ground_truth[1])
-        true_Az.append(ground_truth[2])
-    
-    true_Ax = np.array(true_Ax)
-    true_Ay = np.array(true_Ay)
-    true_Az = np.array(true_Az)
-
+    # 1. Calibrate bias of ax and ay using stationary period (:700)
     beta_x = np.mean(Ax[:700])
     beta_y = np.mean(Ay[:700])
-    beta_z = np.mean(Az[:700])
+    beta_z = np.mean(Az[1900:2000]) # where the x-axis = g
+
+    # print(beta_x, beta_y, beta_z)
     
-    best_param = least_squares(net_force_error, [1, 1, 1], args = (Ax[700:], Ay[700:], Az[700:], true_Ax[700:], true_Ay[700:], true_Az[700:], beta_x, beta_y, beta_z))
+    # 2. Compute the sensitivities
+    average_z = np.mean(Az[:700])
+    alpha_z = (average_z - beta_z) * (3300/1023)
+    
+    average_y = np.mean(Ay[3700:4100])
+    alpha_y = (average_y - beta_y) * (3300/1023)
+
+    average_x = np.mean(Ax[1900:2000])
+    alpha_x = (average_x - beta_x) * (3300/1023)
+
+    
+    print(alpha_x, alpha_y, alpha_z)
+
+    # best_params = least_squares(magnitude_residual, [100, 100, 100, beta_x], args = (Ax[:700], Ay[:700], Az[:700], beta_x, beta_y))
+    # 2. Calibrate sensitivity of ax and ay using the dynamic portion of the data
+    # sum_y = 0
+    # for i in range(10):
+    #     random_idx = np.random.choice(np.arange(1800, 4100)) # pick random point from dynamic portion
+    #     ay = - 9.81 * np.sin(roll[random_idx])
+    #     sensitivity_test_point = (3300 * (Ay[random_idx] - beta_y)) / (ay * 1023)
+    #     sum_y += sensitivity_test_point
+
+    # alpha_y = sum_y / 10
+    # print(beta_x, beta_y, alpha_y)
+   
+    
 
     # # get the average of the stationary period of each linear acceleration
     # beta_x = np.average(Ax[:stationary_period])
@@ -110,27 +120,57 @@ def calibrate_accelerometer(Ax, Ay, Az, rotation_matrices, vicon_timesteps, imu_
     # best_params = results["x"]
     # best_params = np.concatenate((best_params, np.array([beta_x, beta_y, beta_z])))
 
-    return np.concatenate((best_param["x"], [beta_x], [beta_y], [beta_z]))
+    return np.array([alpha_x, beta_x, alpha_y, beta_y, alpha_z, beta_z])
 
-def calibrate_gyroscope():
-    
+def calibrate_gyroscope(roll, pitch, yaw, Wx, Wy, Wz, vicon_T):
+
+    d_wx = np.gradient(roll, 1)
+    d_wy = np.gradient(pitch, 1)
+    d_wz = np.gradient(yaw, 1)
+    print(max(d_wx))
+    plt.plot(np.arange(len(d_wx)), d_wx, label = "X")
+    plt.plot(np.arange(len(d_wx)), d_wy, label = "Y")
+    plt.plot(np.arange(len(d_wx)), d_wz, label = "Z")
+
+    plt.legend()
+
+    plt.show()
+
+
     return None
 
-# helper functions
-def net_force_error(parameters, Ax, Ay, Az, true_Ax, true_Ay, true_Az, beta_x, beta_y, beta_z): # these are the raw ax, ay, and az
-    
-    alpha_x, alpha_y, alpha_z = parameters
 
-    convert_Ax = -helpful_utils.convert_raw_to_value(Ax, alpha_x, beta_x)
-    convert_Ay = -helpful_utils.convert_raw_to_value(Ay, alpha_y, beta_y)
-    convert_Az = helpful_utils.convert_raw_to_value(Az, alpha_z, beta_z)
 
-    # error = np.concatenate([true_Ax - convert_Ax, true_Ay - convert_Ay, true_Az - convert_Az])
-    mag = np.sqrt(convert_Ax**2 + convert_Ay**2 + convert_Az**2)
-    avg_mag = np.mean(mag)
-    error = np.sqrt((avg_mag - 9.81)**2)
-    
+def magnitude_residual(params, Ax, Ay, Az, beta_x, beta_y):
+
+    alpha_x, alpha_y, alpha_z, beta_z = params
+    num_timesteps = len(Ax)
+    magnitudes = []
+
+    for timestep in range(num_timesteps):
+        ax = helpful_utils.convert_raw_to_value(Ax[timestep], alpha_x, beta_x)
+        ay = helpful_utils.convert_raw_to_value(Ay[timestep], alpha_y, beta_y)
+        magnitudes.append(np.sqrt(ax**2 + ay**2 + 9.81**2))
+
+    avg_mag = (np.array(magnitudes) - 9.81) ** 2
+    error = np.sum(avg_mag)
+
     return error
+
+def calibrate_z(params, Az, stationary_period = 700):
+    alpha_z, beta_z = params
+
+    num_timesteps = len(Az)
+
+    az = helpful_utils.convert_raw_to_value(raw = az, alpha = alpha_z, beta = beta_z)
+
+    mag = np.sqrt(az**2)
+    error = np.sqrt((mag - 9.81)**2)
+
+
+
+
+
 
 # call the function
 estimate_rot()
