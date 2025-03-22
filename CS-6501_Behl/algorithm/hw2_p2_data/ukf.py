@@ -76,7 +76,41 @@ def step_2(prev_x, Wi):
     
     return chi_x
 
-def step_3():
+def step_3(chi_x, delta_t):
+    x_omega = np.array(chi_x[4:7, :])
+    x_quaternion = np.array(chi_x[0:4, :])
+    n, m = x_omega.shape
+
+    # print(f"x_quaternion: {x_quaternion}\n")
+
+    y_i = []
+    for idx in range(m):
+        sigma_omega = np.array(x_omega[:, idx])
+        sigma_quaternion = np.array(x_quaternion[:, idx])
+
+        sigma_omega_norm = np.linalg.norm(sigma_omega)
+        alpha = sigma_omega_norm * delta_t # 9
+        e = sigma_omega / sigma_omega_norm # 10
+
+        quaternion_delta = Quaternion(scalar = np.cos(alpha/2), vec = np.sin(alpha/2) * e)
+        quaternion = Quaternion(scalar = sigma_quaternion[0], vec = sigma_quaternion[1:4])
+
+        next_quaternion = quaternion.__mul__(quaternion_delta)
+
+        # print(f"quaternion delta: {quaternion_delta}\n")
+
+    # x_omega_norm = np.linalg.norm(x_omega)
+
+    # alpha = x_omega_norm * delta_t # 9
+    # e = x_omega / x_omega # 10
+
+    # quaternion_delta = Quaternion(scalar = np.cos(alpha/2), vec = np.sin(alpha/2) * e) # 11
+
+    # quaternion = Quaternion()
+
+
+    # print(f"\nquaternion: {quaternion}\n")
+
     return None
 
 def test_function():
@@ -89,7 +123,9 @@ def test_function():
         
     # test step 1 for functionality
     test_Wi = step_1(A)
-    step_2(test_state, test_Wi)
+    test_chi_x = step_2(test_state, test_Wi)
+    step_3(test_chi_x, .1)
+
 
 
 test_function()
