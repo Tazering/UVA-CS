@@ -127,7 +127,8 @@ def calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T):
     interp_wy = interp1d(vicon_T, true_W[1], kind = "nearest", bounds_error = False, fill_value = "extrapolate")
     interp_wz = interp1d(vicon_T, true_W[2], kind = 'nearest', bounds_error = False, fill_value = 'extrapolate')
 
-    
+    interpol_wx = interp_wx()
+
     print(Wx.shape)
     exit(0)
 
