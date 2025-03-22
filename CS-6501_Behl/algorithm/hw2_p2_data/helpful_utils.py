@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 import math
-from scipy import interpolate
+from scipy.interpolate import interp1d
+from quaternion import Quaternion
 
 # parses the accelerometer and gyroscope data
 def parse_data(accel, gyro):
@@ -52,10 +53,38 @@ def convert_raw_to_value(raw, alpha, beta, is_gyro = False):
 
     return value
 
-def convert_rotation_matrix_to_euler(rotation_matrix):
-    alpha = math.atan2(rotation_matrix[1][0], rotation_matrix[0][0])
-    beta = math.atan2(-rotation_matrix[2][0], math.sqrt(rotation_matrix[2][1]**2 + rotation_matrix[2][2]**2))
-    gamma = math.atan2(rotation_matrix[2][1], rotation_matrix[2][2])
+# converts a rotation matrix to angular velocity
+def convert_rotation_matrix_to_angular_velocity(rotation_matrix, delta_t, prev_quaternion = None):
+    quaternion = Quaternion()
+    quaternion.from_rotm(rotation_matrix) # convert to quaternion
+    MIN_DELTA_T = 1e-6
+    delta_t = max(delta_t, MIN_DELTA_T)
 
-    return gamma, beta, alpha
+
+    if prev_quaternion is not None:
+        prev_axis_angle = prev_quaternion.axis_angle()
+        axis_angle = quaternion.axis_angle()
+
+        delta_axis_angle = axis_angle - prev_axis_angle
+
+        angular_rate = delta_axis_angle / delta_t
+    else:
+        axis_angle = quaternion.axis_angle()
+        angular_rate = axis_angle / delta_t
+
+
+    return angular_rate
+
+# interpolate data
+def interpolate_ground_truth(true_x, true_y, pred_x):
+    interp = interp1d(true_x, true_y, kind = "nearest", bounds_error = False, fill_value = "extrapolate")
+    return interp(pred_x)
+    
+
+# def convert_rotation_matrix_to_euler(rotation_matrix):
+#     alpha = math.atan2(rotation_matrix[1][0], rotation_matrix[0][0])
+#     beta = math.atan2(-rotation_matrix[2][0], math.sqrt(rotation_matrix[2][1]**2 + rotation_matrix[2][2]**2))
+#     gamma = math.atan2(rotation_matrix[2][1], rotation_matrix[2][2])
+
+#     return gamma, beta, alpha
 

@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import helpful_utils
 import plotting_utils
 from scipy.optimize import least_squares
+from scipy.signal import savgol_filter
+
 
 #data files are numbered on the server.
 #for exmaple imuRaw1.mat, imuRaw2.mat and so on.
@@ -37,8 +39,8 @@ def estimate_rot(data_num=1):
     # b)
         # plot vicon
     vicon_plot, roll, pitch, yaw = plotting_utils.plot_vicon_data(rotation_matrices, T_vicon)
-    vicon_plot.show()
-    calibrate_sensors(accel, gyro, imu['ts'], T_vicon[0], roll, pitch, yaw, rotation_matrices)
+    # vicon_plot.show()
+    calibrate_sensors(accel, gyro, imu['ts'], T_vicon[0], rotation_matrices)
 
     return None
 
@@ -46,33 +48,27 @@ def estimate_rot(data_num=1):
     # return roll,pitch,yaw
 
 # b)
-def calibrate_sensors(accel, gyro, imu_T, vicon_T, roll, pitch, yaw, rotation_matrices):
+def calibrate_sensors(accel, gyro, imu_T, vicon_T, rotation_matrices):
     imu_timesteps = imu_T[0]
     # plot the data
-    # vicon_plot, roll, pitch, yaw = plotting_utils.plot_vicon_data(rotation_matrices = rotation_matrices, T = vicon_T)
     gyro_plot, Wx, Wy, Wz = plotting_utils.plot_gyroscope(gyro, imu_T)
     gyro_plot.show()
-
+    
     Ax, Ay, Az, Wx, Wy, Wz = helpful_utils.parse_data(accel, gyro)
 
-    accel_params = calibrate_accelerometer(Ax, Ay, Az, roll, pitch, yaw)
-    calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T)
-    set_times = np.arange(len(Ax))
+    accel_params = calibrate_accelerometer(Ax, Ay, Az)
+    gyro_params = calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T, imu_T[0])
+    print(gyro_params)
         
-    # accel_plot = plotting_utils.plot_accelerometer(Ax, Ay, Az, imu_T[0], conversion_param=best_param, transformed=True)
-    orientation_plot = plotting_utils.plot_orientations(Ax, Ay, Az, set_times, accel_params)
-    # looking at the graph, the drone seems to be in stationary state with linear or angular acceleration
-    # Therefore, the bias, would simply be the sequence of numbers in the first part of graph
-
-    # accel_plot.show()
-
-    # print(best_params)
+    orientation_plot = plotting_utils.plot_orientations(Ax, Ay, Az, Wx, Wy, Wz, imu_T, vicon_T, accel_params, gyro_params)
 
     orientation_plot.show()
+
+    plotting_utils.plot_angular_velocity(rotation_matrices, Wx, Wy, Wz, gyro_params, vicon_T, imu_T)
     return None
 
 # use least-squares fitting for parameter estimation
-def calibrate_accelerometer(Ax, Ay, Az, roll, pitch, yaw):
+def calibrate_accelerometer(Ax, Ay, Az):
 
     # initial setup
 
@@ -81,8 +77,6 @@ def calibrate_accelerometer(Ax, Ay, Az, roll, pitch, yaw):
     beta_y = np.mean(Ay[:700])
     beta_z = np.mean(Az[1900:2000]) # where the x-axis = g
 
-    # print(beta_x, beta_y, beta_z)
-    
     # 2. Compute the sensitivities
     average_z = np.mean(Az[:700])
     alpha_z = (average_z - beta_z) * (3300/1023)
@@ -101,108 +95,122 @@ def calibrate_accelerometer(Ax, Ay, Az, roll, pitch, yaw):
     alpha_z = 340.221
     beta_z = 499.69
 
-    print("Parameters")
-    print(alpha_x, beta_x, alpha_y, beta_y, alpha_z, beta_z)
-
     return np.array([alpha_x, beta_x, alpha_y, beta_y, alpha_z, beta_z])
 
-def calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T):
+def calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T, imu_T):
     dt = np.diff(vicon_T)
 
-    true_W = np.zeros((3, rotation_matrices.shape[2]))
+    beta_x = np.mean(Wx[:700])
+    beta_y = np.mean(Wy[:700])
+    beta_z = np.mean(Wz[:700])
+
+    true_W = np.zeros((3, rotation_matrices.shape[2]-1))
+
+    prev_quat = None
     
-    for timestep in range(rotation_matrices.shape[2] - 1):
-        r = rotation_matrices[:, :, timestep]
-        r_next = rotation_matrices[:, :, timestep + 1]
+    for timestep in range(1, rotation_matrices.shape[2]):
+        prev_quat = Quaternion()
+        prev_quat.from_rotm(rotation_matrices[:, :, timestep - 1])
 
-        drdt = (r_next - r) / dt[timestep]
+        true_W[:, timestep-1] = helpful_utils.convert_rotation_matrix_to_angular_velocity(rotation_matrices[:, :, timestep], dt[timestep-1], prev_quat)
 
-        skew_symmetric_matrix = np.matmul(r.T, drdt)
 
-        true_W[0, timestep] = skew_symmetric_matrix[2, 1]
-        true_W[1, timestep] = skew_symmetric_matrix[0, 2]
-        true_W[2, timestep] = skew_symmetric_matrix[1, 0]
+    true_W[0] = savgol_filter(true_W[0], window_length=21, polyorder=3)
+    true_W[1] = savgol_filter(true_W[1], window_length=21, polyorder=3)
+    true_W[2] = savgol_filter(true_W[2], window_length=21, polyorder=3)
 
-    interp_wx = interp1d(vicon_T, true_W[0], kind='nearest', bounds_error = False, fill_value="extrapolate")
-    interp_wy = interp1d(vicon_T, true_W[1], kind = "nearest", bounds_error = False, fill_value = "extrapolate")
-    interp_wz = interp1d(vicon_T, true_W[2], kind = 'nearest', bounds_error = False, fill_value = 'extrapolate')
-
-    interpol_wx = interp_wx()
-
-    print(Wx.shape)
-    exit(0)
-
-    # # for timestep in range(len(dt)):
-    # dwx = np.diff(roll) / dt
-    # dwy = np.diff(pitch) / dt
-    # dwz = np.diff(yaw) / dt
-
-    # print(f"Wx, Wy, Wz Shapes: {Wx.shape}, {Wy.shape}, {Wz.shape}\n")
-    # print(f"dWx, dWy, dWz Shapes: {dwx.shape}, {dwy.shape}, {dwz.shape}\n")
-
-    # beta_x = np.mean(Wx[:700])
-    # beta_y = np.mean(Wy[:700])
-    # beta_z = np.mean(Wz[:700])
-
-    # print(Wx.shape)
-    # exit(0)
-
-    alpha_params = least_squares(error, [100, 100, 100], args = ([dwx, dwy, dwz], [Wx, Wy, Wz], [beta_x, beta_y, beta_z]))
+    interpolated_wx = helpful_utils.interpolate_ground_truth(true_x = vicon_T[:-1], true_y = true_W[0], pred_x = imu_T)
+    interpolated_wy = helpful_utils.interpolate_ground_truth(true_x = vicon_T[:-1], true_y = true_W[1], pred_x = imu_T)
+    interpolated_wz = helpful_utils.interpolate_ground_truth(true_x = vicon_T[:-1], true_y = true_W[2], pred_x = imu_T)
 
 
 
-    # print(f"Max of dwx: {max(dwx)}")    
-    # d_wx = np.gradient(roll, 1)
-    # d_wy = np.gradient(pitch, 1)
-    # d_wz = np.gradient(yaw, 1)
-    # print(max(d_wx))
-    # plt.plot(np.arange(len(dwx)), dwx, label = "X")
-    # plt.plot(np.arange(len(dwx)), dwy, label = "Y")
-    # plt.plot(np.arange(len(dwx)), dwz, label = "Z")
+    # plt.plot(interpolated_wx, color = "red", label = "True_Wx")
+    # plt.plot(interpolated_wy, color = "blue", label = "True_Wy")
+    # plt.plot(interpolated_wz, color = "green", label = "True_Wz")
 
     # plt.legend()
-
     # plt.show()
 
+    # print(f"\ninterpol_wx: {interpol_wx}\n")
 
-    return None
+    # idx_timesteps = np.arange(len(interpol_wx) + 1)
+
+    # print(idx_timesteps)
+
+    # plt.plot(true_W[0], label = "wx")
+    # # plt.plot(idx_timesteps, interpol_wy, label = "wy")
+    # # plt.plot(idx_timesteps, interpol_wz, label = "wz")
+    # plt.legend()
+    # plt.show()
+    
 
 
-def error(params, pred_W, true_W, betas):
+    alpha_params = least_squares(error_function, [100, 100, 100], args = ([Wx, Wy, Wz], [interpolated_wx, interpolated_wy, interpolated_wz], [beta_x, beta_y, beta_z]))
+
+    # print(alpha_params)
+
+    return [alpha_params["x"][0], beta_x, alpha_params["x"][1], beta_y, alpha_params["x"][2], beta_z]
+
+
+def error_function(params, pred_W, true_W, betas):
     beta_x, beta_y, beta_z = betas
     alpha_x, alpha_y, alpha_z = params
 
     pred_Ax, pred_Ay, pred_Az = pred_W
     true_Ax, true_Ay, true_Az = true_W
 
-    ax = helpful_utils.convert_raw_to_value(pred_Ax, alpha_x, beta_x)
-    ay = helpful_utils.convert_raw_to_value(pred_Ay, alpha_y, beta_y)
-    az = helpful_utils.convert_raw_to_value(pred_Az, alpha_z, beta_z)
+    ax = helpful_utils.convert_raw_to_value(pred_Ax, alpha_x, beta_x, is_gyro=True)
+    ay = helpful_utils.convert_raw_to_value(pred_Ay, alpha_y, beta_y, is_gyro=True)
+    az = helpful_utils.convert_raw_to_value(pred_Az, alpha_z, beta_z, is_gyro=True)
 
-    error_x = np.sqrt(np.power(ax - true_Ax, 2))
-    error_y = np.sqrt(np.power(ay - true_Ay, 2))
-    error_z = np.sqrt(np.power(az - true_Az, 2))
+    error_x = np.average(np.power(ax - true_Ax, 2))
+    error_y = np.average(np.power(ay - true_Ay, 2))
+    error_z = np.average(np.power(az - true_Az, 2))
 
     return error_x + error_y + error_z
 
-def magnitude_residual(params, Ax, Ay, Az, beta_x, beta_y):
-
-    alpha_x, alpha_y, alpha_z, beta_z = params
-    num_timesteps = len(Ax)
-    magnitudes = []
-
-    for timestep in range(num_timesteps):
-        ax = helpful_utils.convert_raw_to_value(Ax[timestep], alpha_x, beta_x)
-        ay = helpful_utils.convert_raw_to_value(Ay[timestep], alpha_y, beta_y)
-        magnitudes.append(np.sqrt(ax**2 + ay**2 + 9.81**2))
-
-    avg_mag = (np.array(magnitudes) - 9.81) ** 2
-    error = np.sum(avg_mag)
-
-    return error
 
 
+# def magnitude_residual(params, Ax, Ay, Az, beta_x, beta_y):
 
+#     alpha_x, alpha_y, alpha_z, beta_z = params
+#     num_timesteps = len(Ax)
+#     magnitudes = []
+
+#     for timestep in range(num_timesteps):
+#         ax = helpful_utils.convert_raw_to_value(Ax[timestep], alpha_x, beta_x)
+#         ay = helpful_utils.convert_raw_to_value(Ay[timestep], alpha_y, beta_y)
+#         magnitudes.append(np.sqrt(ax**2 + ay**2 + 9.81**2))
+
+#     avg_mag = (np.array(magnitudes) - 9.81) ** 2
+#     error = np.sum(avg_mag)
+
+#     return error
+
+
+
+        # r = rotation_matrices[:, :, timestep]
+        # r_next = rotation_matrices[:, :, timestep + 1]
+
+        # relative_r = np.matmul(r.T, r_next)
+
+        # dr = (r_next - r) / dt[timestep]
+
+        # skew_symmetric = np.matmul(r.T, dr)
+
+        # true_W[0, timestep] = skew_symmetric[2, 1]
+        # true_W[1, timestep] = skew_symmetric[0, 2]
+        # true_W[2, timestep] = skew_symmetric[1, 0]
+
+        # relative_r = np.matmul(r.T, r_next)
+
+        # rot = Rotation.from_matrix(relative_r)
+        # axis_angle = rot.as_rotvec()
+
+        # # drdt = (r_next - r) / dt[timestep]
+
+        # # skew_symmetric_matrix = np.matmul(r.T, drdt)
 
 
 # call the function
