@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import io
+from scipy.interpolate import interp1d
 from quaternion import Quaternion
 import seaborn.objects as so
 import pandas as pd
@@ -32,11 +33,12 @@ def estimate_rot(data_num=1):
     T_vicon = vicon['ts']
     # your code goes here
 
+
     # b)
         # plot vicon
     vicon_plot, roll, pitch, yaw = plotting_utils.plot_vicon_data(rotation_matrices, T_vicon)
     vicon_plot.show()
-    calibrate_sensors(accel, gyro, imu['ts'], T_vicon[0], roll, pitch, yaw)
+    calibrate_sensors(accel, gyro, imu['ts'], T_vicon[0], roll, pitch, yaw, rotation_matrices)
 
     return None
 
@@ -44,7 +46,7 @@ def estimate_rot(data_num=1):
     # return roll,pitch,yaw
 
 # b)
-def calibrate_sensors(accel, gyro, imu_T, vicon_T, roll, pitch, yaw):
+def calibrate_sensors(accel, gyro, imu_T, vicon_T, roll, pitch, yaw, rotation_matrices):
     imu_timesteps = imu_T[0]
     # plot the data
     # vicon_plot, roll, pitch, yaw = plotting_utils.plot_vicon_data(rotation_matrices = rotation_matrices, T = vicon_T)
@@ -54,8 +56,7 @@ def calibrate_sensors(accel, gyro, imu_T, vicon_T, roll, pitch, yaw):
     Ax, Ay, Az, Wx, Wy, Wz = helpful_utils.parse_data(accel, gyro)
 
     accel_params = calibrate_accelerometer(Ax, Ay, Az, roll, pitch, yaw)
-    print(accel_params)
-    calibrate_gyroscope(roll, pitch, yaw, Wx, Wy, Wz, vicon_T)
+    calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T)
     set_times = np.arange(len(Ax))
         
     # accel_plot = plotting_utils.plot_accelerometer(Ax, Ay, Az, imu_T[0], conversion_param=best_param, transformed=True)
@@ -90,56 +91,98 @@ def calibrate_accelerometer(Ax, Ay, Az, roll, pitch, yaw):
     alpha_y = (average_y - beta_y) * (3300/1023)
 
     average_x = np.mean(Ax[1900:2000])
-    alpha_x = (average_x - beta_x) * (3300/1023)
+    alpha_x = -((average_x - beta_x) * (3300/1023))
 
-    
-    print(alpha_x, alpha_y, alpha_z)
+    # set values
+    alpha_x = 342.184 
+    beta_x = 510.807
+    alpha_y = 239.438
+    beta_y = 500.994
+    alpha_z = 340.221
+    beta_z = 499.69
 
-    # best_params = least_squares(magnitude_residual, [100, 100, 100, beta_x], args = (Ax[:700], Ay[:700], Az[:700], beta_x, beta_y))
-    # 2. Calibrate sensitivity of ax and ay using the dynamic portion of the data
-    # sum_y = 0
-    # for i in range(10):
-    #     random_idx = np.random.choice(np.arange(1800, 4100)) # pick random point from dynamic portion
-    #     ay = - 9.81 * np.sin(roll[random_idx])
-    #     sensitivity_test_point = (3300 * (Ay[random_idx] - beta_y)) / (ay * 1023)
-    #     sum_y += sensitivity_test_point
-
-    # alpha_y = sum_y / 10
-    # print(beta_x, beta_y, alpha_y)
-   
-    
-
-    # # get the average of the stationary period of each linear acceleration
-    # beta_x = np.average(Ax[:stationary_period])
-    # beta_y = np.average(Ay[:stationary_period])
-    # beta_z = np.average(Az[:stationary_period])
-
-    # # run least squares
-    # results = least_squares(net_force_error, [1, 1, 1], args = (Ax, Ay, Az, beta_x, beta_y, beta_z), bounds = (-np.inf, np.inf))
-
-    # best_params = results["x"]
-    # best_params = np.concatenate((best_params, np.array([beta_x, beta_y, beta_z])))
+    print("Parameters")
+    print(alpha_x, beta_x, alpha_y, beta_y, alpha_z, beta_z)
 
     return np.array([alpha_x, beta_x, alpha_y, beta_y, alpha_z, beta_z])
 
-def calibrate_gyroscope(roll, pitch, yaw, Wx, Wy, Wz, vicon_T):
+def calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T):
+    dt = np.diff(vicon_T)
 
-    d_wx = np.gradient(roll, 1)
-    d_wy = np.gradient(pitch, 1)
-    d_wz = np.gradient(yaw, 1)
-    print(max(d_wx))
-    plt.plot(np.arange(len(d_wx)), d_wx, label = "X")
-    plt.plot(np.arange(len(d_wx)), d_wy, label = "Y")
-    plt.plot(np.arange(len(d_wx)), d_wz, label = "Z")
+    true_W = np.zeros((3, rotation_matrices.shape[2]))
+    
+    for timestep in range(rotation_matrices.shape[2] - 1):
+        r = rotation_matrices[:, :, timestep]
+        r_next = rotation_matrices[:, :, timestep + 1]
 
-    plt.legend()
+        drdt = (r_next - r) / dt[timestep]
 
-    plt.show()
+        skew_symmetric_matrix = np.matmul(r.T, drdt)
+
+        true_W[0, timestep] = skew_symmetric_matrix[2, 1]
+        true_W[1, timestep] = skew_symmetric_matrix[0, 2]
+        true_W[2, timestep] = skew_symmetric_matrix[1, 0]
+
+    interp_wx = interp1d(vicon_T, true_W[0], kind='nearest', bounds_error = False, fill_value="extrapolate")
+    interp_wy = interp1d(vicon_T, true_W[1], kind = "nearest", bounds_error = False, fill_value = "extrapolate")
+    interp_wz = interp1d(vicon_T, true_W[2], kind = 'nearest', bounds_error = False, fill_value = 'extrapolate')
+
+    
+    print(Wx.shape)
+    exit(0)
+
+    # # for timestep in range(len(dt)):
+    # dwx = np.diff(roll) / dt
+    # dwy = np.diff(pitch) / dt
+    # dwz = np.diff(yaw) / dt
+
+    # print(f"Wx, Wy, Wz Shapes: {Wx.shape}, {Wy.shape}, {Wz.shape}\n")
+    # print(f"dWx, dWy, dWz Shapes: {dwx.shape}, {dwy.shape}, {dwz.shape}\n")
+
+    # beta_x = np.mean(Wx[:700])
+    # beta_y = np.mean(Wy[:700])
+    # beta_z = np.mean(Wz[:700])
+
+    # print(Wx.shape)
+    # exit(0)
+
+    alpha_params = least_squares(error, [100, 100, 100], args = ([dwx, dwy, dwz], [Wx, Wy, Wz], [beta_x, beta_y, beta_z]))
+
+
+
+    # print(f"Max of dwx: {max(dwx)}")    
+    # d_wx = np.gradient(roll, 1)
+    # d_wy = np.gradient(pitch, 1)
+    # d_wz = np.gradient(yaw, 1)
+    # print(max(d_wx))
+    # plt.plot(np.arange(len(dwx)), dwx, label = "X")
+    # plt.plot(np.arange(len(dwx)), dwy, label = "Y")
+    # plt.plot(np.arange(len(dwx)), dwz, label = "Z")
+
+    # plt.legend()
+
+    # plt.show()
 
 
     return None
 
 
+def error(params, pred_W, true_W, betas):
+    beta_x, beta_y, beta_z = betas
+    alpha_x, alpha_y, alpha_z = params
+
+    pred_Ax, pred_Ay, pred_Az = pred_W
+    true_Ax, true_Ay, true_Az = true_W
+
+    ax = helpful_utils.convert_raw_to_value(pred_Ax, alpha_x, beta_x)
+    ay = helpful_utils.convert_raw_to_value(pred_Ay, alpha_y, beta_y)
+    az = helpful_utils.convert_raw_to_value(pred_Az, alpha_z, beta_z)
+
+    error_x = np.sqrt(np.power(ax - true_Ax, 2))
+    error_y = np.sqrt(np.power(ay - true_Ay, 2))
+    error_z = np.sqrt(np.power(az - true_Az, 2))
+
+    return error_x + error_y + error_z
 
 def magnitude_residual(params, Ax, Ay, Az, beta_x, beta_y):
 
@@ -156,17 +199,6 @@ def magnitude_residual(params, Ax, Ay, Az, beta_x, beta_y):
     error = np.sum(avg_mag)
 
     return error
-
-def calibrate_z(params, Az, stationary_period = 700):
-    alpha_z, beta_z = params
-
-    num_timesteps = len(Az)
-
-    az = helpful_utils.convert_raw_to_value(raw = az, alpha = alpha_z, beta = beta_z)
-
-    mag = np.sqrt(az**2)
-    error = np.sqrt((mag - 9.81)**2)
-
 
 
 

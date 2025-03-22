@@ -21,9 +21,9 @@ def plot_vicon_data(rotation_matrices, T):
     for rotm in range(num_timesteps): # loop through timesteps
 
         rotation_matrix = rotation_matrices[:, :, rotm]
-        euler_angle = helpful_utils.convert_rotation_matrix_to_euler(rotation_matrix)
-        # quaternion.from_rotm(rotation_matrix) # convert to quaternion
-        # euler_angle = quaternion.euler_angles() # convert to euler_angles
+        # euler_angle = helpful_utils.convert_rotation_matrix_to_euler(rotation_matrix)
+        quaternion.from_rotm(rotation_matrix) # convert to quaternion
+        euler_angle = quaternion.euler_angles() # convert to euler_angles
 
         roll.append(euler_angle[0])
         pitch.append(euler_angle[1])
@@ -133,6 +133,8 @@ def plot_gyroscope(gyro, T):
 
     timesteps = T[0]
 
+    idx_timesteps = np.arange(T.shape[1])
+
     for timestep in range(T.shape[1]):
 
         Wx.append(gyro[1][timestep])
@@ -141,9 +143,9 @@ def plot_gyroscope(gyro, T):
 
     gyro_plot = (
         so.Plot()
-        .add(so.Line(color = "red"), x = timesteps, y = Wx, label = "Wx")
-        .add(so.Line(color = "blue"), x = timesteps, y = Wy, label = "Wy")
-        .add(so.Line(color = "green"), x = timesteps, y = Wz, label = "Wz")
+        .add(so.Line(color = "red"), x = idx_timesteps, y = Wx, label = "Wx")
+        .add(so.Line(color = "blue"), x = idx_timesteps, y = Wy, label = "Wy")
+        .add(so.Line(color = "green"), x = idx_timesteps, y = Wz, label = "Wz")
         .label(
             x = "Timesteps",
             y = "Values",

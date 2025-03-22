@@ -34,10 +34,10 @@ def parse_data(accel, gyro):
 # get roll and pitch
 def get_roll_and_pitch_from_acceleration(ax, ay, az):
 
-    phi = np.arctan2(-ay, -az)
-    theta = math.asin(ax, 9.81)
-    # phi = np.arcsin(ay, 9.81)  # Roll
-    # theta = np.arctan2(ay/ az)
+    # phi = np.arctan2(-ay, -az)
+    # theta = math.asin(ax / 9.81)
+    phi = np.arctan2(ay, az)  # Roll
+    theta = np.arctan2(ax, np.sqrt(ay**2 + az**2))
 
     return phi, theta
 
@@ -59,9 +59,3 @@ def convert_rotation_matrix_to_euler(rotation_matrix):
 
     return gamma, beta, alpha
 
-def get_average_sensitivity_from_datapoints(dynamic_period = [2000, 4100], num_of_samples = 3, beta = 512, roll = [], pitch = [], yaw = []):
-    sum = 0
-
-    for i in range(num_of_samples):
-        random_idx = np.random.choice(np.arange(dynamic_period[0], dynamic_period[1]))
-        a += -9.81 * np.sin()
