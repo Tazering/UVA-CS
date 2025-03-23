@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import math
 from quaternion import Quaternion
-
+import helpful_utils
 
 def initialize():
-    covariance = .1
+    Q = np.random.random(shape = (6, 6))
     dynamic_noise = .1
-    measurement_cov = .1
+    R = np.diag([0.01, 0.01, 0.01, .001, .001, .001])
 
 def run_ukf_process(self):
     # initialize
@@ -55,7 +55,7 @@ def step_2(prev_x, Wi):
     prev_x_q = Quaternion(scalar = prev_x[0], vec = prev_x[1:4])
     prev_x_omega = prev_x[4:7]
 
-    chi_x = np.zeros(shape = (n + 1, m))
+    chi_x = np.zeros(shape = (n + 1, m)) # 34
 
     for idx in range(m):
         wi_quaternion = Quaternion()
@@ -76,55 +76,206 @@ def step_2(prev_x, Wi):
     
     return chi_x
 
-def step_3(chi_x, delta_t):
-    x_omega = np.array(chi_x[4:7, :])
-    x_quaternion = np.array(chi_x[0:4, :])
-    n, m = x_omega.shape
+def step_3(chi_x, delta_t, Q):
+    n, m = chi_x.shape
 
-    # print(f"x_quaternion: {x_quaternion}\n")
-
-    y_i = []
+    y_i = np.zeros(shape = chi_x.shape)
     for idx in range(m):
-        sigma_omega = np.array(x_omega[:, idx])
-        sigma_quaternion = np.array(x_quaternion[:, idx])
+        sigma_state = np.array(chi_x[:, idx])
+        w_k = np.random.multivariate_normal(mean = np.zeros(6), cov = Q) # 13
 
-        sigma_omega_norm = np.linalg.norm(sigma_omega)
-        alpha = sigma_omega_norm * delta_t # 9
-        e = sigma_omega / sigma_omega_norm # 10
+        next_x = process_model(sigma_state, w_k, delta_t)
 
-        quaternion_delta = Quaternion(scalar = np.cos(alpha/2), vec = np.sin(alpha/2) * e)
-        quaternion = Quaternion(scalar = sigma_quaternion[0], vec = sigma_quaternion[1:4])
+        y_i[:, idx] = next_x
+    
+    return y_i
 
-        next_quaternion = quaternion.__mul__(quaternion_delta)
+def step_4(y_i):
 
-        print(f"Next Quaternion: {next_quaternion}\n")
+    # compute mean of omega
+    y_i_omega = y_i[4:7, :] # get omega values
+    omega_mean = np.mean(y_i_omega, axis = 1) # \bar{omega}
 
-    # x_omega_norm = np.linalg.norm(x_omega)
+    # use iterative gradient descent for mean of q
+    quaternions = []
 
-    # alpha = x_omega_norm * delta_t # 9
-    # e = x_omega / x_omega # 10
+        # make list of quaternions
+    for idx in range(y_i.shape[1]):
+        q_idx = Quaternion(scalar = y_i[0, idx], vec = y_i[1:4, idx])
+        quaternions.append(q_idx)
 
-    # quaternion_delta = Quaternion(scalar = np.cos(alpha/2), vec = np.sin(alpha/2) * e) # 11
+    q_bar = helpful_utils.quaternion_mean(quaternions)
 
-    # quaternion = Quaternion()
+    # make a priori
+    x_hat_k = np.concatenate((q_bar.q, omega_mean)) # \hat{y}^-_k
+
+    return x_hat_k, q_bar
+
+def step_5(y_i, x_hat_k):
+    n, m = y_i.shape
+
+    W_tick_i = np.zeros(shape = (n - 1, m))
+    q_bar, omega_bar = helpful_utils.split_state_into_q_and_omega(x_hat_k)
 
 
-    # print(f"\nquaternion: {quaternion}\n")
+    for idx in range(m):
+        x_i = y_i[:, idx]
+        q_i, omega_i = helpful_utils.split_state_into_q_and_omega(x_i)
 
-    return None
+        # omega part
+        rel_omega_i = omega_i - omega_bar
+
+        # quaternion part
+        rel_q_i = q_i.__mul__(q_bar.inv())
+        rel_q_i.normalize()
+        rel_q_axis_angle = rel_q_i.axis_angle()
+        
+        # combine
+        w_tick_i = np.concatenate((rel_q_axis_angle, rel_omega_i))
+
+        W_tick_i[:, idx] = w_tick_i
+
+    return W_tick_i
+
+def step_6(W_tick_i):
+    n, m = W_tick_i.shape
+
+    P_minus_k = np.matmul(W_tick_i, W_tick_i.T) / m
+
+    return P_minus_k
+
+def step_7(y_i, g, R):
+    
+    n, m = y_i.shape
+    Z_i = np.zeros(shape = (n-1, m))
+    for idx in range(m):
+        sigma_i = y_i[:, idx]
+
+        q_k, omega_k = helpful_utils.split_state_into_q_and_omega(sigma_i)
+        v_k = np.random.multivariate_normal([0, 0, 0, 0, 0, 0], R)
+
+        # H1
+        z_rot = omega_k + v_k[:3]
+        
+        # H2
+        q_g = Quaternion(scalar = 0, vec = g)
+        qg = q_k.__mul__(q_g)
+        q_g_prime = qg.__mul__(q_k.inv()) # 27 g'
+
+        z_accel = q_g_prime.vec() + v_k[3:]
+
+        Z_i[:, idx] = np.concatenate((z_rot, z_accel))
+
+    return Z_i
+
+def step_8(Z_i, z_i_sensor):
+    # barycentric mean of Z_i
+    Z_k_prior = np.mean(Z_i, axis = 1) # Z_k^-
+
+    # calculate innovation
+    v = z_i_sensor - Z_k_prior
+
+    return v[0]
+
+def step_9(Z_i, R):
+    P_zz = np.cov(Z_i)
+    P_vv = P_zz + R # 45
+
+    return P_vv
+
+def step_10(W_i_prime, Z_i):
+    n, m = W_i_prime.shape
+
+    Z_k_prior = np.mean(Z_i, axis = 1) # Z_k^-
+    rel_Z = Z_i - Z_k_prior.reshape(len(Z_k_prior), 1)
+    P_xz = np.matmul(W_i_prime, rel_Z.T) / m
+    return P_xz
+
+def step_11(x_k_prior, P_vv, P_xz, v_k, q_bar):
+    K_k = np.matmul(P_xz, np.linalg.inv(P_vv))
+    correction = np.matmul(K_k, v_k)
+
+    q_prior, omega_prior = helpful_utils.split_state_into_q_and_omega(x_k_prior)
+
+    # update quaternion
+    orientation_correction = np.array(correction[:3])
+    theta = np.linalg.norm(orientation_correction)
+    e = orientation_correction/theta
+    q_delta = Quaternion(scalar = np.cos(theta/2), vec = e * np.sin(theta/2))
+    q_next = q_delta.__mul__(q_bar)
+
+    # update angular velocity
+    omega_correction = np.array(correction[3:])
+    omega_next = omega_prior + omega_correction
+
+    x_next = np.concatenate((q_next.q, omega_next))
+    return x_next
+
+# process model
+def process_model(x_k, w_k, delta_t):
+    # get q_k
+    q_k = Quaternion(scalar = x_k[0], vec = x_k[1:4]) # q_k
+    omega_k = np.array(x_k[4:7])
+
+    # get q_w
+    w_q = w_k[:3] # w_q
+    w_omega = w_k[3:6] # w_k
+
+    alpha_w = np.linalg.norm(w_q) # 14
+    e_w = w_q / alpha_w # 15
+
+    q_w = Quaternion(scalar = np.cos(alpha_w/2), vec = e_w * np.sin(alpha_w/2)) # 14 q_w
+
+    # get q_delta
+    alpha_delta = np.linalg.norm(omega_k) * delta_t # 9
+    e_delta = omega_k / alpha_delta # 10
+    q_delta = Quaternion(scalar = np.cos(alpha_delta / 2), vec = e_delta * np.sin(alpha_delta/2)) # 11 q_delta
+
+    # create the new state vector
+    disturbed_q = q_k.__mul__(q_w)
+    new_q = disturbed_q.__mul__(q_delta)
+
+    new_omega = omega_k + w_omega
+
+    x_next = np.concatenate((new_q.q, new_omega)) # x_{k+1}
+
+    return x_next
+
+# helper
+
 
 def test_function():
     test_state = np.array([1, 0, 0, 0, .5, .3, .2])
-    test_state_2 = np.array([.5, .2, 0, 0, .1, .3, .7])
+    test_state_2 = np.array([.5, .5, .5, .5, .1, .3, .7])
     data = np.vstack((test_state, test_state_2))
+    Q_q = np.diag([0.0001, 0.0001, 0.0001])
+    Q_omega = np.diag([0.01, 0.01, 0.01])
+    R = np.diag([0.01, 0.01, 0.01, .001, .001, .001])
+    g = np.array([0, 0, -9.81])
+    Z_i_sensor = np.random.rand(1, 6)
+
+
+    Q = np.block([[Q_q, np.zeros((3, 3))], [np.zeros((3, 3)), Q_omega]])
 
     L = np.random.rand(6, 6)
     A = L @ L.T
         
-    # test step 1 for functionality
+    # test steps for functionality
     test_Wi = step_1(A)
     test_chi_x = step_2(test_state, test_Wi)
-    step_3(test_chi_x, .1)
+    y_i = step_3(test_chi_x, .1, Q)
+    x_hat_k, q_bar = step_4(y_i)
+    W_tick_i = step_5(y_i, x_hat_k)
+    P_minus_k = step_6(W_tick_i)
+    Z_i = step_7(y_i, g, np.zeros((6,6)))
+    innovation = step_8(Z_i, Z_i_sensor)
+    P_vv = step_9(Z_i, R)
+    P_xz = step_10(W_tick_i, Z_i)
+    x_next = step_11(test_state, P_vv, P_xz, innovation, q_bar)
+
+    print(f"x_next: {x_next}\n{x_next.shape}")
+    
+
 
 
 

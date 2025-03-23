@@ -51,23 +51,6 @@ def plot_accelerometer(Ax, Ay, Az, vicon_T):
     # initialization
     timesteps = np.arange(len(Ax))
 
-    # alpha_x, alpha_y, alpha_z, beta_x, beta_y, beta_z = conversion_param
-    
-    convert_ax = []
-    convert_ay = []
-    convert_az = []
-
-    # for timestep in range(len(T)): # get all the linear accelerations
-
-    #     # ax = -helpful_utils.convert_raw_to_value(Ax[timestep], alpha = alpha_x, beta = beta_x)
-    #     # ay = -helpful_utils.convert_raw_to_value(Ay[timestep], alpha = alpha_y, beta = beta_y)
-    #     # az = helpful_utils.convert_raw_to_value(Az[timestep], alpha = alpha_z, beta = beta_z)
-
-    #     convert_ax.append(ax)
-    #     convert_ay.append(ay)
-    #     convert_az.append(az)
-    
-
     # if not transformed:
     accel_plot = (
         so.Plot()
@@ -80,18 +63,6 @@ def plot_accelerometer(Ax, Ay, Az, vicon_T):
             title = "Accelerometer Plot (Linear Acceleration)"
         )
     )
-    # else:
-    #     accel_plot = (
-    #         so.Plot()
-    #         .add(so.Line(color = "red"), x = timesteps, y = convert_ax, label = "Ax")
-    #         .add(so.Line(color = "blue"), x = timesteps, y = convert_ay, label = "Ay")
-    #         .add(so.Line(color = "green"), x = timesteps, y = convert_az, label = "Az")
-    #         .label(
-    #             x = "Timestep",
-    #             y = "Values",
-    #             title = "Accelerometer Plot (Linear Acceleration)"
-    #         )
-    #     )
 
     return accel_plot
 
@@ -131,26 +102,6 @@ def plot_orientations(Ax, Ay, Az, Wx, Wy, Wz, imu_T, vicon_T, accel_params, gyro
 
         phi.append(phi_val)
         theta.append(theta_val)
-
-        # if timestep >= wz_len - 1:
-        #     yaw.append(np.mean(wz) * np.mean(dt))
-        # else:
-        #     yaw.append(wz[timestep] * dt[timestep])
-
-        # ang_vel_quaternion = np.array([0, ax, ay, az])
-        # quaternion.q = orientations[timestep]
-        # other_quaternion.q = ang_vel_quaternion
-
-        # q_derivative = 0.5 * quaternion.__mul__(other_quaternion).q
-
-        # q = q + q_derivative * dt[timestep]
-        # orientations.append(q)
-
-        # temp_quaternion = Quaternion()
-        # temp_quaternion.q = q
-
-        # roll_val, pitch_val, yaw_val = temp_quaternion.euler_angles()
-        # yaw.append(yaw_val)
 
     for timestep in range(len(T) - 1):
         angular_vel_quaternion = np.array([0, wx[timestep], wy[timestep], wz[timestep]])
@@ -332,68 +283,3 @@ def plot_true_v_pred_omega(true_W, pred_omega, true_timesteps, imu_T, params):
     )
 
     return compare_plot_Wx, compare_plot_Wy, compare_plot_Wz
-
-    # smooth angular velocities
-    # window_length = 11
-    # polyorder = 2
-    # omega[0] = savgol_filter(omega[0], window_length, polyorder)
-    # omega[1] = savgol_filter(omega[1], window_length, polyorder)
-    # omega[2] = savgol_filter(omega[2], window_length, polyorder)
-
-    # plot corrected axes
-    # fig = plt.figure(figsize = (10, 6))
-    # plt.plot(times, omega[0], label = "wx", color = "red")
-    # plt.plot(times, omega[1], label = "wy", color = "blue")
-    # plt.plot(times, omega[2], label = "wz", color = "green")
-    # plt.xlabel("Time (s)")
-    # plt.ylabel("Angular Velocity (rad/s)")
-    # plt.legend()
-    # plt.grid()
-    # plt.show()
-
-# def test_gyroscope_calibration(params, ):
-    
-#     # initialization
-#     Wx = []
-#     Wy = []
-#     Wz = []
-
-#     timesteps = T[0]
-
-#     idx_timesteps = np.arange(T.shape[1])
-
-#     for timestep in range(T.shape[1]):
-
-#         Wx.append(gyro[1][timestep])
-#         Wy.append(gyro[2][timestep])
-#         Wz.append(gyro[0][timestep])
-
-#     gyro_plot = (
-#         so.Plot()
-#         .add(so.Line(color = "red"), x = idx_timesteps, y = Wx, label = "Wx")
-#         .add(so.Line(color = "blue"), x = idx_timesteps, y = Wy, label = "Wy")
-#         .add(so.Line(color = "green"), x = idx_timesteps, y = Wz, label = "Wz")
-#         .label(
-#             x = "Timesteps",
-#             y = "Values",
-#             title = "Gyroscope Plot"
-#         )
-#     )
-
-#     return gyro_plot, Wx, Wy, Wz
-
-# def compare_graphs(pred, true, title_name):
-#     timesteps = np.arange(len(pred))
-
-#     comparison_plot = (
-#         so.Plot()
-#         .add(so.Line(color = "red"), x = timesteps, y = true, label = "True")
-#         .add(so.Line(color = "blue"), x = timesteps, y = pred, label = "Calibrated")
-#         .label(
-#             x = "Timesteps",
-#             y = "Values",
-#             title = title_name
-#         )
-#     )
-
-#     return comparison_plot
