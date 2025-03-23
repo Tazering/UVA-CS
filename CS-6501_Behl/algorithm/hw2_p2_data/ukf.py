@@ -97,7 +97,7 @@ def step_3(chi_x, delta_t):
 
         next_quaternion = quaternion.__mul__(quaternion_delta)
 
-        # print(f"quaternion delta: {quaternion_delta}\n")
+        print(f"Next Quaternion: {next_quaternion}\n")
 
     # x_omega_norm = np.linalg.norm(x_omega)
 

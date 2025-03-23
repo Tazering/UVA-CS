@@ -53,27 +53,27 @@ def convert_raw_to_value(raw, alpha, beta, is_gyro = False):
 
     return value
 
-# converts a rotation matrix to angular velocity
-def convert_rotation_matrix_to_angular_velocity(rotation_matrix, delta_t, prev_quaternion = None):
-    quaternion = Quaternion()
-    quaternion.from_rotm(rotation_matrix) # convert to quaternion
-    MIN_DELTA_T = 1e-6
-    delta_t = max(delta_t, MIN_DELTA_T)
 
+def convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T):
+    T = rotation_matrices.shape[2]
+    dt = np.gradient(vicon_T)
 
-    if prev_quaternion is not None:
-        prev_axis_angle = prev_quaternion.axis_angle()
+    angular_velocities = np.zeros((3, T-1))
+
+    for t in range(T - 1):
+        R_t = rotation_matrices[:, :, t]
+        R_t_next = rotation_matrices[:, :, t + 1]
+
+        R_relative = np.matmul(R_t.T, R_t_next)
+        
+        quaternion = Quaternion()
+        quaternion.from_rotm(R_relative)
         axis_angle = quaternion.axis_angle()
-
-        delta_axis_angle = axis_angle - prev_axis_angle
-
-        angular_rate = delta_axis_angle / delta_t
-    else:
-        axis_angle = quaternion.axis_angle()
-        angular_rate = axis_angle / delta_t
+        angular_velocities[:, t] = axis_angle / dt[t]
+    
+    return angular_velocities, vicon_T[:-1]
 
 
-    return angular_rate
 
 # interpolate data
 def interpolate_ground_truth(true_x, true_y, pred_x):
