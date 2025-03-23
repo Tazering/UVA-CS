@@ -79,10 +79,10 @@ def interpolate_ground_truth(true_x, true_y, pred_x):
     return interp(pred_x)
     
 # helper function
-def quaternion_mean(quaternions, threshold = 1e-6, max_iter = 100):
+def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
     # step 1: initial guess
     q_bar = Quaternion(scalar = quaternions[0].scalar(), vec = quaternions[0].vec())
-    
+
     for _ in range(max_iter): # loop through iterations
         errors = []
         # step 2: get e_i for each quaternion

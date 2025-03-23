@@ -4,19 +4,99 @@ import pandas as pd
 import math
 from quaternion import Quaternion
 import helpful_utils
+import calibration
 
-def initialize():
-    Q = np.random.random(shape = (6, 6))
-    dynamic_noise = .1
-    R = np.diag([0.01, 0.01, 0.01, .001, .001, .001])
+def initialize(ax, ay, az, wx, wy, wz, imu_T):
+    # assume initial orientation is normal
+    init_q = Quaternion(scalar = 1, vec = [0, 0, 0])
+    init_omega = np.array([0, 0, 0])
+    x0 = np.concatenate((init_q.q, init_omega)) 
+    
+    # P0 = np.eye(6) * 0.01 # initial covariance
 
-def run_ukf_process(self):
+    # Q_q = np.diag([.0001, .0001, .0001])
+    # Q_omega = np.diag([0.01, 0.01, 0.01])
+    Q = calibration.calculate_Q_covariance(wx, wy, wz, imu_T)
+
+    R = calibration.calculate_R_covariance(ax, ay, az, wx, wy, wz) # measurement noise
+
+    P0 = calibration.calculate_P_covariance(ax, ay, az, Q)
+
+    return x0, P0, Q, R
+
+
+def run_ukf_process(accel, accel_params, gyro, gyro_params, imu_T):
     # initialize
+    accel_alpha_x, accel_beta_x, accel_alpha_y, accel_beta_y, accel_alpha_z, accel_beta_z = accel_params
+    gyro_alpha_x, gyro_beta_x, gyro_alpha_y, gyro_beta_y, gyro_alpha_z, gyro_beta_z = gyro_params
 
+    Ax, Ay, Az, Wx, Wy, Wz = helpful_utils.parse_data(accel, gyro)
+    ax = helpful_utils.convert_raw_to_value(Ax, accel_alpha_x, accel_beta_x)
+    ay = helpful_utils.convert_raw_to_value(Ay, accel_alpha_y, accel_beta_y)
+    az = helpful_utils.convert_raw_to_value(Az, accel_alpha_z, accel_beta_z)
+    wx = helpful_utils.convert_raw_to_value(Wx, gyro_alpha_x, gyro_beta_x)
+    wy = helpful_utils.convert_raw_to_value(Wy, gyro_alpha_y, gyro_beta_y)
+    wz = helpful_utils.convert_raw_to_value(Wz, gyro_alpha_z, gyro_beta_z)
 
-    # step 1
-    # step 2
-    return None
+    dt = np.gradient(imu_T)
+
+    x_hat, P, Q, R = initialize(ax, ay, az, wx, wy, wz, imu_T)
+
+    # print(f"P0: {P}\nShape: {P.shape}")
+
+    # actually run the ukf
+    T = len(dt)
+    # T = 10
+    states = []
+
+    for k in range(T):
+        accel_k = np.array([ax[k], ay[k], az[k]])
+        gyro_k = np.array([wx[k], wy[k], wz[k]])
+        dt_k = dt[k]
+
+        # forward/predict
+        W_i = step_1(P) # generate the sigma points | W_i
+
+        chi_x = step_2(x_hat, W_i) # compute the sigma point
+
+        y_i = step_3(chi_x, dt_k, Q, gyro_k) # propagate through process model
+
+        x_hat_k, q_bar = step_4(y_i) # compute a priori
+
+        W_tick_i = step_5(y_i, x_hat_k) # compute relative sigma points | should result in 6 x 12
+
+        P_minus_k = step_6(W_tick_i) # compute covariance a priori | should result in 6 x 6
+
+        # measure sigma points | should result in 6 x 12 (z_rot, z_accel)
+        g = np.array([0, 0, -9.81])
+        Z_i = step_7(y_i, g, R) 
+
+        z_sensor = np.concatenate((gyro_k, accel_k)) # compute innovation | should result in a 6 x 1 vector
+        v_k = step_8(Z_i, z_sensor)
+
+        P_vv = step_9(Z_i, R) # measurement covariance | should return 6 x 6
+
+        P_xz = step_10(W_tick_i, Z_i) # cross covariance | should return 6 x 6
+
+        x_hat = step_11(x_hat_k, P_vv, P_xz, v_k, q_bar) # update the state | shuold return a state
+
+        P = step_12(P_minus_k, P_xz, P_vv) # update covariance | should return a 6 x 6
+
+        states.append(x_hat)
+
+        # print(f"y_i (propagated data): {y_i}\nShape: {y_i.shape}")
+        # print(f"x_hat_k: {x_hat_k}\nShape: {x_hat_k.shape}")
+        # print(f"q_bar: {q_bar}\n")
+        # print(f"W_tick_i: {W_tick_i}\nShape: {W_tick_i.shape}")
+        # print(f"P_minus_k: {P_minus_k}\nShape: {P_minus_k.shape}")
+        # print(f"Z_i: {Z_i}\nShape: {Z_i.shape}")
+        # print(f"v_k (innovation): {v_k}Shape: {v_k.shape}")
+        # print(f"Pvv: {P_vv}\nShape: {P_vv.shape}")
+        # print(f"P_xz: {P_xz}\nShape: {P_xz.shape}")
+        # print(f"x_hat: {x_hat}\nShape: {x_hat.shape}")
+
+        # update
+    return np.array(states)
 
 # step 1
 def step_1(P):
@@ -76,7 +156,7 @@ def step_2(prev_x, Wi):
     
     return chi_x
 
-def step_3(chi_x, delta_t, Q):
+def step_3(chi_x, delta_t, Q, gyro_k):
     n, m = chi_x.shape
 
     y_i = np.zeros(shape = chi_x.shape)
@@ -84,7 +164,7 @@ def step_3(chi_x, delta_t, Q):
         sigma_state = np.array(chi_x[:, idx])
         w_k = np.random.multivariate_normal(mean = np.zeros(6), cov = Q) # 13
 
-        next_x = process_model(sigma_state, w_k, delta_t)
+        next_x = process_model(sigma_state, w_k, delta_t, gyro_k)
 
         y_i[:, idx] = next_x
     
@@ -175,7 +255,7 @@ def step_8(Z_i, z_i_sensor):
     # calculate innovation
     v = z_i_sensor - Z_k_prior
 
-    return v[0]
+    return v
 
 def step_9(Z_i, R):
     P_zz = np.cov(Z_i)
@@ -211,11 +291,17 @@ def step_11(x_k_prior, P_vv, P_xz, v_k, q_bar):
     x_next = np.concatenate((q_next.q, omega_next))
     return x_next
 
+def step_12(P_minus_k, P_xz, P_vv):
+    K_k = np.matmul(P_xz, np.linalg.inv(P_vv))
+    correction = np.matmul(K_k, P_vv)
+    P_next = P_minus_k - np.matmul(correction, K_k.T)
+
+    return P_next
+
 # process model
-def process_model(x_k, w_k, delta_t):
+def process_model(x_k, w_k, delta_t, gyro_k):
     # get q_k
-    q_k = Quaternion(scalar = x_k[0], vec = x_k[1:4]) # q_k
-    omega_k = np.array(x_k[4:7])
+    q_k, omega_k = helpful_utils.split_state_into_q_and_omega(x_k)
 
     # get q_w
     w_q = w_k[:3] # w_q
@@ -227,15 +313,15 @@ def process_model(x_k, w_k, delta_t):
     q_w = Quaternion(scalar = np.cos(alpha_w/2), vec = e_w * np.sin(alpha_w/2)) # 14 q_w
 
     # get q_delta
-    alpha_delta = np.linalg.norm(omega_k) * delta_t # 9
-    e_delta = omega_k / alpha_delta # 10
+    alpha_delta = np.linalg.norm(gyro_k) * delta_t # 9
+    e_delta = gyro_k / alpha_delta # 10
     q_delta = Quaternion(scalar = np.cos(alpha_delta / 2), vec = e_delta * np.sin(alpha_delta/2)) # 11 q_delta
 
     # create the new state vector
     disturbed_q = q_k.__mul__(q_w)
     new_q = disturbed_q.__mul__(q_delta)
 
-    new_omega = omega_k + w_omega
+    new_omega = gyro_k + w_omega
 
     x_next = np.concatenate((new_q.q, new_omega)) # x_{k+1}
 
@@ -277,6 +363,4 @@ def test_function():
     
 
 
-
-
-test_function()
+# test_function()
