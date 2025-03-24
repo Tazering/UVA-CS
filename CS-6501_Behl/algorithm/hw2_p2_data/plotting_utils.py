@@ -155,16 +155,22 @@ def plot_angular_velocity(rotation_matrices, Wx, Wy, Wz, gyro_param, vicon_T, im
     true_wy = []
     true_wz = []
 
-    for timestep in range(T-1):
+    angular_velocities, timesteps = helpful_utils.convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T)
 
-            quaternion = Quaternion()
+    true_wx = angular_velocities[0]
+    true_wy = angular_velocities[1]
+    true_wz = angular_velocities[2]
 
-            quaternion.from_rotm(rotation_matrices[:, :, timestep])
-            axis_angle = quaternion.axis_angle()
+    # for timestep in range(T-1):
 
-            true_wx.append(axis_angle[0] / dt[timestep])
-            true_wy.append(axis_angle[1] / dt[timestep])
-            true_wz.append(axis_angle[2] / dt[timestep])
+    #         quaternion = Quaternion()
+
+    #         quaternion.from_rotm(rotation_matrices[:, :, timestep])
+    #         axis_angle = quaternion.axis_angle()
+
+    #         true_wx.append(axis_angle[0] / dt[timestep])
+    #         true_wy.append(axis_angle[1] / dt[timestep])
+    #         true_wz.append(axis_angle[2] / dt[timestep])
 
     plt.plot(true_wx, color = "red", label = "True Wx")
     plt.plot(true_wy, color = "blue", label = "True Wy")
@@ -283,3 +289,104 @@ def plot_true_v_pred_omega(true_W, pred_omega, true_timesteps, imu_T, params):
     )
 
     return compare_plot_Wx, compare_plot_Wy, compare_plot_Wz
+
+def plot_ukf_vs_sensor_axis_angles(ukf_states, rotation_matrices):
+
+    quaternion = Quaternion()
+    quaternion_ukf = Quaternion()
+    timesteps = np.arange(len(ukf_states))
+    N = ukf_states.shape[0]
+
+    roll = []
+    pitch = []
+    yaw = []
+
+    ukf_roll = []
+    ukf_pitch = []
+    ukf_yaw = []
+
+    for idx in range(N): # loop through timesteps
+        
+        # gets the ground truth
+        rotation_matrix = rotation_matrices[:, :, idx]
+        quaternion.from_rotm(rotation_matrix) # convert to quaternion
+        euler_angle = quaternion.euler_angles() # convert to euler_angles
+
+        roll.append(euler_angle[0])
+        pitch.append(euler_angle[1])
+        yaw.append(euler_angle[2])
+
+        # get values from states
+        state = ukf_states[idx]
+        # print(f"UKF state {idx}: {state}\nUKF states shape: {ukf_states.shape}")
+        # print(f"rotation_matrices shape: {rotation_matrices.shape}\n")
+        quaternion_ukf.q = ukf_states[idx, :4]
+        euler_angles = quaternion_ukf.euler_angles()
+
+        ukf_roll.append(euler_angles[0])
+        ukf_pitch.append(euler_angles[1])
+        ukf_yaw.append(euler_angles[2])
+
+    ukf_vs_sensor = (
+        so.Plot()
+        .add(so.Line(color = "red"), x = timesteps, y = roll, label = "Vicon Roll")
+        .add(so.Line(color = "blue"), x = timesteps, y = pitch, label = "Vicon Pitch")
+        .add(so.Line(color = "green"), x = timesteps, y = yaw, label = "Vicon Yaw")
+        .add(so.Line(color = "orange"), x = timesteps, y = ukf_roll, label = "UKF Roll")
+        .add(so.Line(color = "aqua"), x = timesteps, y = ukf_pitch, label = "UKF Pitch")
+        .add(so.Line(color = "teal"), x = timesteps, y = ukf_yaw, label = "UKF Yaw")
+        .label(
+            x = "Time",
+            y = "Rotation Amount (Radians)",
+            title = "Euler Angles: UKF vs Vicon"
+        )
+    )
+
+    return ukf_vs_sensor
+
+# compare angular velocities
+def plot_ukf_vs_sensor_angular_velocities(ukf_states, rotation_matrices, vicon_T, imu_T):
+
+    timesteps = np.arange(len(ukf_states))
+    N = ukf_states.shape[0]
+
+    ukf_wx = []
+    ukf_wy = []
+    ukf_wz = []
+
+    angular_velocities, timesteps = helpful_utils.convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T)
+    idx_timesteps = np.arange(ukf_states.shape[0])
+    
+    wx, wy, wz = angular_velocities
+
+    interpolated_wx = helpful_utils.interpolate_ground_truth(true_x = timesteps, true_y = wx, pred_x = imu_T)
+    interpolated_wy = helpful_utils.interpolate_ground_truth(true_x = timesteps, true_y = wy, pred_x = imu_T)
+    interpolated_wz = helpful_utils.interpolate_ground_truth(true_x = timesteps, true_y = wz, pred_x = imu_T)
+
+    for idx in range(N): # loop through timesteps
+        
+        # get values from states
+        state = ukf_states[idx]
+        
+        ukf_wx.append(state[4])
+        ukf_wy.append(state[5])
+        ukf_wz.append(state[6])
+
+    ukf_vs_sensor = (
+        so.Plot()
+        .add(so.Line(color = "red"), x = idx_timesteps, y = interpolated_wx, label = "Vicon Wx")
+        .add(so.Line(color = "blue"), x = idx_timesteps, y = interpolated_wy, label = "Vicon Wy")
+        .add(so.Line(color = "green"), x = idx_timesteps, y = interpolated_wz, label = "Vicon Wz")
+        .add(so.Line(color = "orange", linestyle = "--"), x = idx_timesteps, y = ukf_wx, label = "UKF Wx")
+        .add(so.Line(color = "aqua", linestyle = "--"), x = idx_timesteps, y = ukf_wy, label = "UKF Wy")
+        .add(so.Line(color = "teal", linestyle = "--"), x = idx_timesteps, y = ukf_wz, label = "UKF Wz")
+        .label(
+            x = "Time",
+            y = "Angular Velocity (radians / s)",
+            title = "Angular Velocity: UKF vs Vicon"
+        )
+    )
+
+    return ukf_vs_sensor
+
+

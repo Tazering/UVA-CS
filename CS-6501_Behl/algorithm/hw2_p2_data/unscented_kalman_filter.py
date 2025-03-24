@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 import math
 from quaternion import Quaternion
 import helpful_utils
@@ -16,14 +14,20 @@ def initialize(ax, ay, az, wx, wy, wz, imu_T):
 
     # Q_q = np.diag([.0001, .0001, .0001])
     # Q_omega = np.diag([0.01, 0.01, 0.01])
-    Q = calibration.calculate_Q_covariance(wx, wy, wz, imu_T)
 
-    R = calibration.calculate_R_covariance(ax, ay, az, wx, wy, wz) # measurement noise
+    # R = np.diag([0.01, 0.01, 0.01, .001, .001, .001])
+    # Q = np.block([[Q_q, np.zeros((3, 3))], [np.zeros((3, 3)), Q_omega]])
+    
+    R = calibration.calculate_R_covariance2(ax, ay, az, wx, wy, wz)
+    Q = calibration.calculate_Q_covariance2(wx, wy, wz)
+
+    # Q = calibration.calculate_Q_covariance(wx, wy, wz, imu_T)
+
+    # R = calibration.calculate_R_covariance(ax, ay, az, wx, wy, wz) # measurement noise
 
     P0 = calibration.calculate_P_covariance(ax, ay, az, Q)
 
     return x0, P0, Q, R
-
 
 def run_ukf_process(accel, accel_params, gyro, gyro_params, imu_T):
     # initialize
@@ -48,6 +52,7 @@ def run_ukf_process(accel, accel_params, gyro, gyro_params, imu_T):
     T = len(dt)
     # T = 10
     states = []
+    covariances = []
 
     for k in range(T):
         accel_k = np.array([ax[k], ay[k], az[k]])
@@ -78,11 +83,12 @@ def run_ukf_process(accel, accel_params, gyro, gyro_params, imu_T):
 
         P_xz = step_10(W_tick_i, Z_i) # cross covariance | should return 6 x 6
 
-        x_hat = step_11(x_hat_k, P_vv, P_xz, v_k, q_bar) # update the state | shuold return a state
+        x_hat, K_k = step_11(x_hat_k, P_vv, P_xz, v_k) # update the state | should return a state
 
-        P = step_12(P_minus_k, P_xz, P_vv) # update covariance | should return a 6 x 6
+        P = step_12(P_minus_k, K_k, P_vv) # update covariance | should return a 6 x 6
 
         states.append(x_hat)
+        covariances.append(P)
 
         # print(f"y_i (propagated data): {y_i}\nShape: {y_i.shape}")
         # print(f"x_hat_k: {x_hat_k}\nShape: {x_hat_k.shape}")
@@ -96,7 +102,7 @@ def run_ukf_process(accel, accel_params, gyro, gyro_params, imu_T):
         # print(f"x_hat: {x_hat}\nShape: {x_hat.shape}")
 
         # update
-    return np.array(states)
+    return np.array(states), np.array(covariances)
 
 # step 1
 def step_1(P):
@@ -109,7 +115,7 @@ def step_1(P):
         S = np.linalg.cholesky(P)
 
     # get the set Wi
-    Wi = np.zeros(shape = (6, 12))
+    Wi = np.zeros(shape = (n, 2 * n))
     positive_s = math.sqrt(2 * n)
     negative_s = -math.sqrt(2 * n)
 
@@ -132,16 +138,18 @@ def step_1(P):
 def step_2(prev_x, Wi):
     n, m = Wi.shape
 
-    prev_x_q = Quaternion(scalar = prev_x[0], vec = prev_x[1:4])
-    prev_x_omega = prev_x[4:7]
+    # prev_x_q = Quaternion(scalar = prev_x[0], vec = prev_x[1:4])
+    # prev_x_omega = prev_x[4:7]
+
+    prev_x_q , prev_x_omega = helpful_utils.split_state_into_q_and_omega(prev_x)
 
     chi_x = np.zeros(shape = (n + 1, m)) # 34
 
     for idx in range(m):
         wi_quaternion = Quaternion()
 
-        wi_euler_angle = Wi[0:3, idx]
-        wi_quaternion.from_axis_angle(wi_euler_angle)
+        wi_axis_angle = Wi[0:3, idx]
+        wi_quaternion.from_axis_angle(wi_axis_angle)
 
         # calculate quaternion portion
         sigma_quaternion = prev_x_q.__mul__(wi_quaternion)
@@ -235,14 +243,14 @@ def step_7(y_i, g, R):
         v_k = np.random.multivariate_normal([0, 0, 0, 0, 0, 0], R)
 
         # H1
-        z_rot = omega_k + v_k[:3]
+        z_rot = omega_k + v_k[3:]
         
         # H2
         q_g = Quaternion(scalar = 0, vec = g)
         qg = q_k.__mul__(q_g)
         q_g_prime = qg.__mul__(q_k.inv()) # 27 g'
 
-        z_accel = q_g_prime.vec() + v_k[3:]
+        z_accel = q_g_prime.vec() + v_k[:3]
 
         Z_i[:, idx] = np.concatenate((z_rot, z_accel))
 
@@ -271,28 +279,31 @@ def step_10(W_i_prime, Z_i):
     P_xz = np.matmul(W_i_prime, rel_Z.T) / m
     return P_xz
 
-def step_11(x_k_prior, P_vv, P_xz, v_k, q_bar):
+def step_11(x_k_prior, P_vv, P_xz, v_k):
     K_k = np.matmul(P_xz, np.linalg.inv(P_vv))
     correction = np.matmul(K_k, v_k)
 
     q_prior, omega_prior = helpful_utils.split_state_into_q_and_omega(x_k_prior)
 
     # update quaternion
-    orientation_correction = np.array(correction[:3])
-    theta = np.linalg.norm(orientation_correction)
-    e = orientation_correction/theta
-    q_delta = Quaternion(scalar = np.cos(theta/2), vec = e * np.sin(theta/2))
-    q_next = q_delta.__mul__(q_bar)
+    q_prior_rotation_vector = q_prior.axis_angle()
+    new_rotation_vector = q_prior_rotation_vector + correction[:3]
+    q_next = Quaternion()
+    q_next.from_axis_angle(new_rotation_vector)
+    # orientation_correction = np.array(correction[:3])
+    # theta = np.linalg.norm(orientation_correction)
+    # e = orientation_correction/theta
+    # q_delta = Quaternion(scalar = np.cos(theta/2), vec = e * np.sin(theta/2))
+    # q_next = q_delta.__mul__(q_bar)
 
     # update angular velocity
     omega_correction = np.array(correction[3:])
     omega_next = omega_prior + omega_correction
 
     x_next = np.concatenate((q_next.q, omega_next))
-    return x_next
+    return x_next, K_k
 
-def step_12(P_minus_k, P_xz, P_vv):
-    K_k = np.matmul(P_xz, np.linalg.inv(P_vv))
+def step_12(P_minus_k, K_k, P_vv):
     correction = np.matmul(K_k, P_vv)
     P_next = P_minus_k - np.matmul(correction, K_k.T)
 
@@ -314,7 +325,7 @@ def process_model(x_k, w_k, delta_t, gyro_k):
 
     # get q_delta
     alpha_delta = np.linalg.norm(gyro_k) * delta_t # 9
-    e_delta = gyro_k / alpha_delta # 10
+    e_delta = gyro_k / np.linalg.norm(gyro_k) # 10
     q_delta = Quaternion(scalar = np.cos(alpha_delta / 2), vec = e_delta * np.sin(alpha_delta/2)) # 11 q_delta
 
     # create the new state vector
@@ -330,7 +341,7 @@ def process_model(x_k, w_k, delta_t, gyro_k):
 # helper
 
 
-def test_function():
+"""def test_function():
     test_state = np.array([1, 0, 0, 0, .5, .3, .2])
     test_state_2 = np.array([.5, .5, .5, .5, .1, .3, .7])
     data = np.vstack((test_state, test_state_2))
@@ -359,8 +370,8 @@ def test_function():
     P_xz = step_10(W_tick_i, Z_i)
     x_next = step_11(test_state, P_vv, P_xz, innovation, q_bar)
 
-    print(f"x_next: {x_next}\n{x_next.shape}")
+    print(f"x_next: {x_next}\n{x_next.shape}")"""
     
 
 
-# test_function()
+# # # test_function()

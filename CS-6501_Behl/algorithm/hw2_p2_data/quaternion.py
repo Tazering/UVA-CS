@@ -5,6 +5,7 @@ class Quaternion:
     def __init__(self, scalar=1, vec=[0,0,0]): 
         self.q = np.array([scalar, 0., 0., 0.])
         self.q[1:4] = vec
+        self.normalize()
 
     def normalize(self):
         self.q = self.q/np.linalg.norm(self.q)
@@ -42,7 +43,7 @@ class Quaternion:
             axis = np.array([1,0,0])
         self.q[0] = math.cos(angle/2)
         self.q[1:4] = axis*math.sin(angle/2)
-        #self.normalize()
+        self.normalize()
 
     # 3 x 3 rotation matrix -> quaternion
     def from_rotm(self, R):
@@ -77,6 +78,7 @@ class Quaternion:
              self.q[2]*other.q[1] + \
              self.q[3]*other.q[0]
         retval = Quaternion(t0, [t1, t2, t3])
+        retval.normalize()
         return retval
 
     def __str__(self):

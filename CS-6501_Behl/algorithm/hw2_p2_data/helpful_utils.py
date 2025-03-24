@@ -3,6 +3,8 @@ import pandas as pd
 import math
 from scipy.interpolate import interp1d
 from quaternion import Quaternion
+from scipy.signal import savgol_filter
+from scipy.spatial.transform import Slerp
 
 # parses the accelerometer and gyroscope data
 def parse_data(accel, gyro):
@@ -35,8 +37,6 @@ def parse_data(accel, gyro):
 # get roll and pitch
 def get_roll_and_pitch_from_acceleration(ax, ay, az):
 
-    # phi = np.arctan2(-ay, -az)
-    # theta = math.asin(ax / 9.81)
     phi = np.arctan2(ay, az)  # Roll
     theta = np.arctan2(ax, np.sqrt(ay**2 + az**2))
 
@@ -57,10 +57,11 @@ def convert_raw_to_value(raw, alpha, beta, is_gyro = False):
 def convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T):
     T = rotation_matrices.shape[2]
     dt = np.gradient(vicon_T)
+    dr = np.gradient(rotation_matrices, axis = 2) / np.gradient(vicon_T)
 
     angular_velocities = np.zeros((3, T-1))
 
-    for t in range(T - 1):
+    for t in range(T-1):
         R_t = rotation_matrices[:, :, t]
         R_t_next = rotation_matrices[:, :, t + 1]
 
@@ -70,7 +71,11 @@ def convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T):
         quaternion.from_rotm(R_relative)
         axis_angle = quaternion.axis_angle()
         angular_velocities[:, t] = axis_angle / dt[t]
+        # angular_velocities[:, t] = np.array([R_relative[1, 2], R_relative[0, 2], R_relative[0, 1]])
     
+    # window = 51
+    # angular_velocities = savgol_filter(angular_velocities, window_length=window, polyorder=2, axis=1)
+
     return angular_velocities, vicon_T[:-1]
 
 # interpolate data
@@ -78,10 +83,10 @@ def interpolate_ground_truth(true_x, true_y, pred_x):
     interp = interp1d(true_x, true_y, kind = "nearest", bounds_error = False, fill_value = "extrapolate")
     return interp(pred_x)
     
-# helper function
 def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
     # step 1: initial guess
     q_bar = Quaternion(scalar = quaternions[0].scalar(), vec = quaternions[0].vec())
+    e = Quaternion()
 
     for _ in range(max_iter): # loop through iterations
         errors = []
@@ -94,7 +99,8 @@ def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
             if abs(theta) < 1e-10:
                 e_i_axis_angle = np.zeros(3)
             else:
-                e_i_axis_angle = e_i.vec() / np.linalg.norm(e_i.vec()) * theta
+                # e_i_axis_angle = e_i.vec() / np.linalg.norm(e_i.vec()) * theta
+                e_i_axis_angle = e_i.axis_angle()
 
             errors.append(e_i_axis_angle)
 
@@ -106,18 +112,31 @@ def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
             break
         
         # step 5: update
-        e = Quaternion(scalar = np.cos(theta / 2), vec = e_bar/theta * np.sin(theta/2))
+        # e = Quaternion(scalar = np.cos(theta / 2), vec = e_bar/theta * np.sin(theta/2))
+        # e.q = [np.cos(theta / 2), e_bar[0]/theta * np.sin(theta/2), e_bar[1]/theta * np.sin(theta/2), e_bar[2]/theta * np.sin(theta/2)]
+
         e.from_axis_angle(e_bar)
         q_bar = e.__mul__(q_bar)
     
     return q_bar
+    # return Quaternion()
+
+# def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
+#     return Quaternion()
+
+def get_euler_angles_from_states(states):
+    m, n = states.shape
+    quaternions = states[:, 0:4]
+    quaternion = Quaternion()
+
+    euler_angles = np.zeros(shape = (m, 3))
+
+    for idx in range(m):
+        quaternion.q = quaternions[idx]
+        euler_angles[idx, :] = quaternion.euler_angles()
+
+    return euler_angles[:, 0], euler_angles[:, 1], euler_angles[:, 2]
 
 def split_state_into_q_and_omega(x):
     return Quaternion(scalar = x[0], vec = x[1:4]), np.array(x[4:7])
-# def convert_rotation_matrix_to_euler(rotation_matrix):
-#     alpha = math.atan2(rotation_matrix[1][0], rotation_matrix[0][0])
-#     beta = math.atan2(-rotation_matrix[2][0], math.sqrt(rotation_matrix[2][1]**2 + rotation_matrix[2][2]**2))
-#     gamma = math.atan2(rotation_matrix[2][1], rotation_matrix[2][2])
-
-#     return gamma, beta, alpha
 
