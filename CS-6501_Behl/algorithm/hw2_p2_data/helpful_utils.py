@@ -54,29 +54,68 @@ def convert_raw_to_value(raw, alpha, beta, is_gyro = False):
     return value
 
 
+# def convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T):
+#     T = rotation_matrices.shape[2]
+#     dt = np.gradient(vicon_T)
+#     dr = np.gradient(rotation_matrices, axis = 2) / np.gradient(vicon_T)
+
+#     angular_velocities = np.zeros((3, T-1))
+
+#     for t in range(T-1):
+#         R_t = rotation_matrices[:, :, t]
+#         R_t_next = rotation_matrices[:, :, t + 1]
+
+#         R_relative = np.matmul(R_t.T, R_t_next)
+        
+#         quaternion = Quaternion()
+#         quaternion.from_rotm(R_relative)
+#         axis_angle = quaternion.axis_angle()
+#         angular_velocities[:, t] = axis_angle / dt[t]
+#         # angular_velocities[:, t] = np.array([R_relative[1, 2], R_relative[0, 2], R_relative[0, 1]])
+    
+#     # window = 51
+#     # angular_velocities = savgol_filter(angular_velocities, window_length=window, polyorder=2, axis=1)
+
+#     return angular_velocities, vicon_T[:-1]
+
 def convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T):
     T = rotation_matrices.shape[2]
+
+    angular_velocities = np.zeros(shape = (3, T-1))
     dt = np.gradient(vicon_T)
-    dr = np.gradient(rotation_matrices, axis = 2) / np.gradient(vicon_T)
+    dr = np.gradient(rotation_matrices, axis = 2) / dt
 
-    angular_velocities = np.zeros((3, T-1))
-
-    for t in range(T-1):
-        R_t = rotation_matrices[:, :, t]
-        R_t_next = rotation_matrices[:, :, t + 1]
-
-        R_relative = np.matmul(R_t.T, R_t_next)
-        
-        quaternion = Quaternion()
-        quaternion.from_rotm(R_relative)
-        axis_angle = quaternion.axis_angle()
-        angular_velocities[:, t] = axis_angle / dt[t]
-        # angular_velocities[:, t] = np.array([R_relative[1, 2], R_relative[0, 2], R_relative[0, 1]])
+    for i in range(T-1):
+        skew_symmetric = np.matmul(dr[:, :, i], rotation_matrices[:, :, i].T)
+        angular_velocities[:, i] = np.array([skew_symmetric[2, 1], skew_symmetric[0, 2], skew_symmetric[1, 0]])
     
-    # window = 51
-    # angular_velocities = savgol_filter(angular_velocities, window_length=window, polyorder=2, axis=1)
-
     return angular_velocities, vicon_T[:-1]
+
+# def convert_rotation_matrix_to_angular_velocity(R, ts):
+#     T = ts.shape[0]
+#     w = np.zeros((3, T))
+
+#     def unskew(mat):
+#         return np.array([mat[2, 1], mat[0, 2], mat[1, 0]])
+    
+#     for i in range(1, T - 1):
+#         dt = ts[i + 1] - ts[i - 1]
+#         dR = (R[:, :, i + 1] - R[:, :, i - 1]) / dt
+#         w_skew = dR @ R[:, :, i].T
+#         w[:, i] = unskew(w_skew)
+    
+#     dt0 = ts[1] - ts[0]
+#     dR0 = (R[:, :, 1] - R[:, :, 0]/ dt0)
+#     w_skew0 = dR0 @ R[:, :, 0].T
+#     w[:, 0] = unskew(w_skew())
+
+#     dt_last = ts[T - 1] - ts[T - 2]
+#     dR_last = (R[:, :, T - 1] - R[:, :, T - 2]) / dt_last
+
+#     w_skew_last = dR_last @ R[:, :, T-1].T
+#     w[:, T - 1] = unskew(w_skew_last)
+
+#     return w
 
 # interpolate data
 def interpolate_ground_truth(true_x, true_y, pred_x):

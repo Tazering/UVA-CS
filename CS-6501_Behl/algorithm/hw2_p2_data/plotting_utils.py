@@ -106,7 +106,6 @@ def plot_orientations(Ax, Ay, Az, Wx, Wy, Wz, imu_T, vicon_T, accel_params, gyro
     for timestep in range(len(T) - 1):
         angular_vel_quaternion = np.array([0, wx[timestep], wy[timestep], wz[timestep]])
 
-
         quaternion1 = Quaternion()
         quaternion2 = Quaternion()
         quaternion1.q = q
@@ -156,6 +155,7 @@ def plot_angular_velocity(rotation_matrices, Wx, Wy, Wz, gyro_param, vicon_T, im
     true_wz = []
 
     angular_velocities, timesteps = helpful_utils.convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T)
+    # angular_velocities = helpful_utils.convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T)
 
     true_wx = angular_velocities[0]
     true_wy = angular_velocities[1]

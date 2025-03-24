@@ -39,7 +39,7 @@ def estimate_rot(data_num=1):
     accel_params = [342.184, 510.807, 239.438, 500.994, 340.221, 499.69]
 
     gyro_params = [3.1960820636599356, 373.57142857142856, 2.9294486896322045, 375.37285714285713, 7.9143836834327805, 369.6857142857143]
-    # calibration.calibrate_sensors(accel, gyro, imu_T, vicon_T, rotation_matrices)
+    calibration.calibrate_sensors(accel, gyro, imu_T, vicon_T, rotation_matrices)
 
     # # d) Use UFK
     states, covariances = unscented_kalman_filter.run_ukf_process(accel, accel_params, gyro, gyro_params, imu['ts'][0])

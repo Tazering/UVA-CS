@@ -1,8 +1,9 @@
 import numpy as np
 import helpful_utils
 from quaternion import Quaternion
-# import plotting_utils
+import plotting_utils
 from scipy.optimize import least_squares
+import math
 
 # b)
 def calibrate_sensors(accel, gyro, imu_T, vicon_T = None, rotation_matrices = None):
@@ -13,7 +14,7 @@ def calibrate_sensors(accel, gyro, imu_T, vicon_T = None, rotation_matrices = No
     print(gyro_params)
     # gyro_params = [3.1960820636599356, 373.57142857142856, 2.9294486896322045, 375.37285714285713, 7.9143836834327805, 369.6857142857143]
 
-    # plotting_utils.plot_angular_velocity(rotation_matrices, Wx, Wy, Wz, gyro_params, vicon_T, imu_T)
+    plotting_utils.plot_angular_velocity(rotation_matrices, Wx, Wy, Wz, gyro_params, vicon_T, imu_T)
 
     return accel_params, gyro_params
 
@@ -65,36 +66,56 @@ def calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T, imu_T, use_found
         beta_z = np.mean(Wz[:700])
 
         true_W, true_timesteps = helpful_utils.convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T)
+        # true_W = helpful_utils.convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T)
+
 
         interpolated_wx = helpful_utils.interpolate_ground_truth(true_x = true_timesteps, true_y = true_W[0], pred_x = imu_T)
         interpolated_wy = helpful_utils.interpolate_ground_truth(true_x = true_timesteps, true_y = true_W[1], pred_x = imu_T)
         interpolated_wz = helpful_utils.interpolate_ground_truth(true_x = true_timesteps, true_y = true_W[2], pred_x = imu_T)
 
-        alpha_params = least_squares(error_function, [.133, .133, .133], args = ([Wx, Wy, Wz], [interpolated_wx, interpolated_wy, interpolated_wz], [beta_x, beta_y, beta_z]))
+        # alpha_params = least_squares(error_function, [.133, .133, .133], args = ([Wx, Wy, Wz], [interpolated_wx, interpolated_wy, interpolated_wz], [beta_x, beta_y, beta_z]))
 
-        alpha_x = alpha_params["x"][0]
-        alpha_y = alpha_params["x"][1]
-        alpha_z = alpha_params["x"][2]
+        # alpha_x = alpha_params["x"][0]
+        # alpha_y = alpha_params["x"][1]
+        # alpha_z = alpha_params["x"][2]
+
+        alpha_x, alpha_y, alpha_z = get_sensitivity_with_closed_form_solution(true_w = [interpolated_wx, interpolated_wy, interpolated_wz],
+                                                                              pred_w = [Wx, Wy, Wz], betas = [beta_x, beta_y, beta_z])
 
     return [alpha_x, beta_x, alpha_y, beta_y, alpha_z, beta_z]
 
 
-def error_function(params, pred_W, true_W, betas):
-    alpha_x, alpha_y, alpha_z = params
+# def error_function(params, pred_W, true_W, betas):
+#     alpha_x, alpha_y, alpha_z = params
+#     beta_x, beta_y, beta_z = betas
+
+#     pred_wx, pred_wy, pred_wz = pred_W
+#     true_wx, true_wy, true_wz = true_W
+
+#     wx = helpful_utils.convert_raw_to_value(pred_wx, alpha_x, beta_x, is_gyro=True)
+#     wy = helpful_utils.convert_raw_to_value(pred_wy, alpha_y, beta_y, is_gyro=True)
+#     wz = helpful_utils.convert_raw_to_value(pred_wz, alpha_z, beta_z, is_gyro=True)
+
+#     error_x = wx - true_wx
+#     error_y = wy - true_wy
+#     error_z = wz - true_wz
+
+#     return np.concatenate([error_x, error_y, error_z])
+
+def get_sensitivity_with_closed_form_solution(true_w, pred_w, betas):
+    true_wx, true_wy, true_wz = true_w
+    pred_wx, pred_wy, pred_wz = pred_w
     beta_x, beta_y, beta_z = betas
 
-    pred_wx, pred_wy, pred_wz = pred_W
-    true_wx, true_wy, true_wz = true_W
+    scale_x = (pred_wx - beta_x) * ((3300 * math.pi) / (1023 * 180))
+    scale_y = (pred_wy - beta_y) * ((3300 * math.pi) / (1023 * 180))
+    scale_z = (pred_wz - beta_z) * ((3300 * math.pi) / (1023 * 180))
 
-    wx = helpful_utils.convert_raw_to_value(pred_wx, alpha_x, beta_x, is_gyro=True)
-    wy = helpful_utils.convert_raw_to_value(pred_wy, alpha_y, beta_y, is_gyro=True)
-    wz = helpful_utils.convert_raw_to_value(pred_wz, alpha_z, beta_z, is_gyro=True)
+    alpha_x = 1 / (np.sum(scale_x * true_wx) / np.sum(scale_x * scale_x))
+    alpha_y = 1 / (np.sum(scale_y * true_wy) / np.sum(scale_y * scale_y))
+    alpha_z = 1 / (np.sum(scale_z * true_wz) / np.sum(scale_z * scale_z))
 
-    error_x = wx - true_wx
-    error_y = wy - true_wy
-    error_z = wz - true_wz
-
-    return np.concatenate([error_x, error_y, error_z])
+    return alpha_x, alpha_y, alpha_z
 
 
 def calculate_R_covariance(ax, ay, az, wx, wy, wz, stationary_period = 700): # measurement covariance
@@ -143,8 +164,6 @@ def calculate_P_covariance(ax, ay, az, Q, stationary_period = 700):
     P = np.concatenate((P_q, P_omega))
     P = np.diag(P)
     return P
-
-
 
 def calculate_R_covariance2(ax, ay, az, wx, wy, wz, stationary_period = 700): # measurement covariance
 
