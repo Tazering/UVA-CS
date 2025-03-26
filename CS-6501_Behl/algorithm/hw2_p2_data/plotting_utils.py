@@ -252,7 +252,6 @@ def plot_true_v_pred_omega(true_W, pred_omega, true_timesteps, imu_T, params):
     interpolated_wy = helpful_utils.interpolate_ground_truth(true_x = true_timesteps, true_y = true_W[1], pred_x = imu_T)
     interpolated_wz = helpful_utils.interpolate_ground_truth(true_x = true_timesteps, true_y = true_W[2], pred_x = imu_T)
 
-
     idx_timesteps = np.arange(len(pred_omega[0]))
 
     compare_plot_Wx = (
@@ -389,4 +388,19 @@ def plot_ukf_vs_sensor_angular_velocities(ukf_states, rotation_matrices, vicon_T
 
     return ukf_vs_sensor
 
+def compare_plots(pred, true, name):
 
+    timesteps = np.arange(pred.shape[0])
+
+    compare_plots = (
+        so.Plot()
+        .add(so.Line(color = "red"), x = timesteps, y = true, label = f"Vicon {name}")
+        .add(so.Line(color = "blue"), x = timesteps, y = pred, label = f"Estimated {name}")
+        .label(
+            x = "Time",
+            y = f"{name} Values",
+            title = f"True vs. Vicon: {name}"
+        )
+    )
+
+    return compare_plots

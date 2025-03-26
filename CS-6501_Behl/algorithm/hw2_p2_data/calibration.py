@@ -12,9 +12,9 @@ def calibrate_sensors(accel, gyro, imu_T, vicon_T = None, rotation_matrices = No
     accel_params = [342.184, 510.807, 239.438, 500.994, 340.221, 499.69]
     gyro_params = calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T, imu_T)
     print(gyro_params)
-    # gyro_params = [3.1960820636599356, 373.57142857142856, 2.9294486896322045, 375.37285714285713, 7.9143836834327805, 369.6857142857143]
+    # gyro_params = [3.11a  960820636599356, 373.57142857142856, 2.9294486896322045, 375.37285714285713, 7.9143836834327805, 369.6857142857143]
 
-    plotting_utils.plot_angular_velocity(rotation_matrices, Wx, Wy, Wz, gyro_params, vicon_T, imu_T)
+    # plotting_utils.plot_angular_velocity(rotation_matrices, Wx, Wy, Wz, gyro_params, vicon_T, imu_T)
 
     return accel_params, gyro_params
 
@@ -53,11 +53,11 @@ def calibrate_sensors(accel, gyro, imu_T, vicon_T = None, rotation_matrices = No
 def calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T, imu_T, use_found_values = False):
 
     if use_found_values:
-        alpha_x = 3.1960820636599356
+        alpha_x = 290.9503
         beta_x = 373.57142857142856
-        alpha_y = 2.9294486896322045
+        alpha_y = 181.52
         beta_y = 375.37285714285713
-        alpha_z = 7.9143836834327805
+        alpha_z = 176.704
         beta_z = 369.6857142857143
     else:
 
@@ -65,13 +65,7 @@ def calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T, imu_T, use_found
         beta_y = np.mean(Wy[:700])
         beta_z = np.mean(Wz[:700])
 
-        true_W, true_timesteps = helpful_utils.convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T)
-        # true_W = helpful_utils.convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T)
-
-
-        interpolated_wx = helpful_utils.interpolate_ground_truth(true_x = true_timesteps, true_y = true_W[0], pred_x = imu_T)
-        interpolated_wy = helpful_utils.interpolate_ground_truth(true_x = true_timesteps, true_y = true_W[1], pred_x = imu_T)
-        interpolated_wz = helpful_utils.interpolate_ground_truth(true_x = true_timesteps, true_y = true_W[2], pred_x = imu_T)
+        true_wx, true_wy, true_wz = helpful_utils.get_interpolated_angular_velocities(rotation_matrices, vicon_T, imu_T)
 
         # alpha_params = least_squares(error_function, [.133, .133, .133], args = ([Wx, Wy, Wz], [interpolated_wx, interpolated_wy, interpolated_wz], [beta_x, beta_y, beta_z]))
 
@@ -79,7 +73,7 @@ def calibrate_gyroscope(rotation_matrices, Wx, Wy, Wz, vicon_T, imu_T, use_found
         # alpha_y = alpha_params["x"][1]
         # alpha_z = alpha_params["x"][2]
 
-        alpha_x, alpha_y, alpha_z = get_sensitivity_with_closed_form_solution(true_w = [interpolated_wx, interpolated_wy, interpolated_wz],
+        alpha_x, alpha_y, alpha_z = get_sensitivity_with_closed_form_solution(true_w = [true_wx, true_wy, true_wz],
                                                                               pred_w = [Wx, Wy, Wz], betas = [beta_x, beta_y, beta_z])
 
     return [alpha_x, beta_x, alpha_y, beta_y, alpha_z, beta_z]
@@ -118,15 +112,47 @@ def get_sensitivity_with_closed_form_solution(true_w, pred_w, betas):
     return alpha_x, alpha_y, alpha_z
 
 
+
+# def calculate_R_covariance(ax, ay, az, wx, wy, wz, stationary_period = 700): # measurement covariance
+
+#     R_omega = np.var(np.array([wx[:stationary_period], wy[:stationary_period], wz[:stationary_period]]), axis = 1, ddof = 1)
+#     R_a = np.var(np.array([ax[:stationary_period], ay[:stationary_period], az[:stationary_period]]), axis = 1, ddof = 1)
+
+#     R = np.diag(np.concatenate([R_omega, R_a]))
+#     return R
+
+# def calculate_Q_covariance(wx, wy, wz, imu_T, stationary_period = 700):
+
+#     avg_diff = np.mean(np.gradient(imu_T))
+
+#     wx_var = np.var(wx[:stationary_period])
+#     wy_var = np.var(wy[:stationary_period])
+#     wz_var = np.var(wz[:stationary_period])
+
+#     Q_omega = np.array([wx_var, wy_var, wz_var])
+
+#     Q_q = Q_omega * avg_diff / 4
+
+#     Q = np.diag(np.concatenate((Q_q, Q_omega)))
+
+#     return Q
+
+# def calculate_P_covariance(wx, wy, wz, stationary_period = 700):
+#     P_omega = np.var(np.array([wx, wy, wz]), axis = 1, ddof = 1)
+
+#     P_q = 1e-2 * np.ones(3)
+
+#     P = np.diag(np.concatenate([P_q, P_omega]))
+
+#     return P
+
+
 def calculate_R_covariance(ax, ay, az, wx, wy, wz, stationary_period = 700): # measurement covariance
 
-    stationary_data = np.array([wx[:stationary_period], wy[:stationary_period], wz[:stationary_period], ax[:stationary_period], ay[:stationary_period], az[:stationary_period]])
+    R_omega = np.var(np.array([wx[:stationary_period], wy[:stationary_period], wz[:stationary_period]]), axis = 1, ddof = 1) * .01
+    R_a = np.var(np.array([ax[:stationary_period], ay[:stationary_period], az[:stationary_period] + 9.81]), axis = 1, ddof = 1) * 10
 
-    covariances = np.cov(stationary_data, rowvar = True)
-    diagonal_values = np.diag(covariances)
-
-    R = np.diag(diagonal_values)
-
+    R = np.diag(np.concatenate([R_omega, R_a]))
     return R
 
 def calculate_Q_covariance(wx, wy, wz, imu_T, stationary_period = 700):
@@ -137,33 +163,23 @@ def calculate_Q_covariance(wx, wy, wz, imu_T, stationary_period = 700):
     wy_var = np.var(wy[:stationary_period])
     wz_var = np.var(wz[:stationary_period])
 
-    angular_random_walk = [np.sqrt(wx_var) * np.sqrt(avg_diff), np.sqrt(wy_var) * np.sqrt(avg_diff), np.sqrt(wz_var) * np.sqrt(avg_diff)]
+    Q_omega = np.array([wx_var, wy_var, wz_var]) * 10
 
-    Q_q = np.array([np.power(angular_random_walk[0], 2) * avg_diff, np.power(angular_random_walk[1], 2) * avg_diff, np.power(angular_random_walk[2], 2) * avg_diff])
-
-    Q_omega = np.array([wx_var, wy_var, wz_var])
+    Q_q = Q_omega * avg_diff / 2
 
     Q = np.diag(np.concatenate((Q_q, Q_omega)))
 
     return Q
 
-def calculate_P_covariance(ax, ay, az, Q, stationary_period = 700):
+def calculate_P_covariance(wx, wy, wz, stationary_period = 700):
+    P_omega = np.var(np.array([wx, wy, wz]), axis = 1, ddof = 1)
 
-    P_omega = np.diag(Q)[3:6]
+    P_q = 1e-1 * np.ones(3)
 
-    accel = np.array([ax[:stationary_period], ay[:stationary_period], az[:stationary_period]])
+    P = np.diag(np.concatenate([P_q, P_omega]))
 
-    g = np.array([0, 0, -9.81])
-
-    diff = np.linalg.norm(accel.T - g, axis = 1) / 9.81
-    diff = np.clip(diff, -1, 1)
-
-    theta = np.arcsin(diff)
-    P_q = np.var(theta) * np.ones(3)
-
-    P = np.concatenate((P_q, P_omega))
-    P = np.diag(P)
     return P
+
 
 def calculate_R_covariance2(ax, ay, az, wx, wy, wz, stationary_period = 700): # measurement covariance
 

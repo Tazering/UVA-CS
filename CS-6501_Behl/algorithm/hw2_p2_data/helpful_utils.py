@@ -4,7 +4,6 @@ import math
 from scipy.interpolate import interp1d
 from quaternion import Quaternion
 from scipy.signal import savgol_filter
-from scipy.spatial.transform import Slerp
 
 # parses the accelerometer and gyroscope data
 def parse_data(accel, gyro):
@@ -53,74 +52,65 @@ def convert_raw_to_value(raw, alpha, beta, is_gyro = False):
 
     return value
 
+# get the angular velocities from the estimated states
+def get_estimated_angular_velocities_from_states(ukf_states, rotation_matrices, vicon_T, imu_T):
 
-# def convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T):
-#     T = rotation_matrices.shape[2]
-#     dt = np.gradient(vicon_T)
-#     dr = np.gradient(rotation_matrices, axis = 2) / np.gradient(vicon_T)
+    N = ukf_states.shape[0]
 
-#     angular_velocities = np.zeros((3, T-1))
+    ukf_wx = []
+    ukf_wy = []
+    ukf_wz = []
 
-#     for t in range(T-1):
-#         R_t = rotation_matrices[:, :, t]
-#         R_t_next = rotation_matrices[:, :, t + 1]
+    # interpolated_matrices = interpolate_ground_truth(true_x = vicon_T, true_y = rotation_matrices, pred_x = imu_T)
+    # angular_velocities, timesteps = convert_rotation_matrix_to_angular_velocity(interpolated_matrices, imu_T)
 
-#         R_relative = np.matmul(R_t.T, R_t_next)
+    # true_wx = angular_velocities[0]
+    # true_wy = angular_velocities[1]
+    # true_wz = angular_velocities[2]
+
+    true_wx, true_wy, true_wz = get_interpolated_angular_velocities(rotation_matrices, vicon_T, imu_T)
+
+
+    for idx in range(N): # loop through timesteps
         
-#         quaternion = Quaternion()
-#         quaternion.from_rotm(R_relative)
-#         axis_angle = quaternion.axis_angle()
-#         angular_velocities[:, t] = axis_angle / dt[t]
-#         # angular_velocities[:, t] = np.array([R_relative[1, 2], R_relative[0, 2], R_relative[0, 1]])
-    
-#     # window = 51
-#     # angular_velocities = savgol_filter(angular_velocities, window_length=window, polyorder=2, axis=1)
+        # get values from states
+        state = ukf_states[idx]
+        
+        ukf_wx.append(state[4])
+        ukf_wy.append(state[5])
+        ukf_wz.append(state[6])
 
-#     return angular_velocities, vicon_T[:-1]
+    return np.array(ukf_wx), np.array(ukf_wy), np.array(ukf_wz), true_wx, true_wy, true_wz
+
 
 def convert_rotation_matrix_to_angular_velocity(rotation_matrices, vicon_T):
     T = rotation_matrices.shape[2]
 
-    angular_velocities = np.zeros(shape = (3, T-1))
+    angular_velocities = np.zeros(shape = (3, T))
     dt = np.gradient(vicon_T)
     dr = np.gradient(rotation_matrices, axis = 2) / dt
 
-    for i in range(T-1):
+    for i in range(T):
         skew_symmetric = np.matmul(dr[:, :, i], rotation_matrices[:, :, i].T)
         angular_velocities[:, i] = np.array([skew_symmetric[2, 1], skew_symmetric[0, 2], skew_symmetric[1, 0]])
     
-    return angular_velocities, vicon_T[:-1]
+    return angular_velocities, vicon_T
 
-# def convert_rotation_matrix_to_angular_velocity(R, ts):
-#     T = ts.shape[0]
-#     w = np.zeros((3, T))
-
-#     def unskew(mat):
-#         return np.array([mat[2, 1], mat[0, 2], mat[1, 0]])
-    
-#     for i in range(1, T - 1):
-#         dt = ts[i + 1] - ts[i - 1]
-#         dR = (R[:, :, i + 1] - R[:, :, i - 1]) / dt
-#         w_skew = dR @ R[:, :, i].T
-#         w[:, i] = unskew(w_skew)
-    
-#     dt0 = ts[1] - ts[0]
-#     dR0 = (R[:, :, 1] - R[:, :, 0]/ dt0)
-#     w_skew0 = dR0 @ R[:, :, 0].T
-#     w[:, 0] = unskew(w_skew())
-
-#     dt_last = ts[T - 1] - ts[T - 2]
-#     dR_last = (R[:, :, T - 1] - R[:, :, T - 2]) / dt_last
-
-#     w_skew_last = dR_last @ R[:, :, T-1].T
-#     w[:, T - 1] = unskew(w_skew_last)
-
-#     return w
 
 # interpolate data
 def interpolate_ground_truth(true_x, true_y, pred_x):
     interp = interp1d(true_x, true_y, kind = "nearest", bounds_error = False, fill_value = "extrapolate")
     return interp(pred_x)
+
+
+# get interpolated angular velocities
+def get_interpolated_angular_velocities(rotation_matrices, vicon_T, imu_T):
+
+    interpolated_matrices = interpolate_ground_truth(true_x = vicon_T, true_y = rotation_matrices, pred_x = imu_T)
+    angular_velocities, timesteps = convert_rotation_matrix_to_angular_velocity(interpolated_matrices, imu_T)
+
+    return angular_velocities
+
     
 def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
     # step 1: initial guess
@@ -150,32 +140,55 @@ def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
         if theta < threshold:
             break
         
-        # step 5: update
-        # e = Quaternion(scalar = np.cos(theta / 2), vec = e_bar/theta * np.sin(theta/2))
-        # e.q = [np.cos(theta / 2), e_bar[0]/theta * np.sin(theta/2), e_bar[1]/theta * np.sin(theta/2), e_bar[2]/theta * np.sin(theta/2)]
-
         e.from_axis_angle(e_bar)
         q_bar = e.__mul__(q_bar)
     
     return q_bar
     # return Quaternion()
 
-# def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
-#     return Quaternion()
-
 def get_euler_angles_from_states(states):
     m, n = states.shape
-    quaternions = states[:, 0:4]
-    quaternion = Quaternion()
 
-    euler_angles = np.zeros(shape = (m, 3))
+    euler_angles = np.zeros(shape = (3, m))
 
     for idx in range(m):
-        quaternion.q = quaternions[idx]
-        euler_angles[idx, :] = quaternion.euler_angles()
 
-    return euler_angles[:, 0], euler_angles[:, 1], euler_angles[:, 2]
+        state = states[idx, :]
+
+        q, omega = split_state_into_q_and_omega(state)
+        euler_angles[:, idx] = q.euler_angles()
+
+    return euler_angles
 
 def split_state_into_q_and_omega(x):
     return Quaternion(scalar = x[0], vec = x[1:4]), np.array(x[4:7])
 
+def convert_rotation_matrices_to_euler_angles(rotation_matrices):
+    q = Quaternion()
+    m = rotation_matrices.shape[2]
+
+    roll = []
+    pitch = []
+    yaw = []
+
+    for idx in range(m):
+        rotation_matrix = rotation_matrices[:, :, idx]
+        q.from_rotm(rotation_matrix)
+        euler_angles = q.euler_angles()
+
+        roll.append(euler_angles[0])
+        pitch.append(euler_angles[1])
+        yaw.append(euler_angles[2])
+
+    return np.array([roll, pitch, yaw])
+
+
+# q1 = Quaternion(scalar = 0.96592583, vec = [0, 0, 0.25881905])
+# q2 = Quaternion(scalar = 0.96612346, vec = [0.00123456, 0.00234567, 0.25783412])
+# q3 = Quaternion(scalar = 0.96478912, vec = [0.00345678, 0.00123456, 0.26012345])
+# q4 = Quaternion(scalar = 0.96789012, vec = [0.00234567, 0.00456789, 0.25678901])
+# q5 = Quaternion(scalar = 0.96512345, vec = [0.00123456, 0.00345678, 0.25945678])
+
+# quaternions = np.array([q1, q2, q3, q4, q5])
+
+# print(quaternion_mean(quaternions))

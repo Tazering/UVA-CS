@@ -3,6 +3,7 @@ import math
 from quaternion import Quaternion
 import helpful_utils
 import calibration
+from scipy.signal import butter, filtfilt
 
 def initialize(ax, ay, az, wx, wy, wz, imu_T):
     # assume initial orientation is normal
@@ -18,14 +19,23 @@ def initialize(ax, ay, az, wx, wy, wz, imu_T):
     # R = np.diag([0.01, 0.01, 0.01, .001, .001, .001])
     # Q = np.block([[Q_q, np.zeros((3, 3))], [np.zeros((3, 3)), Q_omega]])
     
-    R = calibration.calculate_R_covariance2(ax, ay, az, wx, wy, wz)
-    Q = calibration.calculate_Q_covariance2(wx, wy, wz)
+    R = calibration.calculate_R_covariance(ax, ay, az, wx, wy, wz)
+    Q = calibration.calculate_Q_covariance(wx, wy, wz, imu_T)
 
-    # Q = calibration.calculate_Q_covariance(wx, wy, wz, imu_T)
+    # R = np.diag([100, 100, 100, 1e-10, 1e-10, 1e-10])
+    # Q = np.diag([1e-10, 1e-10, 1e-10, 1e-10, 1e-10, 1e-10])
+    # P0 = np.diag([100, 100, 100, 100, 100, 100])
+
+    # Q = calibration.calculate_Q_covariance(wx, wy, wz, imu_T) # process noise
 
     # R = calibration.calculate_R_covariance(ax, ay, az, wx, wy, wz) # measurement noise
 
-    P0 = calibration.calculate_P_covariance(ax, ay, az, Q)
+    P0 = calibration.calculate_P_covariance(ax, ay, az)
+
+    R[0:3] *= .001
+    R[3:6] *= 1000
+    Q[0:3] *= 1000
+    Q[3:6] *= 100
 
     return x0, P0, Q, R
 
@@ -42,14 +52,24 @@ def run_ukf_process(accel, accel_params, gyro, gyro_params, imu_T):
     wy = helpful_utils.convert_raw_to_value(Wy, gyro_alpha_y, gyro_beta_y)
     wz = helpful_utils.convert_raw_to_value(Wz, gyro_alpha_z, gyro_beta_z)
 
+    def lowpass_filter(data, cutoff = 5, fs = 100, order = 2):
+        nyquist = fs/2
+        normal_cutoff = cutoff / nyquist
+        b, a = butter(order, normal_cutoff, btype = 'low', analog = False)
+        return filtfilt(b, a, data, axis = 0)
+    
+    gyro_data = np.column_stack((wx, wy, wz))
+    fs = 1 / np.mean(np.gradient(imu_T))
+    gyro_data = lowpass_filter(gyro_data, cutoff = 5, fs = fs)
+    wx, wy, wz = gyro_data.T
+
     dt = np.gradient(imu_T)
 
     x_hat, P, Q, R = initialize(ax, ay, az, wx, wy, wz, imu_T)
 
-    # print(f"P0: {P}\nShape: {P.shape}")
-
     # actually run the ukf
     T = len(dt)
+
     # T = 10
     states = []
     covariances = []
@@ -60,13 +80,13 @@ def run_ukf_process(accel, accel_params, gyro, gyro_params, imu_T):
         dt_k = dt[k]
 
         # forward/predict
-        W_i = step_1(P) # generate the sigma points | W_i
+        W_i = step_1(P, Q) # generate the sigma points | W_i
 
         chi_x = step_2(x_hat, W_i) # compute the sigma point
 
         y_i = step_3(chi_x, dt_k, Q, gyro_k) # propagate through process model
 
-        x_hat_k, q_bar = step_4(y_i) # compute a priori
+        x_hat_k = step_4(y_i) # compute a priori
 
         W_tick_i = step_5(y_i, x_hat_k) # compute relative sigma points | should result in 6 x 12
 
@@ -105,14 +125,14 @@ def run_ukf_process(accel, accel_params, gyro, gyro_params, imu_T):
     return np.array(states), np.array(covariances)
 
 # step 1
-def step_1(P):
+def step_1(P, Q):
     n = 6
 
     # cholesky decomposition to get S
     if np.isscalar(P):
         S = np.sqrt(P)
     else:
-        S = np.linalg.cholesky(P)
+        S = np.linalg.cholesky(P + Q)
 
     # get the set Wi
     Wi = np.zeros(shape = (n, 2 * n))
@@ -197,7 +217,7 @@ def step_4(y_i):
     # make a priori
     x_hat_k = np.concatenate((q_bar.q, omega_mean)) # \hat{y}^-_k
 
-    return x_hat_k, q_bar
+    return x_hat_k
 
 def step_5(y_i, x_hat_k):
     n, m = y_i.shape
@@ -286,15 +306,13 @@ def step_11(x_k_prior, P_vv, P_xz, v_k):
     q_prior, omega_prior = helpful_utils.split_state_into_q_and_omega(x_k_prior)
 
     # update quaternion
-    q_prior_rotation_vector = q_prior.axis_angle()
-    new_rotation_vector = q_prior_rotation_vector + correction[:3]
-    q_next = Quaternion()
-    q_next.from_axis_angle(new_rotation_vector)
-    # orientation_correction = np.array(correction[:3])
-    # theta = np.linalg.norm(orientation_correction)
-    # e = orientation_correction/theta
-    # q_delta = Quaternion(scalar = np.cos(theta/2), vec = e * np.sin(theta/2))
-    # q_next = q_delta.__mul__(q_bar)
+    # q_prior_rotation_vector = q_prior.axis_angle()
+    # new_rotation_vector = q_prior_rotation_vector + correction[:3]
+    # q_next = Quaternion()
+    # q_next.from_axis_angle(new_rotation_vector)
+    q_correction = Quaternion()
+    q_correction.from_axis_angle(correction[:3])
+    q_next = q_prior.__mul__(q_correction)
 
     # update angular velocity
     omega_correction = np.array(correction[3:])
