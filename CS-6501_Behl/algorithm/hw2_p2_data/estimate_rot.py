@@ -5,7 +5,7 @@ import unscented_kalman_filter
 
 # import plotting_utils
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt
 
 def estimate_rot(data_num=2):
@@ -22,7 +22,7 @@ def estimate_rot(data_num=2):
     # # your code goes here
     # vicon_T = T_vicon[0]
 
-    Ax, Ay, Az, Wx, Wy, Wz = helpful_utils.parse_data(accel, gyro)
+    # Ax, Ay, Az, Wx, Wy, Wz = helpful_utils.parse_data(accel, gyro)
 
     # b)
     accel_params = [342.184, 510.807, 239.438, 500.994, 340.221, 499.69]
@@ -50,7 +50,7 @@ def estimate_rot(data_num=2):
     # d) Use UFK
     states, covariances = unscented_kalman_filter.run_ukf(accel, accel_params, gyro, gyro_params, imu_T)
 
-    # # ukf_wx, ukf_wy, ukf_wz, true_wx, true_wy, true_wz = helpful_utils.get_estimated_angular_velocities_from_states(states, rotation_matrices, vicon_T, imu_T)
+    # ukf_wx, ukf_wy, ukf_wz, true_wx, true_wy, true_wz = helpful_utils.get_estimated_angular_velocities_from_states(states, rotation_matrices, vicon_T, imu_T)
 
     # # wx_compare_plot = plotting_utils.compare_plots(pred = ukf_wx, true = true_wx, name = "Wx")
     # # wy_compare_plot = plotting_utils.compare_plots(pred = ukf_wy, true = true_wy, name = "Wy")

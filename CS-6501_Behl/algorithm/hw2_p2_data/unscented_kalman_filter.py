@@ -31,10 +31,14 @@ def run_ukf(accel, accel_params, gyro, gyro_params, imu_T):
     init_omega = np.array([0, 0, 0])
     x0 = np.concatenate((init_q.q, init_omega)) 
 
-    R = calibration.calculate_R_covariance(ax, ay, az, wx, wy, wz)
-    Q = calibration.calculate_Q_covariance(wx, wy, wz, imu_T)
+    # R = calibration.calculate_R_covariance(ax, ay, az, wx, wy, wz)
+    # Q = calibration.calculate_Q_covariance(wx, wy, wz, imu_T)
 
-    P0 = calibration.calculate_P_covariance(ax, ay, az)
+    # P0 = calibration.calculate_P_covariance(ax, ay, az)
+
+    R = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+    Q = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+    P0 = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
 
     x_bar = x0
     P_prior_k = P0

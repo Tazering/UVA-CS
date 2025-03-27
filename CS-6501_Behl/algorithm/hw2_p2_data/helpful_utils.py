@@ -182,14 +182,3 @@ def convert_rotation_matrices_to_euler_angles(rotation_matrices):
         yaw.append(euler_angles[2])
 
     return np.array([roll, pitch, yaw])
-
-
-# q1 = Quaternion(scalar = 0.96592583, vec = [0, 0, 0.25881905])
-# q2 = Quaternion(scalar = 0.96612346, vec = [0.00123456, 0.00234567, 0.25783412])
-# q3 = Quaternion(scalar = 0.96478912, vec = [0.00345678, 0.00123456, 0.26012345])
-# q4 = Quaternion(scalar = 0.96789012, vec = [0.00234567, 0.00456789, 0.25678901])
-# q5 = Quaternion(scalar = 0.96512345, vec = [0.00123456, 0.00345678, 0.25945678])
-
-# quaternions = np.array([q1, q2, q3, q4, q5])
-
-# print(quaternion_mean(quaternions))
