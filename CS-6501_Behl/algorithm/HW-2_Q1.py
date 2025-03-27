@@ -138,7 +138,7 @@ def plot_ekf_vs_ground_truth(observations, distribution_parameters):
     mu_plus_sigma = []
     mu_minus_sigma = []
 
-    for i in range(100):
+    for i in range(100): 
         mu = distribution_parameters[i]["mean"][0][0]
         sigma = distribution_parameters[i]["covariance"][0, 0]
 
