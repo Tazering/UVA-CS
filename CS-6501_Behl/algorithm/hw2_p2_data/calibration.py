@@ -1,7 +1,7 @@
 import numpy as np
 import helpful_utils
 from quaternion import Quaternion
-import plotting_utils
+# import plotting_utils
 from scipy.optimize import least_squares
 import math
 

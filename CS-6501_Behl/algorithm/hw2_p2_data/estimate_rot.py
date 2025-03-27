@@ -5,12 +5,10 @@ import helpful_utils
 import unscented_kalman_filter
 import calibration
 
-import plotting_utils
+# import plotting_utils
 
 import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt
-
-
 
 def estimate_rot(data_num=1):
     #load data
@@ -95,10 +93,14 @@ def estimate_rot(data_num=1):
     output_pitch = lowpass_filter(output_pitch, cutoff = 1, fs = 100)
     output_yaw = lowpass_filter(output_yaw, cutoff = 1, fs = 100)
 
+    # roll_compare_plot = plotting_utils.compare_plots(pred = output_roll, true = true_roll, name = "Roll")
+    # pitch_compare_plot = plotting_utils.compare_plots(pred = output_pitch, true = true_pitch, name = "Pitch")
+    # yaw_compare_plot = plotting_utils.compare_plots(pred = output_yaw, true = true_yaw, name = "Yaw")
+    # roll_compare_plot.show()
+    # pitch_compare_plot.show()
+    # yaw_compare_plot.show()
 
-    roll_compare_plot = plotting_utils.compare_plots(pred = output_roll, true = true_roll, name = "Roll")
-    roll_compare_plot.show()
-    
+
     return np.array(output_roll), np.array(output_pitch), np.array(output_yaw)
 
     # return roll, pitch, np.zeros(shape = (5645))
