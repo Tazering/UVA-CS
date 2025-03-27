@@ -112,7 +112,7 @@ def get_interpolated_angular_velocities(rotation_matrices, vicon_T, imu_T):
     return angular_velocities
 
     
-def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
+def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 40):
     # step 1: initial guess
     q_bar = Quaternion(scalar = quaternions[0].scalar(), vec = quaternions[0].vec())
     e = Quaternion()
@@ -134,6 +134,7 @@ def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
             errors.append(e_i_axis_angle)
 
         # step 4: barycentric mean of errors 
+        latest_errors = errors
         e_bar = np.mean(errors, axis = 0)
         theta = np.linalg.norm(e_bar)
 
@@ -142,8 +143,8 @@ def quaternion_mean(quaternions, threshold = 1e-4, max_iter = 50):
         
         e.from_axis_angle(e_bar)
         q_bar = e.__mul__(q_bar)
-    
-    return q_bar
+        
+    return q_bar, latest_errors
     # return Quaternion()
 
 def get_euler_angles_from_states(states):
