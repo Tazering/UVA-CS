@@ -52,13 +52,13 @@ def estimate_rot(data_num=2):
 
     # ukf_wx, ukf_wy, ukf_wz, true_wx, true_wy, true_wz = helpful_utils.get_estimated_angular_velocities_from_states(states, rotation_matrices, vicon_T, imu_T)
 
-    # # wx_compare_plot = plotting_utils.compare_plots(pred = ukf_wx, true = true_wx, name = "Wx")
-    # # wy_compare_plot = plotting_utils.compare_plots(pred = ukf_wy, true = true_wy, name = "Wy")
-    # # wz_compare_plot = plotting_utils.compare_plots(pred = ukf_wz, true = true_wz, name = "Wz")
+    # wx_compare_plot = plotting_utils.compare_plots(pred = ukf_wx, true = true_wx, name = "Wx")
+    # wy_compare_plot = plotting_utils.compare_plots(pred = ukf_wy, true = true_wy, name = "Wy")
+    # wz_compare_plot = plotting_utils.compare_plots(pred = ukf_wz, true = true_wz, name = "Wz")
 
-    # # wx_compare_plot.show()
-    # # wy_compare_plot.show()
-    # # wz_compare_plot.show()
+    # wx_compare_plot.show()
+    # wy_compare_plot.show()
+    # wz_compare_plot.show()
 
 
     # # euler_angles_compare.show()

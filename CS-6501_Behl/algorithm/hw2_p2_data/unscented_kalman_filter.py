@@ -36,9 +36,35 @@ def run_ukf(accel, accel_params, gyro, gyro_params, imu_T):
 
     # P0 = calibration.calculate_P_covariance(ax, ay, az)
 
-    R = np.diag([1e-2, 1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
-    Q = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+    # R = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+    # Q = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+    # P0 = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+
+    # R = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+    # Q = np.diag([1e-1, 1e-1, 1e-1, 1, 1, 1])
+    # P0 = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+
+    # R = np.diag([.1e-4, .1e-4, .1e-4, .1e-1, .1e-1, .1e-1])
+    # Q = np.diag([1e-3, 1e-3, 1e-3, 1e-1, .1e-1, .1e-1])
+    # P0 = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+
+    # R = np.diag([.1e-6, .1e-6, .1e-6, .1e-1, .1e-1, .1e-1])
+    # Q = np.diag([1e-6, 1e-6, 1e-6, 1e-1, .1e-1, .1e-1])
+    # P0 = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+
+##### BEST
+    # R = np.diag([.1e-6, .1e-6, .1e-6, .1, .1, .1])
+    # Q = np.diag([1e2, 1e2, 1e2, 1e2, 1e2, 1e2])
+    # P0 = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+####
+
+    R = np.diag([.1e-12, .1e-12, .1e-12, 1e-1, 1e-1, 1e-1])
+    Q = np.diag([1e2, 1e2, 1e2, 1e2, 1e2, 1e2])
     P0 = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+
+    # R = np.diag([.1e-12, .1e-12, .1e-12, 1e-1, 1e-1, 1e-1])
+    # Q = np.diag([1e3, 1e3, 1e3, 1e2, 1e2, 1e2])
+    # P0 = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
 
     x_bar = x0
     P_prior_k = P0
