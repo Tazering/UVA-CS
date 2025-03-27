@@ -7,12 +7,15 @@ def main(seed = 42):
     np.random.seed(seed)
 
     distribution_param = {} # stores the distribution parameters
-    distribution_param[0] = {"mean": np.array([[1], [7]]), "covariance": np.array([[2, 0],[0, 100]])}
+    distribution_param[0] = {"mean": np.array([[1], [-7]]), "covariance": np.array([[2, 0],[0, 100]])}
 
     observations = simulate(plot = False) # get observations and plot
     distribution_param, a_list = extended_kalman_filter(distribution_param, observations)
 
-    print(a_list)
+    plot_ekf_vs_ground_truth(observations, distribution_param)
+
+    # print(a_list)
+
 
     return 0
 
@@ -130,6 +133,27 @@ def get_observation(state, v = None, incorporate_noise = True):
 
     return y_k
 
+def plot_ekf_vs_ground_truth(observations, distribution_parameters):
 
+    mu_plus_sigma = []
+    mu_minus_sigma = []
+
+    for i in range(100):
+        mu = distribution_parameters[i]["mean"][0][0]
+        sigma = distribution_parameters[i]["covariance"][0, 0]
+
+        mu_plus_sigma.append(mu + sigma)
+        mu_minus_sigma.append(mu - sigma)
+
+    plt.title("True vs. Estimated Values (a = -1)")
+    plt.plot(np.arange(100), observations, label = "Ground Truth")
+    plt.plot(mu_plus_sigma, label = "mu + sigma")
+    plt.plot(mu_minus_sigma, label = "mu - sigma")
+    plt.xlabel("Time Units")
+    plt.ylabel("Observation")
+    plt.legend()
+    plt.show()
+
+    return None
 # call the main function
 main()

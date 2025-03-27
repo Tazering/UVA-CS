@@ -36,7 +36,7 @@ def run_ukf(accel, accel_params, gyro, gyro_params, imu_T):
 
     # P0 = calibration.calculate_P_covariance(ax, ay, az)
 
-    R = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
+    R = np.diag([1e-2, 1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
     Q = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
     P0 = np.diag([.1e-2, .1e-2, .1e-2, .1e-2, .1e-2, .1e-2])
 
