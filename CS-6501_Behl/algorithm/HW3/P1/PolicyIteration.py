@@ -9,6 +9,12 @@ import numpy as np
 
 class PolicyIteration():
     # initialization approach
-    def __init__(self, gamma, grid_shape = (10, 10)):
+    def __init__(self, gamma, q_cost_func, grid_shape = (10, 10)):
         self.gamma = gamma
         self.policy = np.full(shape = grid_shape, fill_value = 3)
+        self.q_cost_func = q_cost_func
+
+    def policy_iteration():
+        return None
+    
+    

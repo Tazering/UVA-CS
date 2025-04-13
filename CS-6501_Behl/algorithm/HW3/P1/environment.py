@@ -1,32 +1,37 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.colors import ListedColormap
 
 # generates the initial grid from the assignment details
 # only at this moment will the code follow the traditional indexing coordinate system
+# generate the map according to the reward
 def generate_grid():
     # generate blank grid
     grid = np.zeros(shape = (10, 10))
     grid.fill(-1)
 
     # set borders as obstacles
-    grid[:, 0] = 100
-    grid[:, 9] = 100
-    grid[0, :] = 100
-    grid[9, :] = 100
+    grid[:, 0] = -100
+    grid[:, 9] = -100
+    grid[0, :] = -100
+    grid[9, :] = -100
 
     # make obstacles
-    grid[7, 3:7] = 100
-    grid[2:6, 4] = 100
-    grid[2, 5] = 100
-    grid[4:6, 7] = 100
+    grid[7, 3:7] = -100
+    grid[2:6, 4] = -100
+    grid[2, 5] = -100
+    grid[4:6, 7] = -100
 
     # make goal value
-    grid[8, 8] = -10
+    grid[8, 8] = 10
 
     return grid
 
 def plot_environment(grid):
+    colors = ["red", "green", "blue"]
+    cmap = ListedColormap(colors)
+
     sns.heatmap(grid, annot = False, cmap = "mako")
     plt.show()
 
@@ -76,7 +81,7 @@ def generate_transition_matrices(grid, states_to_coord, coord_to_states):
         if state_id == goal_state:
             continue
 
-        if grid[9 - y, x] == 100:
+        if grid[9 - y, x] == -100:
             up_T[state_id, state_id] = 1
             down_T[state_id, state_id] = 1
             left_T[state_id, state_id] = 1
