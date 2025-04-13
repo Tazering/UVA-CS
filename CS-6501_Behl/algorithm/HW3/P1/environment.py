@@ -9,7 +9,6 @@ from matplotlib.colors import ListedColormap
 def generate_grid():
     # generate blank grid
     grid = np.zeros(shape = (10, 10))
-    grid.fill(-1)
 
     # set borders as obstacles
     grid[:, 0] = -100
@@ -29,10 +28,8 @@ def generate_grid():
     return grid
 
 def plot_environment(grid):
-    colors = ["red", "green", "blue"]
-    cmap = ListedColormap(colors)
 
-    sns.heatmap(grid, annot = False, cmap = "mako")
+    sns.heatmap(grid, annot = True, cmap = None, fmt = ".0f")
     plt.show()
 
 # create states and their respective coordinates using the cartesian system
@@ -66,7 +63,7 @@ def generate_transition_matrices(grid, states_to_coord, coord_to_states):
     left_T = np.zeros(shape = (100, 100))
     right_T = np.zeros(shape = (100, 100))
 
-    goal_state = coord_to_states[(8, 8)]
+    goal_state = coord_to_states[(8, 1)]
 
     up_T[goal_state, goal_state] = 1
     down_T[goal_state, goal_state] = 1
@@ -90,8 +87,8 @@ def generate_transition_matrices(grid, states_to_coord, coord_to_states):
         else:
             next_up_state = coord_to_states[x, y + 1]
             next_down_state = coord_to_states[x, y - 1]
-            next_left_state = coord_to_states[x + 1, y]
-            next_right_state = coord_to_states[x - 1, y]
+            next_left_state = coord_to_states[x - 1, y]
+            next_right_state = coord_to_states[x + 1, y]
 
             # up
             up_T[state_id, next_up_state] = .7
