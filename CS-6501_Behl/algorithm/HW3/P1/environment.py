@@ -29,7 +29,7 @@ def generate_grid():
 
 def plot_environment(grid):
 
-    sns.heatmap(grid, annot = True, cmap = None, fmt = ".0f")
+    sns.heatmap(grid, cmap = None, fmt = ".0f")
     plt.show()
 
 # create states and their respective coordinates using the cartesian system
