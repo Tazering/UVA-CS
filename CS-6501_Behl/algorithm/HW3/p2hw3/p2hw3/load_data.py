@@ -63,3 +63,7 @@ def show_lidar(d):
 joint_names = ['Neck','Head','ShoulderL', 'ArmUpperL', 'LeftShoulderYaw','ArmLowerL','LeftWristYaw','LeftWristRoll','LeftWristYaw2','PelvYL','PelvL','LegUpperL','LegLowerL','AnkleL','FootL','PelvYR','PelvR','LegUpperR','LegLowerR','AnkleR','FootR','ShoulderR', 'ArmUpperR', 'RightShoulderYaw','ArmLowerR','RightWristYaw','RightWristRoll','RightWristYaw2','TorsoPitch','TorsoYaw','l_wrist_grip1','l_wrist_grip2','l_wrist_grip3','r_wrist_grip1','r_wrist_grip2','r_wrist_grip3','ChestLidarPan']
 joint_name_to_index = {k:v for v,k in zip(range(len(joint_names)), joint_names)}
 joint_index_to_name = {v:k for v,k in zip(range(len(joint_names)), joint_names)}
+
+# r = load_lidar_data(fn = "C:/Users/tyler/dev/UVA-CS/CS-6501_Behl/algorithm/HW3/data/data/train/train_lidar0.mat")
+lidar0_data = io.loadmat("C:/Users/tyler/dev/UVA-CS/CS-6501_Behl/algorithm/HW3/data/data/train/train_lidar0.mat")
+show_lidar(lidar0_data)
