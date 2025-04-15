@@ -83,7 +83,7 @@ class slam_t:
 
         # finds the closets idx in the joint timestamp array such that the timestamp
         # at that idx is t
-        s.find_joint_t_idx_from_lidar = lambda t: np.argmin(np.abs(s.joint['t']-t))
+        s.find_joint_t_idx_from_lidar = lambda t: np.argmin(np.abs(s.joint['t']-t)) # tkj9ep: this seems like interpolation
 
     def init_sensor_model(s):
         # lidar height from the ground in meters
@@ -161,6 +161,15 @@ class slam_t:
             return np.zeros(3)
 
         #### TODO: XXXXXXXXXXX
+        o_prev = s.lidar[t - 1]["xyth"] # get previous timestep
+        o = s.lidar[t]["xyth"] # get current timestep
+
+        o_diff = smart_minus_2d(o, o_prev)
+
+        # print(f"\nx_prev: {x_prev}, x: {x}")
+        # print(f"\nx_diff: {x_diff}")
+        return o_diff
+
         raise NotImplementedError
 
     def dynamics_step(s, t):
@@ -168,7 +177,15 @@ class slam_t:
         Compute the control using get_control and perform that control on each particle to get the updated locations of the particles in the particle filter, remember to add noise using the smart_plus_2d function to each particle
         """
         #### TODO: XXXXXXXXXXX
-        raise NotImplementedError
+        o_diff = s.get_control(t) # the delta_o
+        particle_noise = np.random.multivariate_normal([0, 0, 0], s.Q, size = s.n).T # generate random particle noise
+        noisy_o_diff = o_diff[:, None] + particle_noise
+
+        # loop through particles, 1) update with delta_o, 2) corrupt with noise
+        for p_id in range(s.n):
+            s.p[:, p_id] = smart_plus_2d(s.p[:, p_id], noisy_o_diff[:, p_id])
+
+        # raise NotImplementedError
 
     @staticmethod
     def update_weights(w, obs_logp):

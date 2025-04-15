@@ -65,5 +65,6 @@ joint_name_to_index = {k:v for v,k in zip(range(len(joint_names)), joint_names)}
 joint_index_to_name = {v:k for v,k in zip(range(len(joint_names)), joint_names)}
 
 # r = load_lidar_data(fn = "C:/Users/tyler/dev/UVA-CS/CS-6501_Behl/algorithm/HW3/data/data/train/train_lidar0.mat")
-lidar0_data = io.loadmat("C:/Users/tyler/dev/UVA-CS/CS-6501_Behl/algorithm/HW3/data/data/train/train_lidar0.mat")
-show_lidar(lidar0_data)
+# lidar0_data = load_lidar_data("C:/Users/tyler/dev/UVA-CS/CS-6501_Behl/algorithm/HW3/data/data/train/train_lidar0.mat")
+
+# show_lidar(lidar0_data)

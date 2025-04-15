@@ -19,7 +19,8 @@ def run_dynamics_step(src_dir, log_dir, idx, split, t0=0, draw_fig=False):
         xyth.append([p['xyth'][0], p['xyth'][1],p['xyth'][2]])
     xyth = np.array(xyth)
 
-    plt.figure(1); plt.clf();
+    plt.figure(1)
+    plt.clf()
     plt.title('Trajectory using onboard odometry')
     plt.plot(xyth[:,0], xyth[:,1])
     logging.info('> Saving odometry plot in '+os.path.join(log_dir, 'odometry_%s_%02d.jpg'%(split, idx)))
@@ -40,7 +41,8 @@ def run_dynamics_step(src_dir, log_dir, idx, split, t0=0, draw_fig=False):
     t0 = 0
     T = len(d)
     ps = deepcopy(slam.p)   # maintains all particles across all time steps
-    plt.figure(2); plt.clf();
+    plt.figure(2) 
+    plt.clf()
     ax = plt.subplot(111)
     for t in tqdm.tqdm(range(t0+1,T)):
         slam.dynamics_step(t)
@@ -128,6 +130,7 @@ def run_slam(src_dir, log_dir, idx, split):
 @click.option('--split', default='train', help='train/test split', type=str)
 @click.option('--mode', default='slam',
               help='choices: dynamics OR observation OR slam', type=str)
+
 def main(src_dir, log_dir, idx, split, mode):
     # Run python main.py --help to see how to provide command line arguments
 
