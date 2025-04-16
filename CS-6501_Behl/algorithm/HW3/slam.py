@@ -47,8 +47,24 @@ class map_t:
         np.clip to handle these situations.
         """
         #### TODO: XXXXXXXXXXX
-        raise NotImplementedError
+        # offset the coordinates
+        x_rel = x - s.xmin
+        y_rel = y - s.ymin
 
+        # discretize
+        x_disc = x_rel / s.resolution
+        y_disc = y_rel / s.resolution
+
+        # floor the values
+        x_floor = np.floor(x_disc).astype(int)
+        y_floor = np.floor(y_disc).astype(int)
+
+        # clip the values
+        clipped_x = np.clip(a = x_floor, a_min = 0, a_max = s.szx)
+        clipped_y = np.clip(a = y_floor, a_min = 0, a_max = s.szy)
+
+        return np.vstack((clipped_x, clipped_y))
+        
 class slam_t:
     """
     s is the same as self. In Python it does not really matter
@@ -138,16 +154,34 @@ class slam_t:
         in world coordinates
         """
         #### TODO: XXXXXXXXXXX
-        raise NotImplementedError
-
         # make sure each distance >= dmin and <= dmax, otherwise something is wrong in reading
         # the data
 
+        clipped_d = np.clip(a = d, a_min = s.lidar_dmin, a_max = s.lidar_dmax)
+
         # 1. from lidar distances to points in the LiDAR frame
+        x_lidar = clipped_d * np.cos(angles) # polar to cartesian
+        y_lidar = clipped_d * np.sin(angles)
+        z_lidar = np.zeros(shape = d.shape)
+
+        lidar_coordinates = np.vstack((x_lidar, y_lidar, z_lidar))
+        homogeneous_coords3d = make_homogeneous_coords_3d(lidar_coordinates)
 
         # 2. from LiDAR frame to the body frame
+        T_h_b = euler_to_se3(0, head_angle, neck_angle, np.array([0, 0, s.lidar_height]))
 
         # 3. from body frame to world frame
+        T_b_g_2d = get_se2(p[2], p[:2])
+        T_b_g = np.eye(4)
+        T_b_g[:2, :2] = T_b_g_2d[:2, :2]
+        T_b_g[:2, 3] = T_b_g_2d[:2, 2]
+        T_b_g[2, 2] = 1
+
+        # 4. combined them all together
+        combined_transformations = np.matmul(T_b_g, T_h_b)
+        lidar_points = np.matmul(combined_transformations, homogeneous_coords3d)[:2, :]
+
+        return lidar_points
 
     def get_control(s, t):
         """
@@ -166,11 +200,7 @@ class slam_t:
 
         o_diff = smart_minus_2d(o, o_prev)
 
-        # print(f"\nx_prev: {x_prev}, x: {x}")
-        # print(f"\nx_diff: {x_diff}")
         return o_diff
-
-        raise NotImplementedError
 
     def dynamics_step(s, t):
         """"
@@ -185,8 +215,6 @@ class slam_t:
         for p_id in range(s.n):
             s.p[:, p_id] = smart_plus_2d(s.p[:, p_id], noisy_o_diff[:, p_id])
 
-        # raise NotImplementedError
-
     @staticmethod
     def update_weights(w, obs_logp):
         """
@@ -194,7 +222,21 @@ class slam_t:
         new weights as discussed in the writeup. Make sure that the new weights are normalized
         """
         #### TODO: XXXXXXXXXXX
-        raise NotImplementedError
+        # update the weight
+        log_new_w = np.log(w + 1e-10)
+        propagated_w = log_new_w + obs_logp
+
+        # normalize
+        max_w = np.max(propagated_w)
+        log_summation = np.log(np.sum(np.exp(propagated_w - max_w)))
+
+        norm_propagated_w = propagated_w - max_w - log_summation
+        
+        # new_w = new_w - np.max(new_w) - np.log(np.sum(np.exp(new_w - np.max(new_w))))
+
+        return np.exp(norm_propagated_w)
+
+        # raise NotImplementedError
 
     def observation_step(s, t):
         """
@@ -213,6 +255,26 @@ class slam_t:
         You should ensure that map.cells is recalculated at each iteration (it is simply the binarized version of log_odds). map.log_odds is of course maintained across iterations.
         """
         #### TODO: XXXXXXXXXXX
+
+        # calculate the head and neck angle
+        joint_idx = s.find_joint_t_idx_from_lidar(s.lidar[t]["t"])
+
+        neck_angle = s.joint["head_angles"][0][joint_idx]
+        head_angle = s.joint["head_angles"][1][joint_idx]
+
+        for p_i in range(s.n):
+            # project particles into world coordinates
+            z_t = s.rays2world(p = s.p[:, p_i], d = s.lidar[t]["scan"], head_angle = head_angle, 
+                               neck_angle = neck_angle, angles = s.lidar_angles)
+            
+            O = s.map.grid_cell_from_xy(x = z_t[0], y = z_t[1])
+            cleaned_O = np.unique(O, axis = 1) # to avoid overcounting
+
+            obs_logp = np.sum(s.map.cells[cleaned_O[0], cleaned_O[1]])
+        
+        new_weights = s.update_weights(w = s.w, obs_logp = obs_logp)
+        s.new = new_weights
+
         raise NotImplementedError
 
     def resample_particles(s):
