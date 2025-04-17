@@ -1,5 +1,6 @@
 import os, sys, pickle, math
 from copy import deepcopy
+import random as rand
 
 from scipy import io
 import numpy as np
@@ -138,6 +139,36 @@ class slam_t:
         locations (number of particles n remains the same) and their weights
         """
         #### TODO: XXXXXXXXXXX
+        num_particles = p.shape[1]
+        new_particles = np.zeros_like(p)
+        c = w[0]
+        i = 0
+
+        # new_weights = []
+
+        # normalized_w = w / np.linalg.norm(w) # normalize the weights
+        # cum_sum_w = np.cumsum(normalized_w)
+
+        r = np.random.uniform(low = 0, high = 1.0/num_particles)
+        w = w / np.sum(w)
+
+        # u = r + (np.arange(num_particles)/num_particles)
+
+        for m in range(1, num_particles + 1):
+            u = r + ((m - 1) / num_particles)
+
+            while u > c:
+                i += 1
+                c += w[i]
+            
+            new_particles[:, m - 1] = p[:, i] 
+            # new_weights.append()
+
+        new_weights = np.ones(shape = num_particles) / num_particles
+
+        return new_particles, new_weights
+        print("No error was thrown...")
+
         raise NotImplementedError
 
     @staticmethod
@@ -232,8 +263,6 @@ class slam_t:
 
         norm_propagated_w = propagated_w - max_w - log_summation
         
-        # new_w = new_w - np.max(new_w) - np.log(np.sum(np.exp(new_w - np.max(new_w))))
-
         return np.exp(norm_propagated_w)
 
         # raise NotImplementedError
@@ -262,20 +291,55 @@ class slam_t:
         neck_angle = s.joint["head_angles"][0][joint_idx]
         head_angle = s.joint["head_angles"][1][joint_idx]
 
+        obs_logp = np.zeros(shape = s.n)
+
         for p_i in range(s.n):
             # project particles into world coordinates
             z_t = s.rays2world(p = s.p[:, p_i], d = s.lidar[t]["scan"], head_angle = head_angle, 
                                neck_angle = neck_angle, angles = s.lidar_angles)
             
+            # convert values into xy system of the grid
             O = s.map.grid_cell_from_xy(x = z_t[0], y = z_t[1])
-            cleaned_O = np.unique(O, axis = 1) # to avoid overcounting
+            cleaned_O = np.unique(O, axis = 1)
 
-            obs_logp = np.sum(s.map.cells[cleaned_O[0], cleaned_O[1]])
+            # calculate logprob
+            obs_logp[p_i] = np.sum(s.map.cells[cleaned_O[0], cleaned_O[1]])
         
         new_weights = s.update_weights(w = s.w, obs_logp = obs_logp)
-        s.new = new_weights
+        s.w = new_weights
 
-        raise NotImplementedError
+        largest_particle_idx = np.argmax(s.w)
+        best_pose = s.p[:, largest_particle_idx]
+
+        best_particle_world = s.rays2world(p = best_pose, d = s.lidar[t]["scan"], head_angle = head_angle,
+                                           neck_angle = neck_angle, angles = s.lidar_angles)
+        
+        O_best = s.map.grid_cell_from_xy(x = best_particle_world[0], y = best_particle_world[1])
+        O_best_unique = np.unique(O_best, axis = 1)
+
+        num_coordinates = O_best_unique.shape[1]
+        
+        # update log_odds
+        free_spaces = np.full_like(s.map.log_odds, s.lidar_log_odds_free, dtype = float)
+
+        for coord_idx in range(num_coordinates):
+            x_coord = O_best_unique[0, coord_idx]
+            y_coord = O_best_unique[1, coord_idx]
+
+            s.map.log_odds[x_coord, y_coord] += s.lidar_log_odds_occ
+            free_spaces[x_coord, y_coord] = 0
+
+        s.map.log_odds = s.map.log_odds + free_spaces
+
+        s.map.log_odds = np.clip(a = s.map.log_odds, a_min = -s.map.log_odds_max, a_max = s.map.log_odds_max)
+
+        s.map.cells = (s.map.log_odds >= s.map.log_odds_thresh).astype(np.int8)
+        
+        # print(f"log_odds: {s.map.log_odds}")
+
+        s.resample_particles() # update the particle weights
+
+        # raise NotImplementedError
 
     def resample_particles(s):
         """
