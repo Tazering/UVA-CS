@@ -61,8 +61,8 @@ class map_t:
         y_floor = np.floor(y_disc).astype(int)
 
         # clip the values
-        clipped_x = np.clip(a = x_floor, a_min = 0, a_max = s.szx)
-        clipped_y = np.clip(a = y_floor, a_min = 0, a_max = s.szy)
+        clipped_x = np.clip(a = x_floor, a_min = 0, a_max = s.szx - 1)
+        clipped_y = np.clip(a = y_floor, a_min = 0, a_max = s.szy - 1)
 
         return np.vstack((clipped_x, clipped_y))
         
@@ -78,7 +78,7 @@ class slam_t:
         s.init_sensor_model()
 
         # dynamics noise for the state (x,y,yaw)
-        s.Q = 1e-8*np.eye(3)
+        s.Q = Q
 
         # we resample particles if the effective number of particles
         # falls below s.resampling_threshold*num_particles
@@ -121,6 +121,9 @@ class slam_t:
         s.lidar_log_odds_occ = np.log(9)
         s.lidar_log_odds_free = np.log(1/9.)
 
+        # s.lidar_log_odds_occ = .85
+        # s.lidar_log_odds_free = -.04
+
     def init_particles(s, n=100, p=None, w=None, t0=0):
         """
         n: number of particles
@@ -140,36 +143,25 @@ class slam_t:
         """
         #### TODO: XXXXXXXXXXX
         num_particles = p.shape[1]
-        new_particles = np.zeros_like(p)
+
+        r = np.random.uniform(low = 0, high = 1.0/num_particles)
         c = w[0]
         i = 0
 
-        # new_weights = []
+        new_particles = np.zeros_like(p)
 
-        # normalized_w = w / np.linalg.norm(w) # normalize the weights
-        # cum_sum_w = np.cumsum(normalized_w)
-
-        r = np.random.uniform(low = 0, high = 1.0/num_particles)
-        w = w / np.sum(w)
-
-        # u = r + (np.arange(num_particles)/num_particles)
-
-        for m in range(1, num_particles + 1):
-            u = r + ((m - 1) / num_particles)
+        for m in range(num_particles):
+            u = r + (m/num_particles)
 
             while u > c:
                 i += 1
                 c += w[i]
-            
-            new_particles[:, m - 1] = p[:, i] 
-            # new_weights.append()
 
-        new_weights = np.ones(shape = num_particles) / num_particles
-
+            new_particles[:, m] = p[:, i]
+        
+        new_weights = np.ones(num_particles) / num_particles
+    
         return new_particles, new_weights
-        print("No error was thrown...")
-
-        raise NotImplementedError
 
     @staticmethod
     def log_sum_exp(w):
@@ -188,31 +180,27 @@ class slam_t:
         # make sure each distance >= dmin and <= dmax, otherwise something is wrong in reading
         # the data
 
-        clipped_d = np.clip(a = d, a_min = s.lidar_dmin, a_max = s.lidar_dmax)
-
         # 1. from lidar distances to points in the LiDAR frame
-        x_lidar = clipped_d * np.cos(angles) # polar to cartesian
-        y_lidar = clipped_d * np.sin(angles)
-        z_lidar = np.zeros(shape = d.shape)
-
-        lidar_coordinates = np.vstack((x_lidar, y_lidar, z_lidar))
-        homogeneous_coords3d = make_homogeneous_coords_3d(lidar_coordinates)
+            # conversion from polar to cartesian
+        x = d * np.cos(angles)
+        y = d * np.sin(angles)
+        z = np.zeros_like(d)
+        
+        lidar_points = np.vstack((x, y, z))
 
         # 2. from LiDAR frame to the body frame
-        T_h_b = euler_to_se3(0, head_angle, neck_angle, np.array([0, 0, s.lidar_height]))
+        T_l_b = euler_to_se3(r = 0, p = head_angle, y = neck_angle, 
+                             v = np.array([0, 0, s.lidar_height]))
 
         # 3. from body frame to world frame
-        T_b_g_2d = get_se2(p[2], p[:2])
-        T_b_g = np.eye(4)
-        T_b_g[:2, :2] = T_b_g_2d[:2, :2]
-        T_b_g[:2, 3] = T_b_g_2d[:2, 2]
-        T_b_g[2, 2] = 1
+        T_b_g = euler_to_se3(r = 0, p = 0, y = p[2],
+                             v = np.array([p[0], p[1], s.head_height]))
 
         # 4. combined them all together
-        combined_transformations = np.matmul(T_b_g, T_h_b)
-        lidar_points = np.matmul(combined_transformations, homogeneous_coords3d)[:2, :]
-
-        return lidar_points
+        homogenous_lidar = make_homogeneous_coords_3d(lidar_points)
+        world_point = T_b_g @ T_l_b @ homogenous_lidar
+        
+        return world_point[:2, :]
 
     def get_control(s, t):
         """
@@ -252,20 +240,9 @@ class slam_t:
         Given the observation log-probability and the weights of particles w, calculate the
         new weights as discussed in the writeup. Make sure that the new weights are normalized
         """
-        #### TODO: XXXXXXXXXXX
-        # update the weight
-        log_new_w = np.log(w + 1e-10)
-        propagated_w = log_new_w + obs_logp
-
-        # normalize
-        max_w = np.max(propagated_w)
-        log_summation = np.log(np.sum(np.exp(propagated_w - max_w)))
-
-        norm_propagated_w = propagated_w - max_w - log_summation
-        
-        return np.exp(norm_propagated_w)
-
-        # raise NotImplementedError
+        propagated_w = w + obs_logp
+        log_sum_exp_w = slam_t.log_sum_exp(propagated_w)
+        return propagated_w - log_sum_exp_w
 
     def observation_step(s, t):
         """
@@ -293,53 +270,86 @@ class slam_t:
 
         obs_logp = np.zeros(shape = s.n)
 
+        # remove all the bad lidar scans
+        lidar_scan = s.lidar[t]["scan"]
+        valid_mask = (lidar_scan >= s.lidar_dmin) & (lidar_scan <= s.lidar_dmax)
+        lidar_scan_valid = lidar_scan[valid_mask]
+        valid_lidar_angles = s.lidar_angles[valid_mask]
+
         for p_i in range(s.n):
             # project particles into world coordinates
-            z_t = s.rays2world(p = s.p[:, p_i], d = s.lidar[t]["scan"], head_angle = head_angle, 
-                               neck_angle = neck_angle, angles = s.lidar_angles)
-            
+            z_t = s.rays2world(p = s.p[:, p_i], d = lidar_scan_valid, head_angle = head_angle, 
+                               neck_angle = neck_angle, angles = valid_lidar_angles)
+
             # convert values into xy system of the grid
-            O = s.map.grid_cell_from_xy(x = z_t[0], y = z_t[1])
-            cleaned_O = np.unique(O, axis = 1)
+            y_o = s.map.grid_cell_from_xy(x = z_t[0, :], y = z_t[1, :])
 
             # calculate logprob
-            obs_logp[p_i] = np.sum(s.map.cells[cleaned_O[0], cleaned_O[1]])
-        
-        new_weights = s.update_weights(w = s.w, obs_logp = obs_logp)
-        s.w = new_weights
+            obs_logp[p_i] = np.sum(s.map.cells[y_o[1, :], y_o[0, :]])
 
+        # update the weights
+        log_w = np.log(s.w + 1e-10)
+
+        new_weights = s.update_weights(w = log_w, obs_logp = obs_logp)
+
+        s.w = np.exp(new_weights)
+        s.w /= np.sum(s.w)
+
+        # find particle with the largest weight
         largest_particle_idx = np.argmax(s.w)
         best_pose = s.p[:, largest_particle_idx]
 
-        best_particle_world = s.rays2world(p = best_pose, d = s.lidar[t]["scan"], head_angle = head_angle,
-                                           neck_angle = neck_angle, angles = s.lidar_angles)
-        
+        best_particle_world = s.rays2world(p = best_pose, d = lidar_scan_valid, head_angle = head_angle,
+                                           neck_angle = neck_angle, angles = valid_lidar_angles)
+
         O_best = s.map.grid_cell_from_xy(x = best_particle_world[0], y = best_particle_world[1])
-        O_best_unique = np.unique(O_best, axis = 1)
+        num_coordinates = O_best.shape[1]
 
-        num_coordinates = O_best_unique.shape[1]
+        robot_pos = best_pose[:2]
+        robot_grid = s.map.grid_cell_from_xy(robot_pos[0], robot_pos[1])[:, 0]
+
+        free_cells = set()
+        # bresenham line algorithm
+        for i in range(num_coordinates):
+            end_grid = O_best[:, i]
+
+            x0, y0 = robot_grid
+            x1, y1 = end_grid
+
+            dx = np.abs(x1 - x0)
+            dy = np.abs(y1 - y0)
+
+            sx = 1 if x0 < x1 else -1
+            sy = 1 if y0 < y1 else -1
+            err = dx - dy
+
+            while True:
+                if (x0, y0) != (x1, y1):
+                    free_cells.add((x0, y0))
+                
+                if x0 == x1 and y0 == y1:
+                    break
+
+                e2 = 2 * err
+
+                if e2 > -dy:
+                    err -= dy
+                    x0 += sx
+                
+                if e2 < dx:
+                    err += dx
+                    y0 += sy
+
+        for x, y in free_cells:
+            s.map.log_odds[y, x] += s.lidar_log_odds_free
         
-        # update log_odds
-        free_spaces = np.full_like(s.map.log_odds, s.lidar_log_odds_free, dtype = float)
-
-        for coord_idx in range(num_coordinates):
-            x_coord = O_best_unique[0, coord_idx]
-            y_coord = O_best_unique[1, coord_idx]
-
-            s.map.log_odds[x_coord, y_coord] += s.lidar_log_odds_occ
-            free_spaces[x_coord, y_coord] = 0
-
-        s.map.log_odds = s.map.log_odds + free_spaces
+        s.map.log_odds[O_best[1], O_best[0]] += s.lidar_log_odds_occ
 
         s.map.log_odds = np.clip(a = s.map.log_odds, a_min = -s.map.log_odds_max, a_max = s.map.log_odds_max)
 
         s.map.cells = (s.map.log_odds >= s.map.log_odds_thresh).astype(np.int8)
         
-        # print(f"log_odds: {s.map.log_odds}")
-
         s.resample_particles() # update the particle weights
-
-        # raise NotImplementedError
 
     def resample_particles(s):
         """

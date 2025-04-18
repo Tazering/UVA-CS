@@ -80,7 +80,7 @@ def run_observation_step(src_dir, log_dir, idx, split, is_online=False):
     xyth = slam.lidar[t0]['xyth']
     xyth[2] = slam.lidar[t0]['rpy'][2]
     logging.debug('> Initializing 1 particle at: {}'.format(xyth))
-    slam.init_particles(n=1,p=xyth.reshape((3,1)),w=np.array([1]))
+    slam.init_particles(n=1,p=xyth.reshape((3,1)),w=np.array([1.0]))
 
     slam.observation_step(t=0)
     logging.info('> Particles\n: {}'.format(slam.p))
@@ -105,23 +105,109 @@ def run_slam(src_dir, log_dir, idx, split):
     be something larger than the very small value we picked in run_dynamics_step function
     above.
     """
-    slam = slam_t(resolution=0.05, Q=np.diag([2e-4,2e-4,1e-4]))
+    slam = slam_t(resolution=0.05, Q= 1e-4 * np.eye(3))
     slam.read_data(src_dir, idx, split)
     T = len(slam.lidar)
 
-    raise NotImplementedError
+    # raise NotImplementedError
     # again initialize the map to enable calculation of the observation logp in
     # future steps, this time we want to be more careful and initialize with the
     # correct lidar scan. First find the time t0 around which we have both LiDAR
     # data and joint data
     #### TODO: XXXXXXXXXXX
+    t0 = 0
+    timestep_difference_threshold = .01
+
+    # find best t0
+    while t0 < T:
+        lidar_time = slam.lidar[t0]["t"]
+        joint_index = slam.find_joint_t_idx_from_lidar(lidar_time)
+        joint_time = slam.joint["t"][joint_index]
+
+        if np.abs(lidar_time - joint_time) < timestep_difference_threshold:
+            break
+
+        if t0 > T:
+            print(f"defaulting to t0: {t0}...")
+            
+        t0 += 1
+    
+    print(f"Initial t0: {t0}...")
 
     # initialize the occupancy grid using one particle and calling the observation_step
     # function
     #### TODO: XXXXXXXXXXX
+    xyth = slam.lidar[t0]["xyth"]
+    xyth[2] = slam.lidar[t0]["rpy"][2]
+    logging.debug('> Initializing 1 particle at: {}'.format(xyth))
+    slam.init_particles(n = 1, p = xyth.reshape((3, 1)), w = np.array(1.0), t0 = t0)
+    slam.observation_step(t = t0)
 
     # slam, save data to be plotted later
+
     #### TODO: XXXXXXXXXXX
+    n = 100
+    w = np.ones(n)/float(n)
+    p = np.tile(A = xyth.reshape((3, 1)), reps = (1, n))
+    noise = np.random.normal(0, 0.1, (3, n))
+    p = p + noise
+    slam.init_particles(n = n, p = p, w = w)
+
+    traj = np.zeros((T, 3))
+    odom = np.zeros((T, 3))  # Odometry trajectory (x, y, theta)
+
+    skip_steps = 3
+
+    for t in range(t0, T, skip_steps):
+
+        slam.dynamics_step(t = t)
+        slam.observation_step(t = t)
+
+        best_particle = np.argmax(slam.w)
+        best_pose = slam.p[:, best_particle]
+        traj[t, :] = best_pose
+        odom[t, :] = slam.lidar[t]["xyth"]
+
+    # print("SLAM trajectory range:", traj.min(axis=0), traj.max(axis=0))
+    traj = traj[t0:T:skip_steps]
+    odom = odom[t0:T:skip_steps]
+
+    # Plot the final occupancy grid
+    plt.figure(figsize=(10, 10))
+    plt.imshow(slam.map.cells.T, cmap='binary', origin='lower',
+               extent=[slam.map.xmin, slam.map.xmax, slam.map.ymin, slam.map.ymax])
+    plt.title(f'Final Occupancy Grid (Dataset {idx}, {split})')
+    plt.xlabel('x (m)')
+    plt.ylabel('y (m)')
+    plt.colorbar(label='Occupancy (0=free, 1=occupied)')
+    grid_plot_path = os.path.join(log_dir, f'occupancy_grid_{split}_{idx:02d}.png')
+    plt.savefig(grid_plot_path)
+    plt.close()
+    logging.info(f'> Saved occupancy grid plot to {grid_plot_path}')
+
+    # Plot SLAM and odometry trajectories
+    plt.figure(figsize=(10, 10))
+    plt.plot(traj[:, 0], traj[:, 1], 'b-', label='SLAM')
+    plt.plot(odom[:, 0], odom[:, 1], 'r--', label='Odometry')
+    plt.axis('equal')
+    plt.legend()
+    plt.title(f'Trajectories (Dataset {idx}, {split})')
+    plt.xlabel('x (m)')
+    plt.ylabel('y (m)')
+    traj_plot_path = os.path.join(log_dir, f'trajectories_{split}_{idx:02d}.png')
+    plt.savefig(traj_plot_path)
+    plt.close()
+    logging.info(f'> Saved trajectory plot to {traj_plot_path}')
+
+    # Return results for grading or further processing
+    return {
+        'trajectory': traj,
+        'odometry': odom,
+        'map': slam.map.cells,
+        'log_dir': log_dir,
+        'idx': idx,
+        'split': split
+    }
 
 @click.command()
 @click.option('--src_dir', default='./', help='data directory', type=str)
