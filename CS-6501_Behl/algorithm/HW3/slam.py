@@ -118,11 +118,11 @@ class slam_t:
         # sensor model lidar_log_odds_occ is the value by which we would increase the log_odds
         # for occupied cells. lidar_log_odds_free is the value by which we should decrease the
         # log_odds for free cells (which are all cells that are not occupied)
-        s.lidar_log_odds_occ = np.log(9)
-        s.lidar_log_odds_free = np.log(1/9.)
+        # s.lidar_log_odds_occ = np.log(9)
+        # s.lidar_log_odds_free = np.log(1/9.)
 
-        # s.lidar_log_odds_occ = .85
-        # s.lidar_log_odds_free = -.04
+        s.lidar_log_odds_occ = .85
+        s.lidar_log_odds_free = -.04
 
     def init_particles(s, n=100, p=None, w=None, t0=0):
         """
@@ -285,10 +285,15 @@ class slam_t:
             y_o = s.map.grid_cell_from_xy(x = z_t[0, :], y = z_t[1, :])
 
             # calculate logprob
-            obs_logp[p_i] = np.sum(s.map.cells[y_o[1, :], y_o[0, :]])
+            if y_o.ndim == 2:
+                obs_logp[p_i] = np.sum(s.map.cells[y_o[1, :], y_o[0, :]])
+            else:
+                obs_logp[p_i] = s.map.cells[y_o[1], y_o[0]]
+
 
         # update the weights
         log_w = np.log(s.w + 1e-10)
+        log_w = log_w / np.sum(log_w)
 
         new_weights = s.update_weights(w = log_w, obs_logp = obs_logp)
 
@@ -323,13 +328,8 @@ class slam_t:
             sy = 1 if y0 < y1 else -1
             err = dx - dy
 
-            while True:
-                if (x0, y0) != (x1, y1):
-                    free_cells.add((x0, y0))
-                
-                if x0 == x1 and y0 == y1:
-                    break
-
+            while (x0 != x1) or (y0 != y1):
+                free_cells.add((x0, y0))
                 e2 = 2 * err
 
                 if e2 > -dy:

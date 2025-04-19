@@ -105,7 +105,7 @@ def run_slam(src_dir, log_dir, idx, split):
     be something larger than the very small value we picked in run_dynamics_step function
     above.
     """
-    slam = slam_t(resolution=0.05, Q= 1e-4 * np.eye(3))
+    slam = slam_t(resolution=0.05, Q= np.diag([5e-3, 5e-3, 5e-3]), resampling_threshold=.3)
     slam.read_data(src_dir, idx, split)
     T = len(slam.lidar)
 
@@ -116,7 +116,7 @@ def run_slam(src_dir, log_dir, idx, split):
     # data and joint data
     #### TODO: XXXXXXXXXXX
     t0 = 0
-    timestep_difference_threshold = .01
+    timestep_difference_threshold = .001
 
     # find best t0
     while t0 < T:
@@ -156,7 +156,7 @@ def run_slam(src_dir, log_dir, idx, split):
     traj = np.zeros((T, 3))
     odom = np.zeros((T, 3))  # Odometry trajectory (x, y, theta)
 
-    skip_steps = 3
+    skip_steps = 10
 
     for t in range(t0, T, skip_steps):
 
@@ -168,7 +168,6 @@ def run_slam(src_dir, log_dir, idx, split):
         traj[t, :] = best_pose
         odom[t, :] = slam.lidar[t]["xyth"]
 
-    # print("SLAM trajectory range:", traj.min(axis=0), traj.max(axis=0))
     traj = traj[t0:T:skip_steps]
     odom = odom[t0:T:skip_steps]
 
@@ -179,7 +178,7 @@ def run_slam(src_dir, log_dir, idx, split):
     plt.title(f'Final Occupancy Grid (Dataset {idx}, {split})')
     plt.xlabel('x (m)')
     plt.ylabel('y (m)')
-    plt.colorbar(label='Occupancy (0=free, 1=occupied)')
+    plt.plot(traj[:, 0], traj[:, 1], 'b-', label='SLAM')
     grid_plot_path = os.path.join(log_dir, f'occupancy_grid_{split}_{idx:02d}.png')
     plt.savefig(grid_plot_path)
     plt.close()

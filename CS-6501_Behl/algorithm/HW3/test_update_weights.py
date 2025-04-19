@@ -1,32 +1,33 @@
-import numpy as np
 from slam import slam_t
+import numpy as np
 
-def test_update_weights():
-    # Prior weights (equal), in log-space
-    w = np.log(np.array([1/3, 1/3, 1/3]))
-    
-    # Observation log-probabilities (simulate different particle likelihoods)
-    obs_logp = np.array([-5.0, -1.0, -0.1])
+def test_log_odds_update():
+    slam = slam_t(resolution=1.0)
+    slam.init_particles(n=1)
+    slam.p[:, 0] = [0, 0, 0]
 
-    print(f"Initial log weights: {w}")
-    print(f"Observation log-probabilities: {obs_logp}")
+    slam.w[:] = [1.0]
 
-    # Run the function
-    log_weights_new = slam_t.update_weights(w, obs_logp)
-    weights_new = np.exp(log_weights_new)
+    slam.lidar = [{ "t": 0, "scan": np.array([1.0]) }]
+    slam.joint = { "head_angles": [[0], [0]], "t": np.array([0]) }
+    slam.find_joint_t_idx_from_lidar = lambda t: 0
+    slam.lidar_dmin = 0.1
+    slam.lidar_dmax = 5.0
+    slam.lidar_angles = np.array([0])
+    slam.lidar_log_odds_occ = 0.8
+    slam.lidar_log_odds_free = -0.2
 
-    print(f"New log weights: {log_weights_new}")
-    print(f"New normalized weights: {weights_new}")
-    print(f"Sum of new weights: {np.sum(weights_new)}")
+    def fake_rays2world(p, d, head_angle, neck_angle, angles):
+        return np.array([[1], [0]])
 
-    # Basic checks
-    assert np.all(weights_new >= 0), "Weights must be non-negative"
-    assert np.isclose(np.sum(weights_new), 1.0), "Weights must sum to 1"
+    slam.rays2world = fake_rays2world
 
-    # Heuristic check: third particle should have highest weight
-    assert np.argmax(weights_new) == 2, "Particle with highest log-likelihood should have highest weight"
+    slam.observation_step(0)
 
-    print("✅ update_weights() passed all tests.")
+    occupied_idx = slam.map.grid_cell_from_xy(np.array([1.0]), np.array([0.0]))
+    free_idx = slam.map.grid_cell_from_xy(np.array([0.0]), np.array([0.0]))
 
-if __name__ == "__main__":
-    test_update_weights()
+    assert slam.map.log_odds[occupied_idx[1][0], occupied_idx[0][0]] > 0.7, "Occupied cell log-odds should increase"
+    assert slam.map.log_odds[free_idx[1][0], free_idx[0][0]] < -0.1, "Free cell log-odds should decrease"
+
+test_log_odds_update()
