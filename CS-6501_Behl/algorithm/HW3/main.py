@@ -105,7 +105,7 @@ def run_slam(src_dir, log_dir, idx, split):
     be something larger than the very small value we picked in run_dynamics_step function
     above.
     """
-    slam = slam_t(resolution=0.05, Q= np.diag([5e-3, 5e-3, 5e-3]), resampling_threshold=.3)
+    slam = slam_t(resolution=0.05, Q= np.diag([5e-2, 5e-2, 5e-2]), resampling_threshold=.3)
     slam.read_data(src_dir, idx, split)
     T = len(slam.lidar)
 
