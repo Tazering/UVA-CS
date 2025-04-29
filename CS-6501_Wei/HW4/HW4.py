@@ -324,7 +324,7 @@ if __name__ == "__main__":
     ##### Shared parameters between DQN and PPO #####
     MINIBATCH_SIZE = 128      # the B in the pseudocode
     GAMMA = 0.99
-    LR = 1e-4
+    LR = 5e-5
     if args.algorithm == "DQN" or args.algorithm == "DDQN" or args.algorithm == "RAND": 
        N = 1
        M = 1
