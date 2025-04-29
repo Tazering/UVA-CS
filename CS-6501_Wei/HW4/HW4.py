@@ -149,11 +149,12 @@ class MDPModel(nn.Module):
             ##############################################################
 
             # update the online network
-            target_net_output = torch.zeros_like(batch_terminated)
-            target_net_output[batch_terminated == 0] = GAMMA * torch.argmax(target_net.forward(batch_next_state))
-            policy_actions = self.forward(batch_state).gather(1, batch_action.unsqueeze(1)).squeeze(1) # get the chosen actions
+            with torch.no_grad():
+                target_net_max_values, target_indices = torch.max(target_net.forward(batch_next_state), dim = 1)
+                target_net_output = torch.where(batch_terminated == 0, GAMMA * target_net_max_values, torch.tensor(0))
 
-            cost = torch.sum(torch.pow(policy_actions - batch_reward - target_net_output, 2))/ MINIBATCH_SIZE
+            policy_actions = self.forward(batch_state).gather(1, batch_action.unsqueeze(1)).squeeze(1) # get the chosen actions
+            cost = torch.sum(torch.pow(policy_actions - (batch_reward + target_net_output), 2))/ MINIBATCH_SIZE
      
             # update the policy network parameters
             self.optimizer.zero_grad()
@@ -164,13 +165,15 @@ class MDPModel(nn.Module):
 
             with torch.no_grad():
                 for online_param, target_param in zip(self.parameters(), target_net.parameters()):
-                    target_param = (TAU * online_param) + ((1 - TAU) * target_param)
+                    target_param.data = (TAU * online_param.data) + ((1 - TAU) * target_param.data)
 
         elif self.algorithm == "PPO":
             #######################################################################
             # TODO:  calculate \hat{A}, \hat{V} for the batch of size N
             #######################################################################
-            
+            # compute GAE for \hat{A}, \hat{V}
+            for n in range(N, 0, -1):
+                pass
 
             for _ in range(self.M):
                 ###################################################################
@@ -217,8 +220,6 @@ def generate_videos():
         state = next_state
     imageio.mimsave('cartpole.mp4', frames, fps=60, macro_block_size=None)
 
-
-
 def train(args): 
     set_seed(seed=args.seed) 
     if args.algorithm == "RAND": 
@@ -227,7 +228,6 @@ def train(args):
         num_episodes = 2000
     elif args.algorithm == "PPO": 
         num_episodes = 6000
-
 
     policy_net = MDPModel(state_dim, n_actions, args)     # the online network in DQN or the policy network in PPO
     if args.algorithm == "DQN" or args.algorithm == "DDQN": 
@@ -299,8 +299,6 @@ def train(args):
                 batch_terminated = []
                 batch_action_prob = []
             
-                
-        
             if terminated or truncated:
                 episode_returns.append(current_episode_return)
                 print('Episode {},  score: {}'.format(iteration, current_episode_return), flush=True)
@@ -326,7 +324,7 @@ if __name__ == "__main__":
     ##### Shared parameters between DQN and PPO #####
     MINIBATCH_SIZE = 128      # the B in the pseudocode
     GAMMA = 0.99
-    LR = 1e-3
+    LR = 1e-4
     if args.algorithm == "DQN" or args.algorithm == "DDQN" or args.algorithm == "RAND": 
        N = 1
        M = 1
