@@ -149,13 +149,25 @@ class MDPModel(nn.Module):
             ##############################################################
 
             # update the online network
-            with torch.no_grad():
-                target_net_max_values, target_indices = torch.max(target_net.forward(batch_next_state), dim = 1)
-                target_net_output = torch.where(batch_terminated == 0, GAMMA * target_net_max_values, torch.tensor(0))
-
             policy_actions = self.forward(batch_state).gather(1, batch_action.unsqueeze(1)).squeeze(1) # get the chosen actions
-            cost = torch.sum(torch.pow(policy_actions - (batch_reward + target_net_output), 2))/ MINIBATCH_SIZE
-     
+
+            if self.algorithm == "DQN":
+                with torch.no_grad():
+                    target_net_max_values, target_indices = torch.max(target_net.forward(batch_next_state), dim = 1)
+                    target_net_output = torch.where(batch_terminated == 0, GAMMA * target_net_max_values, torch.tensor(0))
+
+                cost = torch.sum(torch.pow(policy_actions - (batch_reward + target_net_output), 2))/ MINIBATCH_SIZE
+
+
+            if self.algorithm == "DDQN":
+
+                with torch.no_grad():
+                    best_actions = torch.argmax(self.forward(batch_next_state), dim = 1)
+                    target_net_output = target_net.forward(batch_next_state).gather(1, best_actions.unsqueeze(1)).squeeze(1)
+                    target_net_output = torch.where(batch_terminated == 0, GAMMA * target_net_output, torch.tensor(0))
+
+                cost = torch.sum(torch.pow(policy_actions - (batch_reward + target_net_output), 2)) / MINIBATCH_SIZE
+
             # update the policy network parameters
             self.optimizer.zero_grad()
             cost.backward()
@@ -171,9 +183,7 @@ class MDPModel(nn.Module):
             #######################################################################
             # TODO:  calculate \hat{A}, \hat{V} for the batch of size N
             #######################################################################
-            # compute GAE for \hat{A}, \hat{V}
-            for n in range(N, 0, -1):
-                pass
+            
 
             for _ in range(self.M):
                 ###################################################################
@@ -187,7 +197,7 @@ class MDPModel(nn.Module):
         if self.algorithm == "RAND":
             return 1 / self.n_actions * torch.ones_like(q_values)
 
-        elif self.algorithm == "DQN":  
+        elif self.algorithm == "DQN" or self.algorithm == "DDQN":
             eps = EPS_END + (EPS_START - EPS_END) * math.exp(-1. * iteration / EPS_DECAY)
             max_index = q_values.argmax(dim=1)
             batchsize = x.shape[0]
@@ -324,7 +334,7 @@ if __name__ == "__main__":
     ##### Shared parameters between DQN and PPO #####
     MINIBATCH_SIZE = 128      # the B in the pseudocode
     GAMMA = 0.99
-    LR = 5e-5
+    LR = 1e-4 # 5e-5
     if args.algorithm == "DQN" or args.algorithm == "DDQN" or args.algorithm == "RAND": 
        N = 1
        M = 1
