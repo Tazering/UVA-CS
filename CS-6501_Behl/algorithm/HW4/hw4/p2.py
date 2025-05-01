@@ -8,11 +8,11 @@ def rollout(e, q, eps=0, T=200):
 
     x = e.reset()
     for t in range(T):
-        u = q.control(th.from_numpy(x).float().unsqueeze(0),
+        u = q.control(th.from_numpy(x[0]).float().unsqueeze(0), # added indexing - tkj9ep
                       eps=eps)
         u = u.int().numpy().squeeze()
 
-        xp,r,d,info = e.step(u)
+        xp,r,d,info = e.step(u)[0] # added indexing - tkj9ep
         t = dict(x=x,xp=xp,r=r,u=u,d=d,info=info)
         x = xp
         traj.append(t)
@@ -40,13 +40,22 @@ class q_t(nn.Module):
         # eps-greedy strategy to choose control input
         # note that for eps=0
         # you should return the correct control u
+        if eps == 0: # exploit
+            u = th.argmax(s.forward(x))
+
+        elif eps == 1: # explore
+            u = th.randint(0, 2, (1,))
+
         return u
 
 def loss(q, ds):
     ### TODO: XXXXXXXXXXXX
-    # 1. sample mini-batch from datset ds
+    # 1. sample mini-batch from dataset ds
+
     # 2. code up dqn with double-q trick
+
     # 3. return the objective f
+    
     return f
 
 # u* = argmax q(x', u)
