@@ -2,17 +2,20 @@ import gym
 import numpy as np
 import torch as th
 import torch.nn as nn
+import copy
+import random
 
 def rollout(e, q, eps=0, T=200):
     traj = []
 
-    x = e.reset()
+    x, _ = e.reset()
     for t in range(T):
-        u = q.control(th.from_numpy(x[0]).float().unsqueeze(0), # added indexing - tkj9ep
+        u = q.control(th.from_numpy(x).float().unsqueeze(0),
                       eps=eps)
+
         u = u.int().numpy().squeeze()
 
-        xp,r,d,info = e.step(u)[0] # added indexing - tkj9ep
+        xp,r,d, truncated, info = e.step(u)
         t = dict(x=x,xp=xp,r=r,u=u,d=d,info=info)
         x = xp
         traj.append(t)
@@ -29,33 +32,56 @@ class q_t(nn.Module):
                             nn.ReLU(True),
                             nn.Linear(hdim, udim),
                             )
+        
+        # declare a new target network
+        s.target_net = copy.deepcopy(s.m)
+
     def forward(s, x):
         return s.m(x)
 
     def control(s, x, eps=0):
-        # 1. get q values for all controls
+         # 1. get q values for all controls
         q = s.m(x)
 
         ### TODO: XXXXXXXXXXXX
         # eps-greedy strategy to choose control input
         # note that for eps=0
         # you should return the correct control u
-        if eps == 0: # exploit
-            u = th.argmax(s.forward(x))
-
-        elif eps == 1: # explore
+        rand_val = th.rand(1).item()
+        if rand_val < eps: # explore
             u = th.randint(0, 2, (1,))
+
+        else: # exploit
+            u = th.argmax(q)
 
         return u
 
 def loss(q, ds):
     ### TODO: XXXXXXXXXXXX
-    # 1. sample mini-batch from dataset ds
+    # 1. sample mini-batch from datset ds
+    batch_size = 64
+    gamma = .99
+    alpha = .05
+
+        
+    flattened_ds = [entry for trajectory in ds for entry in trajectory] # flatten the list because we want to sample from different trajectories
+    mini_batch = random.sample(flattened_ds, k = batch_size)
+    
+        # separate dictionary into stack
+    current_states = th.stack([th.tensor(input["x"], dtype=th.float32) for input in mini_batch])
+    next_states = th.stack([th.tensor(input["xp"], dtype = th.float32) for input in mini_batch])
+    actions = th.tensor([input["u"] for input in mini_batch]).unsqueeze(1)
+    rewards = th.tensor([input["r"] for input in mini_batch]).unsqueeze(1)
+    dones = th.tensor([int(input["d"]) for input in mini_batch]).unsqueeze(1)
 
     # 2. code up dqn with double-q trick
+    online_u = q(current_states)
+
+    target_u = q.target_net(next_states)
+    y_t = rewards + gamma * (1 - dones) * target_u
 
     # 3. return the objective f
-    
+    f = (online_u - y_t)
     return f
 
 # u* = argmax q(x', u)
@@ -73,7 +99,7 @@ def evaluate(q):
     return r
 
 if __name__=='__main__':
-    e = gym.make('CartPole-v1')
+    e = gym.make('CartPole-v0')
 
     xdim, udim =    e.observation_space.shape[0], \
                     e.action_space.n
