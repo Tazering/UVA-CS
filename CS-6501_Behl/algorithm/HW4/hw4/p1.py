@@ -155,7 +155,7 @@ def train(iterations = 10, num_trajectories = 2, lr = 1e-3):
 
         # 3. calculate gradient of the policy
         print("Calculating the gradient and update the weights...")
-        policy.zero_grad()
+        optim.zero_grad()
         average_batch_policy.backward()
         optim.step()
 
