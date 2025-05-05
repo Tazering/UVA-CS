@@ -88,10 +88,13 @@ def loss(q, qc, ds):
 # u* = argmax q(x', u)
 # (q(x, u) - r - g*(1-indicator of terminal)*qc(x' , u*))**2
 
-def evaluate(q):
+def evaluate(q, training_e = None):
     ### TODO: XXXXXXXXXXXX
     # 1. create a new environment e
-    e = gym.make("CartPole-v0")
+    if eval:
+        e = gym.make("CartPole-v0")
+    else:
+        e = training_e
 
     # 2. run the learnt q network for 100 trajectories on
     # this new environment to take control actions. Remember that
@@ -101,12 +104,12 @@ def evaluate(q):
     # return of these 100 trajectories
     x, _ = e.reset()
     total_reward = 0
+    rewards = []
 
-    for traj in range(100):
+    for trajectory in range(10):
         x, _ = e.reset()
         done = False
-        gamma = .99
-        t = 0
+        eps_reward = 0
 
         while not done:
             u = q.control(th.from_numpy(x).float().unsqueeze(0),
@@ -116,58 +119,19 @@ def evaluate(q):
             xp,r,d, truncated, info = e.step(u)
             done = d or truncated
 
-            total_reward += (gamma**t) * r
-            x = xp
-            t += 1
-
-    r = total_reward / 100
-
-    return r
-
-# get the average total return for in-training environment
-def in_training_evaluation(q = None, trained_env = None, num_episodes = 10):
-    total_reward = 0
-
-    for _ in range(num_episodes): # loop through 10 episodes
-        x, _ = trained_env.reset()
-        done = False
-
-        while not done:
-            u = q.control(th.from_numpy(x).float().unsqueeze(0), eps = 0)
-            u = u.int().numpy().squeeze()
-
-            xp, r, d, truncated, info = trained_env.step(u)
-            done = d or truncated
             total_reward += r
-            x = xp
-    
-    return total_reward / 10
-
-def post_training_evaluation(q = None, num_episodes = 10):
-    e = gym.make('CartPole-v0')
-    rewards = []
-    for _ in range(num_episodes):
-        x, _ = e.reset()
-        done = False
-        gamma = .99
-        eps_reward = 0
-
-        while not done:
-            u = q.control(th.from_numpy(x).float().unsqueeze(0), eps = 0)
-            u = u.int().numpy().squeeze()
-
-            xp, r, d, truncated, info = e.step(u)
-            done = d or truncated
             eps_reward += r
             x = xp
-    
+        
         rewards.append(eps_reward)
 
-    return rewards
+    r = total_reward / 10
+
+    return r, rewards
 
 if __name__=='__main__':
     e = gym.make('CartPole-v0')
-    num_iterations = 30000
+    num_iterations = 20000
     tau = 0.05
 
     xdim, udim =    e.observation_space.shape[0], \
@@ -213,7 +177,7 @@ if __name__=='__main__':
         # print('Logging data to plot')
         if i % 1000 == 0: # in-training evaulation
             print(f"Evaluating at i = {i}...")
-            r = in_training_evaluation(q = q, trained_env = e, num_episodes = 10)
+            r, _ = evaluate(q = q, training_e = e)
             print(f"r @ i = {i}: {r}")
             in_training_reward.append(r)
 
@@ -222,13 +186,14 @@ if __name__=='__main__':
     plt.title("Average Total Return During Training")
     plt.xlabel("Every 1000 iterations")
     plt.ylabel("Average Return")
-    plt.savefig("./images/training_eval.png")
+    plt.savefig("./images/p2/training_eval.png")
     plt.show()
 
-    post_training_rewards = post_training_evaluation(q)
+    post_training_reward_avg, post_training_rewards = evaluate(q = q)
+    print(f"Post Training Reward: {post_training_reward_avg}")
     plt.plot(post_training_rewards)
     plt.title("Average Total Return After Training")
     plt.xlabel("Episode")
     plt.ylabel("Average Return")
-    plt.savefig("./images/test_eval.png")
+    plt.savefig("./images/p2/test_eval.png")
     plt.show()

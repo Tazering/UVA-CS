@@ -183,7 +183,35 @@ class MDPModel(nn.Module):
             #######################################################################
             # TODO:  calculate \hat{A}, \hat{V} for the batch of size N
             #######################################################################
+        
+            A_hat = torch.zeros(N + 1)
+            value_output = self.forward_baseline(batch_state)
+            policy_output = self.forward(batch_state)
+            next_value_output = self.forward_baseline(batch_next_state)
+            value_hat = torch.zeros(N)
+            policy_hat = torch.zeros_like(policy_output)
+
+            # GAE
+            for i in range(N - 1, -1, -1):
+                if batch_terminated[i] == 1:
+                    delta_i = batch_reward[i] - value_output[i]
+                    A_hat[i] = delta_i
+
+                else:
+                    delta_i = batch_reward[i] + GAMMA * next_value_output[i]
+                    A_hat[i] = delta_i + LAMBDA * GAMMA * A_hat[i + 1]
             
+            # update \hat{V}
+            for i in range(N):
+                value_hat[i] = A_hat[i] + value_output[i]
+                policy_hat[i] = policy_output[i]
+
+            value_hat = value_hat.detach()
+            policy_hat = policy_hat.detach()
+
+            print(f"V_hat: {value_hat}")
+            print(f"policy hat: {policy_hat}")
+            exit()
 
             for _ in range(self.M):
                 ###################################################################
