@@ -183,59 +183,72 @@ class MDPModel(nn.Module):
             #######################################################################
             # TODO:  calculate \hat{A}, \hat{V} for the batch of size N
             #######################################################################
-
-            # GAE 
             with torch.no_grad():
-                V = self.forward_baseline(batch_state).squeeze()
-                V_next = self.forward_baseline(batch_next_state).squeeze()
-            
-            advantage = torch.zeros(N + 1)
-            for i in range(N-1, -1, -1): # run GAE algorithm
-                if batch_terminated[i] == 1: # if terminated
-                    delta = batch_reward[i] - V[i]
-                    advantage[i] = delta
+                value_output = self.forward_baseline(batch_state)
+                next_value_output = self.forward_baseline(batch_next_state)
+               
+            A_hat = torch.zeros(N + 1)
+            policy_output = self.forward(batch_state)
+            policy_actions = policy_output.gather(1, batch_action.unsqueeze(1)).squeeze(1) # get the chosen actions
+            policy_hat = torch.zeros_like(policy_actions)
+            value_hat = torch.zeros(N)
+
+            # GAE
+            for i in range(N - 1, -1, -1):
+                if batch_terminated[i] == 1:
+                    delta_i = batch_reward[i] - value_output[i]
+                    A_hat[i] = delta_i
+
                 else:
-                    delta = batch_reward[i] + GAMMA * V_next[i] - V[i]
-                    advantage[i] = delta + GAMMA * LAMBDA * advantage[i + 1]
-
-            advantage = (advantage - advantage.mean()) / (advantage.std() + 10e-8) # normalize
-            advantage = advantage.detach()
-
-            # value targets
-            V_hat = (advantage[:N] + V).detach()
+                    delta_i = batch_reward[i] + GAMMA * next_value_output[i] - value_output[i]
+                    A_hat[i] = delta_i + LAMBDA * GAMMA * A_hat[i + 1]
             
+            A_hat = (A_hat - A_hat.mean()) / (A_hat.std() + 1e-8)
+            
+            # update \hat{V}
+            for i in range(N):
+                value_hat[i] = A_hat[i] + value_output[i]
+
+            value_hat = value_hat.detach()
+            policy_hat = batch_action_prob.detach()
+            A_hat = A_hat.detach()
+
+            v_optimizer = torch.optim.Adam([
+                {"params": self.fc4.parameters(), "lr": LR},
+                {"params": self.fc5.parameters(), "lr": LR},
+                {"params": self.fc6.parameters(), "lr": LR}
+                ])
+
+
             for _ in range(self.M):
                 ###################################################################
                 # TODO: sample a minibatch, perform policy and value update
                 ###################################################################
-                # sample minibatch
-                idx = torch.randperm(batch_state.size(0))[:MINIBATCH_SIZE]
-                minibatch_states = batch_state[idx]
-                minibatch_actions = batch_action[idx]
-                minibatch_action_probs = batch_action_prob[idx]
-                minibatch_advantages = advantage[idx]
-                minibatch_V_hat = V_hat[idx]
-                minibatch_V = self.forward_baseline(minibatch_states).squeeze()
+                idx = torch.randint(0, len(batch_state), (MINIBATCH_SIZE, ))
+                batch_state = batch_state[idx]
+                batch_action = batch_action[idx]
+                batch_reward = batch_reward[idx]
+                batch_next_state = batch_next_state[idx]
+                batch_terminated = batch_terminated[idx]
+                A_hat = A_hat[idx]
 
-                # update policy 
-                pi = self.forward(minibatch_states).gather(1, minibatch_actions.unsqueeze(1)).squeeze(1)
+                # update the policy network
+                ratio = policy_actions[idx] / policy_hat[idx]
+                ratio_clip = torch.clamp(ratio, min = 1 - EPS, max = 1 + EPS)
 
-                likelihood_ratio = pi / minibatch_action_probs
-                clipped_likelihood_ratio = torch.clamp(likelihood_ratio, 1 - EPS, 1 + EPS) * minibatch_advantages
-
-                kl = likelihood_ratio - 1 - torch.log(likelihood_ratio)
-                policy_loss = -torch.mean(torch.min(likelihood_ratio * minibatch_advantages, clipped_likelihood_ratio * minibatch_advantages) - 
-                                          BETA * kl)
+                # update the value network
+                policy_loss = -torch.mean(torch.min(ratio * A_hat, ratio_clip * A_hat) - BETA * (ratio - 1 - torch.log(ratio)))
 
                 self.optimizer.zero_grad()
-                policy_loss.backward()
+                policy_loss.backward(retain_graph = True)
                 self.optimizer.step()
 
-                # update value
-                value_loss = F.mse_loss(minibatch_V, minibatch_V_hat)
-                self.optimizer.zero_grad()
+                value_pred = self.forward_baseline(batch_state)
+                mse = nn.MSELoss()
+                value_loss = mse(value_hat, value_pred)
+                v_optimizer.zero_grad()
                 value_loss.backward()
-                self.optimizer.step()
+                v_optimizer.step()
 
     def act(self, x, iteration):
         q_values = self(x)
