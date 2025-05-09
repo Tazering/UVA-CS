@@ -24,7 +24,7 @@ class u_t(nn.Module):
                 nn.Linear(8, udim),
                 nn.Tanh(),
                 )
-        s.std = 1
+        s.std = 1.0
 
     def forward(s, x, u=None):
         """
@@ -130,10 +130,11 @@ def train(iterations = 10, num_trajectories = 2, lr = 1e-3):
         for traj in range(num_trajectories):
             t = rollout(policy)
             R = t["R"]
-            
+
             trajectories.append(t)
             R_list.append(R)
-        
+
+        # current_state = min(states) - np.pi
         R_numpy = np.array(R_list) # convert to numpy array
         traj_numpy = np.array(trajectories)
         b = R_numpy.mean() # baseline which is just the average
@@ -145,8 +146,7 @@ def train(iterations = 10, num_trajectories = 2, lr = 1e-3):
             t = traj_numpy[R_idx]
             logp = policy(t["x"].view(-1, 2), t["u"].view(-1, 1))[1]
 
-            # f = -((R_numpy[R_idx] - b) * logp)
-            f = ((R_numpy[R_idx] - b) * logp)
+            f = -((R_numpy[R_idx] - b) * logp)
 
             policy_grad_list.append(f)
         
@@ -159,7 +159,7 @@ def train(iterations = 10, num_trajectories = 2, lr = 1e-3):
         average_batch_policy.backward()
         optim.step()
 
-        R_mean = -R_numpy.mean()
+        R_mean = R_numpy.mean()
         print(f"Iteration {iter}; Cumulative R: {R_mean}\n\n")
         cumulative_R.append(R_mean)
     
@@ -167,7 +167,7 @@ def train(iterations = 10, num_trajectories = 2, lr = 1e-3):
 
 def evaluate(policy):
     t = rollout(policy, m = 2)
-    return -t["R"]
+    return t["R"]
    
 # plot the rewards
 def plot_cumulative_rewards(rewards, title = "", figure_name = ""):
@@ -183,16 +183,9 @@ learning_rate = [1e-5, 1e-3, 1e-1]
 num_trajectories = [1, 5, 10]
 iterations = [1000, 750]
 
-cum_rewards0, policy0 = train(iterations = 1000, num_trajectories=10, lr = 1e-3) # best so far
+cum_rewards0, policy0 = train(iterations = 2000, num_trajectories=50, lr = 1e-3) # best so far
 
 print("Evaluating on m=2...")
 cumulative_reward = evaluate(policy0)
 print(f"Reward: {cumulative_reward}")
-# cum_rewards1, policy0 = train(iterations = 750, num_trajectories=10, lr = 1e-5)
-# cum_rewards2, policy0 = train(iterations = 1000, num_trajectories=10, lr = 1e-5)
-# cum_rewards3, policy0 = train(iterations = 750, num_trajectories=10, lr = 1e-3)
-
-# plot_cumulative_rewards(cum_rewards0, title = f"Cumulative Rewards vs. Iterations: lr = 1e-3, iterations = 1000", figure_name = "1e-3_1000")
-# plot_cumulative_rewards(cum_rewards1, title = f"Cumulative Rewards vs. Iterations: lr = 1e-5, iterations = 750", figure_name = "1e-5_750")
-# plot_cumulative_rewards(cum_rewards2, title = f"Cumulative Rewards vs. Iterations: lr = 1e-5, iterations = 1000", figure_name = "1e-5_1000")
-# plot_cumulative_rewards(cum_rewards3, title = f"Cumulative Rewards vs. Iterations: lr = 1e-3, iterations = 750", figure_name = "1e-3_750")
+plot_cumulative_rewards(cum_rewards0, title = f"Cumulative Rewards vs. Iterations: lr = 1e-3, iterations = 2000", figure_name = "1e-3_2000")
